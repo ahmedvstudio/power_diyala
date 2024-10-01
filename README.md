@@ -22,6 +22,10 @@ A app may make our jobs easy calculates gens working and replacements.
 
 </div>
 
+### Disclaimer
+
+This is unofficial app just a personal effort.
+
 ### License
 
 <pre>
@@ -43,4 +47,3 @@ limitations under the License.
 
 </div>
 
-note: this is unofficial app just a personal effort.
