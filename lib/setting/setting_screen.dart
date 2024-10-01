@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:power_diyala/pages/licences.dart';
 
 class SettingsScreen extends StatefulWidget {
   final ThemeMode themeMode;
@@ -65,6 +66,13 @@ class SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          IconButton(
+            icon: const Icon(Icons.announcement_outlined),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const LicenceSimple()));
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () {
@@ -138,6 +146,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               const SizedBox(
                                   width: 8), // Space between icon and text
+
                               Text(
                                 index == 0
                                     ? 'System'
@@ -158,7 +167,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                   }),
                 ),
               ),
-              const SizedBox(height: 20), // Additional spacing for clarity
+              const SizedBox(height: 8),
+
               Text(
                 'Last update: 30/9/2024',
                 style: Theme.of(context).textTheme.labelSmall,
