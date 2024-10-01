@@ -1,12 +1,12 @@
 <div align="center">
-<a>
-    <img src="./.github/aaa.png" alt="Power Diyala" title="Power logo" width="80"/>
-</a>
+    <a href="#">
+        <img src="./.github/aaa.png" alt="Power Diyala" title="Power logo" width="250"/>
+    </a>
 
-# Power [Diyala](#)
+# Power Diyala 
 
 ### Full-featured PM Calculator
-A app may make our jobs easy calculates gens working and replacements.
+An app to make our jobs easier by calculating gens working and replacements.
 
 ## Download
 [![GitHub downloads](https://img.shields.io/github/release/pandao/editor.md.svg)](https://github.com/Ahmed47v/power_diyala/releases)
@@ -15,22 +15,21 @@ A app may make our jobs easy calculates gens working and replacements.
 
 <div align="left">
 
-* Calculatotion for PM details including replacements.
+* Calculation for PM details including replacements.
 * SPMS replacements tracking.
-* PM team displayed on calender.
-* Plus much more SOON...
+* PM team displayed on calendar.
+* Plus much more coming soon...
 
 </div>
 
 ### Disclaimer
 
-This is unofficial app just a personal effort.
+This is an unofficial app, just a personal effort.
 
 ### License
 
 <pre>
 Copyright © 2024 Ahmed Adnan
-
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -46,4 +45,3 @@ limitations under the License.
 </pre>
 
 </div>
-
