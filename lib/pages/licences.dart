@@ -9,7 +9,7 @@ class LicenceSimple extends StatelessWidget {
         applicationIcon: Padding(
           padding: const EdgeInsets.all(8),
           child: Image.asset(
-            'assets/aaa.png',
+            'assets/icon.png',
             width: 70,
           ),
         ),

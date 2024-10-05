@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:power_diyala/calculator/calc_table_helper.dart';
 import 'package:power_diyala/setting/setting_screen.dart';
 import 'package:power_diyala/teams/teams_screen.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +8,18 @@ import 'calculator/calc_screen.dart';
 import 'theme_control.dart';
 import 'package:power_diyala/spms/spms_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding
+      .ensureInitialized(); // Ensure Flutter bindings are initialized
+  try {
+    await dotenv.load(fileName: ".env");
+    if (dotenv.env['DB_PASSWORD'] == null) {
+      throw Exception('DATABASE_PASSWORD not found in .env file');
+    }
+  } catch (e) {
+    logger.e('Error loading .env file: $e');
+  }
+
   runApp(const MyApp());
 }
 

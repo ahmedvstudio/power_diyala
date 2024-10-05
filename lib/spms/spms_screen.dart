@@ -167,7 +167,9 @@ class HomeScreenState extends State<SpmsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData(); // Call your data loading function
+    });
   }
 
   Future<void> _loadData() async {

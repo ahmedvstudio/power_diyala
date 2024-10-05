@@ -42,7 +42,10 @@ class HomeScreenState extends State<CalculatorScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData(); // Call your data loading function
+    });
+
     _g1Controller.addListener(_onInputChanged);
     _g2Controller.addListener(_onInputChanged);
     _cpController.addListener(_onInputChanged);

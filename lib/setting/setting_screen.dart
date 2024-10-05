@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:power_diyala/database_helper.dart';
 import 'package:power_diyala/pages/licences.dart';
+import 'package:logger/logger.dart';
 
 class SettingsScreen extends StatefulWidget {
   final ThemeMode themeMode;
@@ -16,6 +19,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
+  static final Logger logger = Logger();
   late int _selectedIndex;
 
   @override
@@ -67,14 +71,54 @@ class SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: const Icon(Icons.announcement_outlined),
+            icon: const Icon(Icons.upload_file),
+            onPressed: () async {
+              final localContext = context; // Capture the BuildContext
+
+              // Request external storage permission
+              await DBHelper.requestManageExternalStoragePermission(
+                  localContext);
+
+              // Check permission status
+              var status = await Permission.manageExternalStorage.status;
+              if (!context.mounted) return;
+              if (status.isGranted) {
+                // Proceed to pick and replace the database
+                await DBHelper.pickAndReplaceDatabase(localContext);
+              } else {
+                logger.e(
+                    "Manage external storage permission not granted, cannot proceed with file picking.");
+
+                // Show dialog using the local context directly
+
+                // Show dialog using the local context
+                showDialog(
+                  context: localContext,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Permission Denied'),
+                    content: const Text(
+                        'Manage external storage permission is required to proceed.'),
+                    actions: [
+                      TextButton(
+                        child: const Text('OK'),
+                        onPressed: () => Navigator.of(localContext).pop(),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+          IconButton(
+            tooltip: 'Licences',
+            icon: const Icon(Icons.receipt),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const LicenceSimple()));
             },
           ),
           IconButton(
-            icon: const Icon(Icons.info_outline),
+            icon: const Icon(Icons.info_rounded),
             onPressed: () {
               _showDialog(context);
             },
@@ -94,7 +138,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             children: [
               Center(
                 child: Image.asset(
-                  'assets/aaa.png',
+                  'assets/icon.png',
                   width: 250,
                 ),
               ),
@@ -191,7 +235,7 @@ void _showDialog(BuildContext context) {
     builder: (BuildContext context) {
       return AlertDialog(
         title: const Text('Who made this'),
-        content: const Text('Ahmed Adnan\n-Call me for feedback\n07501101484'),
+        content: const Text('Ahmed Adnan\n-Call me for feedback'),
         actions: [
           TextButton(
             onPressed: () {
