@@ -77,6 +77,22 @@ class DatabaseHelper {
       throw Exception("Failed to load Teams data");
     }
   }
+
+  static Future<void> deleteDatabase() async {
+    // Get the path to the database
+    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    String path = join(documentsDirectory.path, 'the_data.db');
+
+    logger.i("Attempting to delete database at path: $path");
+
+    final file = File(path);
+    if (await file.exists()) {
+      await file.delete();
+      logger.i("Database deleted successfully.");
+    } else {
+      logger.w("Database file does not exist at path: $path");
+    }
+  }
 }
 
 //Replacement helper
@@ -186,7 +202,7 @@ class DBHelper {
           context: localContext,
           builder: (context) => AlertDialog(
             title: const Text('Error'),
-            content: Text('Failed to replace database: $e'),
+            content: const Text('Failed to replace database'),
             actions: [
               TextButton(
                 child: const Text('OK'),
@@ -199,5 +215,25 @@ class DBHelper {
     } else {
       logger.e('No file selected.');
     }
+  }
+
+  static Future<bool> checkDatabaseData() async {
+    // Implement logic to check if required data is present
+    try {
+      // Example query to check for expected records
+      final result = await DatabaseHelper.loadCalculatorData();
+      await DatabaseHelper.loadSPMSData();
+      await DatabaseHelper.loadNetworkData();
+      await DatabaseHelper.loadTeamData();
+
+      if (result.isNotEmpty) {
+        // Perform additional checks as needed
+        return true; // Data loaded correctly
+      }
+    } catch (e) {
+      logger.e("Error checking database data: $e");
+    }
+
+    return false; // Data not loaded correctly or error occurred
   }
 }

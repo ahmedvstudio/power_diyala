@@ -1,5 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:power_diyala/calculator/calc_table_helper.dart';
+import 'package:power_diyala/pages/stepper.dart';
 import 'package:power_diyala/setting/setting_screen.dart';
 import 'package:power_diyala/teams/teams_screen.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
             theme: themeControl.appTheme(isDarkMode: false),
             darkTheme: themeControl.appTheme(isDarkMode: true),
             themeMode: themeControl.themeMode,
-            home: const MainScreen(),
+            home: const StepperScreen(),
           );
         },
       ),

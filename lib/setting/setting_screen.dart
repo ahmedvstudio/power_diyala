@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:power_diyala/database_helper.dart';
 import 'package:power_diyala/pages/licences.dart';
 import 'package:logger/logger.dart';
+import 'package:power_diyala/pages/stepper.dart';
 
 class SettingsScreen extends StatefulWidget {
   final ThemeMode themeMode;
@@ -70,45 +69,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-            icon: const Icon(Icons.upload_file),
-            onPressed: () async {
-              final localContext = context; // Capture the BuildContext
-
-              // Request external storage permission
-              await DBHelper.requestManageExternalStoragePermission(
-                  localContext);
-
-              // Check permission status
-              var status = await Permission.manageExternalStorage.status;
-              if (!context.mounted) return;
-              if (status.isGranted) {
-                // Proceed to pick and replace the database
-                await DBHelper.pickAndReplaceDatabase(localContext);
-              } else {
-                logger.e(
-                    "Manage external storage permission not granted, cannot proceed with file picking.");
-
-                // Show dialog using the local context directly
-
-                // Show dialog using the local context
-                showDialog(
-                  context: localContext,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Permission Denied'),
-                    content: const Text(
-                        'Manage external storage permission is required to proceed.'),
-                    actions: [
-                      TextButton(
-                        child: const Text('OK'),
-                        onPressed: () => Navigator.of(localContext).pop(),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
-          ),
+          const ResetIconButton(),
           IconButton(
             tooltip: 'Licences',
             icon: const Icon(Icons.receipt),
