@@ -11,7 +11,7 @@ An app to make our jobs easier by calculating gens working and replacements.
 [![GitHub License](https://img.shields.io/github/license/ahmed47v/power_diyala?labelColor=27303D&color=0877d2)](/LICENSE)
 
 ## Download
-[![GitHub downloads](https://img.shields.io/github/v/release/Ahmed47v/power_diyala)](https://github.com/Ahmed47v/power_diyala/releases)
+[![GitHub downloads](https://img.shields.io/github/v/release/Ahmed47v/power_diyala?label=Stable&color=2ECC71)](https://github.com/Ahmed47v/power_diyala/releases)
 
 
 ## Features
