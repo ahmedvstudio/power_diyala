@@ -202,7 +202,7 @@ class DBHelper {
           context: localContext,
           builder: (context) => AlertDialog(
             title: const Text('Error'),
-            content: const Text('Failed to replace database'),
+            content: Text('Failed to replace database: $e'),
             actions: [
               TextButton(
                 child: const Text('OK'),

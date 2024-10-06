@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:power_diyala/database_helper.dart';
 import 'package:power_diyala/main.dart'; // Make sure to import this
 
@@ -18,8 +19,48 @@ class StepperScreenState extends State<StepperScreen> {
   bool _permissionGranted = false; // Track permission status
   bool _dbReplaced = false; // Track database replacement status
   bool _dataLoadedCorrectly = false; // Track if data loaded correctly
+  bool _isSetupComplete = false; // Track if setup is complete
+  bool _isLoading = true; // Add this variable
+
   List<Map<String, dynamic>> _dataFromDatabase =
       []; // Store data from the database
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSetupState(); // Load setup state when the screen initializes
+  }
+
+  Future<void> _loadSetupState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isSetupComplete = prefs.getBool('isSetupComplete') ?? false;
+      _permissionGranted = prefs.getBool('permissionGranted') ?? false;
+      _dbReplaced = prefs.getBool('dbReplaced') ?? false;
+      _dataLoadedCorrectly = prefs.getBool('dataLoadedCorrectly') ?? false;
+    });
+
+    // If setup is already complete, load data directly
+    if (_isSetupComplete) {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      }
+    } else {
+      setState(() {
+        _isLoading = false; // Set loading to false if setup is not complete
+      });
+    }
+  }
+
+  Future<void> _saveSetupState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isSetupComplete', _isSetupComplete);
+    await prefs.setBool('permissionGranted', _permissionGranted);
+    await prefs.setBool('dbReplaced', _dbReplaced);
+    await prefs.setBool('dataLoadedCorrectly', _dataLoadedCorrectly);
+  }
 
   List<Step> _getSteps() {
     return [
@@ -87,6 +128,7 @@ class StepperScreenState extends State<StepperScreen> {
                   await DatabaseHelper
                       .deleteDatabase(); // Delete existing database
                   if (!context.mounted) return;
+
                   // Proceed to pick and replace the database
                   await DBHelper.pickAndReplaceDatabase(localContext);
 
@@ -99,9 +141,10 @@ class StepperScreenState extends State<StepperScreen> {
                       _dataLoadedCorrectly = true; // Update data loading status
                       _currentStep++; // Move to next step after successful operation
                     });
+
                     // Load data from the newly replaced database
-                    _dataFromDatabase = await DatabaseHelper
-                        .loadCalculatorData(); // Load specific data
+                    _dataFromDatabase =
+                        await DatabaseHelper.loadCalculatorData();
                   } else {
                     logger.e("Database replaced but data validation failed.");
                     if (!context.mounted) return;
@@ -167,24 +210,28 @@ class StepperScreenState extends State<StepperScreen> {
     ];
   }
 
-  void _onStepContinue() {
-    if (_currentStep == 0 && !_permissionGranted) {
-      return;
-    }
+  void _onStepContinue() async {
+    if (_currentStep == 0 && !_permissionGranted) return;
 
-    if (_currentStep == 1 && (!_dbReplaced || !_dataLoadedCorrectly)) {
-      return;
-    }
+    if (_currentStep == 1 && (!_dbReplaced || !_dataLoadedCorrectly)) return;
 
     if (_currentStep < _getSteps().length - 1) {
       setState(() {
         _currentStep++;
       });
     } else {
-      // All steps completed, navigate to MainScreen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
+      // All steps completed, mark setup as complete
+      setState(() {
+        _isSetupComplete = true;
+      });
+
+      await _saveSetupState(); // Save the setup state
+      // Check if the widget is still in the widget tree
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      }
     }
   }
 
@@ -198,6 +245,10 @@ class StepperScreenState extends State<StepperScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Setup')),
       body: Stepper(
@@ -249,6 +300,10 @@ class ResetIconButton extends StatelessWidget {
         // If confirmed, delete the database and exit the app
         if (confirmReset == true) {
           await DatabaseHelper.deleteDatabase();
+          // Reset SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.clear(); // Clear all saved state
+
           // Exit the app
           SystemNavigator.pop(); // This will exit the app
         }
