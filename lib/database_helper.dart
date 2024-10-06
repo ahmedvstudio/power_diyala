@@ -15,6 +15,12 @@ class DatabaseHelper {
   static final Logger logger = Logger();
   static Database? _database;
 
+  // Define constants for table names
+  static const String calculatorTable = 'Calculator';
+  static const String spmsTable = 'SPMS';
+  static const String networkTable = 'Network';
+  static const String teamsTable = 'Teams';
+
   static Future<Database> getDatabase() async {
     if (_database != null) return _database!;
 
@@ -30,56 +36,39 @@ class DatabaseHelper {
       logger.i("Database already exists at: $path");
     }
 
-    // Open the database with a passphrase for encryption
     return _database = await openDatabase(
       path,
-      password: dotenv.env['DB_PASSWORD'], // Set your secure password
+      password: dotenv.env['DB_PASSWORD'],
     );
   }
 
-//rename the tables
-  static Future<List<Map<String, dynamic>>> loadCalculatorData() async {
+  static Future<List<Map<String, dynamic>>> loadData(String tableName) async {
     try {
       final db = await getDatabase();
-      return await db.query('Calculator');
+      return await db.query(tableName);
     } catch (e) {
-      logger.e("Error querying Calculator table: $e");
-      throw Exception("Failed to load Calculator data");
+      logger.e("Error querying $tableName table: $e");
+      throw Exception("Failed to load data from $tableName");
     }
+  }
+
+  static Future<List<Map<String, dynamic>>> loadCalculatorData() async {
+    return loadData(calculatorTable);
   }
 
   static Future<List<Map<String, dynamic>>> loadSPMSData() async {
-    try {
-      final db = await getDatabase();
-      return await db.query('SPMS');
-    } catch (e) {
-      logger.e("Error querying SPMS table: $e");
-      throw Exception("Failed to load SPMS data");
-    }
+    return loadData(spmsTable);
   }
 
   static Future<List<Map<String, dynamic>>> loadNetworkData() async {
-    try {
-      final db = await getDatabase();
-      return await db.query('Network');
-    } catch (e) {
-      logger.e("Error querying Network table: $e");
-      throw Exception("Failed to load Network data");
-    }
+    return loadData(networkTable);
   }
 
   static Future<List<Map<String, dynamic>>> loadTeamData() async {
-    try {
-      final db = await getDatabase();
-      return await db.query('Teams');
-    } catch (e) {
-      logger.e("Error querying Network table: $e");
-      throw Exception("Failed to load Teams data");
-    }
+    return loadData(teamsTable);
   }
 
   static Future<void> deleteDatabase() async {
-    // Get the path to the database
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'the_data.db');
 
@@ -104,36 +93,11 @@ class DBHelper {
     if (!status.isGranted) {
       status = await Permission.manageExternalStorage.request();
 
-      // Check permission immediately and show dialog if necessary
-      if (!context.mounted) return; // Check if the widget is still mounted
+      if (!context.mounted) return;
       if (status.isGranted) {
         logger.i("Manage external storage permission granted");
       } else {
-        // Show dialog explaining why the permission is needed
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Permission Required'),
-            content: const Text(
-              'Manage external storage permission is required to access files. '
-              'This allows the app to read from and write to your device storage, '
-              'enabling file management features.',
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Open Settings'),
-                onPressed: () {
-                  openAppSettings();
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(),
-              )
-            ],
-          ),
-        );
+        logger.w("Manage external storage permission denied.");
       }
     }
   }
@@ -152,20 +116,6 @@ class DBHelper {
         // Check if the widget is still mounted
         if (!localContext.mounted) return;
 
-        showDialog(
-          context: localContext,
-          builder: (context) => AlertDialog(
-            title: const Text('Invalid File'),
-            content:
-                const Text('Please select a valid SQLite database file (.db)'),
-            actions: [
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(localContext).pop(),
-              ),
-            ],
-          ),
-        );
         return;
       }
 
@@ -197,20 +147,6 @@ class DBHelper {
         logger.e("Error replacing database: $e");
         // Check if the widget is still mounted before showing the dialog
         if (!localContext.mounted) return;
-
-        showDialog(
-          context: localContext,
-          builder: (context) => AlertDialog(
-            title: const Text('Error'),
-            content: Text('Failed to replace database: $e'),
-            actions: [
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(localContext).pop(),
-              ),
-            ],
-          ),
-        );
       }
     } else {
       logger.e('No file selected.');

@@ -143,8 +143,7 @@ class StepperScreenState extends State<StepperScreen> {
                     });
 
                     // Load data from the newly replaced database
-                    _dataFromDatabase =
-                        await DatabaseHelper.loadCalculatorData();
+                    _dataFromDatabase = await DatabaseHelper.loadTeamData();
                   } else {
                     logger.e("Database replaced but data validation failed.");
                     if (!context.mounted) return;
@@ -250,7 +249,11 @@ class StepperScreenState extends State<StepperScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Setup')),
+      appBar: AppBar(
+          title: Text(
+        'Setup',
+        style: Theme.of(context).textTheme.titleLarge,
+      )),
       body: Stepper(
         currentStep: _currentStep,
         steps: _getSteps(),
