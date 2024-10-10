@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:power_diyala/widgets/dateformat.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:power_diyala/main.dart';
@@ -21,10 +22,9 @@ class StepperScreenState extends State<StepperScreen> {
   bool _dbReplaced = false; // Track database replacement status
   bool _dataLoadedCorrectly = false; // Track if data loaded correctly
   bool _isSetupComplete = false; // Track if setup is complete
-  bool _isLoading = true; // Add this variable
+  bool _isLoading = true;
 
-  List<Map<String, dynamic>> _dataFromDatabase =
-      []; // Store data from the database
+  List<Map<String, dynamic>> _dataFromDatabase = [];
 
   @override
   void initState() {
@@ -199,6 +199,7 @@ class StepperScreenState extends State<StepperScreen> {
             else
               ..._dataFromDatabase.map((data) => ListTile(
                     title: Text(data['last_update'] ?? 'Unknown'),
+                    subtitle: Text(detectDateFormat(data['last_update'])),
                   )),
           ],
         ),

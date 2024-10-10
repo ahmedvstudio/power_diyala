@@ -776,7 +776,7 @@ class HomeScreenState extends State<NetworkScreen> {
           _siteNames,
           (selected) {
             setState(() {
-              _updateSelectedSiteData(selected); // Update selected site data
+              _updateSelectedSiteData(selected);
             });
           },
           _searchController,

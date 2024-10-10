@@ -41,7 +41,6 @@ class SettingsScreenState extends State<SettingsScreen> {
       logger.i(data);
 
       if (data.isNotEmpty) {
-        // Assuming we're interested in the first item
         _infoData = data.first;
       }
 
