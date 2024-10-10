@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../Data_helper/database_helper.dart';
-import 'package:power_diyala/Widgets/widgets.dart';
+import 'package:power_diyala/widgets/widgets.dart';
+import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:logger/logger.dart';
 
 class NetworkScreen extends StatefulWidget {

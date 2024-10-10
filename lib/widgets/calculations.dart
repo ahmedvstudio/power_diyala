@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:power_diyala/Widgets/widgets.dart';
+import 'package:power_diyala/widgets/widgets.dart';
 
 // Method to calculate
 double? calculate(String inputText, double referenceValue) {

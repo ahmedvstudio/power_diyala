@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:power_diyala/Widgets/constants.dart';
-import 'package:power_diyala/Data_helper/database_helper.dart';
+import 'package:power_diyala/widgets/constants.dart';
+import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -91,8 +91,7 @@ class UpdateButton extends StatelessWidget {
 }
 
 Future<void> _checkForUpdates(BuildContext context) async {
-  const url =
-      'https://api.github.com/repos/Ahmed47v/power_diyala/releases/latest'; // Replace with your repo URL
+  const url = repoLink;
 
   try {
     final response = await http
@@ -150,8 +149,7 @@ void _showUpdateDialog(BuildContext context, String latestVersion) {
             onPressed: () async {
               Navigator.of(context).pop(); // Close the dialog
               _showToast("Redirecting to download...");
-              const url =
-                  'https://github.com/Ahmed47v/power_diyala/releases/latest';
+              const url = updateLink;
 
               if (await canLaunchUrl(Uri.parse(url))) {
                 await launchUrl(Uri.parse(url),

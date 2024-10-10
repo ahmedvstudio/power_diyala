@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:power_diyala/Data_helper/teams_table_helper.dart';
-import 'package:power_diyala/Data_helper/database_helper.dart';
+import 'package:power_diyala/data_helper/teams_table_helper.dart';
+import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:logger/logger.dart';

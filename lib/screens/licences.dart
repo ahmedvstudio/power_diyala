@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:power_diyala/Widgets/constants.dart';
+import 'package:power_diyala/widgets/constants.dart';
 
 class LicenceSimple extends StatelessWidget {
   const LicenceSimple({super.key});

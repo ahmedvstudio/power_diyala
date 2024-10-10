@@ -1,14 +1,14 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:power_diyala/Data_helper/calc_table_helper.dart';
-import 'package:power_diyala/Screens/network_screen.dart';
-import 'package:power_diyala/Screens/stepper.dart';
-import 'package:power_diyala/Screens/setting_screen.dart';
-import 'package:power_diyala/Screens/teams_screen.dart';
+import 'package:power_diyala/data_helper/calc_table_helper.dart';
+import 'package:power_diyala/screens/network_screen.dart';
+import 'package:power_diyala/screens/stepper.dart';
+import 'package:power_diyala/screens/setting_screen.dart';
+import 'package:power_diyala/screens/teams_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Screens/calc_screen.dart';
 import 'theme_control.dart';
-import 'package:power_diyala/Screens/spms_screen.dart';
+import 'package:power_diyala/screens/spms_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding

@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-
-import '../Data_helper/calc_table_helper.dart';
+import 'package:power_diyala/data_helper/calc_table_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:power_diyala/Widgets/calculations.dart';
+import 'package:power_diyala/widgets/calculations.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:power_diyala/widgets/widgets.dart';
 import 'package:intl/intl.dart';

@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:power_diyala/Data_helper/database_helper.dart';
-import 'package:power_diyala/Widgets/buttons.dart';
-import 'package:power_diyala/Screens/licences.dart';
+import 'package:power_diyala/data_helper/database_helper.dart';
+import 'package:power_diyala/widgets/buttons.dart';
+import 'package:power_diyala/screens/licences.dart';
 import 'package:logger/logger.dart';
-import 'package:power_diyala/Widgets/constants.dart';
+import 'package:power_diyala/widgets/constants.dart';
 import 'package:simple_icons/simple_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -124,8 +124,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     IconButton(
                       onPressed: () async {
                         Navigator.of(context).pop();
-                        const url =
-                            'https://github.com/Ahmed47v/power_diyala/issues/new/choose';
+                        const url = reportIssue;
                         if (await canLaunchUrl(Uri.parse(url))) {
                           await launchUrl(Uri.parse(url),
                               mode: LaunchMode.externalApplication);
@@ -268,7 +267,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                         IconButton(
                           onPressed: () async {
                             Navigator.of(context).pop();
-                            const url = 'https://www.facebook.com/ahmed47v/';
+                            const url = faceBook;
                             if (await canLaunchUrl(Uri.parse(url))) {
                               await launchUrl(Uri.parse(url),
                                   mode: LaunchMode.externalApplication);
@@ -283,7 +282,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                         IconButton(
                           onPressed: () async {
                             Navigator.of(context).pop();
-                            const url = 'https://github.com/Ahmed47v/';
+                            const url = gitHub;
                             if (await canLaunchUrl(Uri.parse(url))) {
                               await launchUrl(Uri.parse(url),
                                   mode: LaunchMode.externalApplication);
@@ -298,7 +297,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                         IconButton(
                           onPressed: () async {
                             Navigator.of(context).pop();
-                            const url = 'https://x.com/ahmed47v';
+                            const url = xTwitter;
                             if (await canLaunchUrl(Uri.parse(url))) {
                               await launchUrl(Uri.parse(url),
                                   mode: LaunchMode.externalApplication);
