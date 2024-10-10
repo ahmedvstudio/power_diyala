@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:power_diyala/widgets/constants.dart';
 
 final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 
@@ -38,7 +39,7 @@ class Site {
     return Site(
       siteName: map['Site_name'] as String,
       siteCode: map['Site_Code'] as String,
-      pmDate: DateFormat("d/M/yyyy").parse(map['PM_Date'] ?? '1970-01-01'),
+      pmDate: DateFormat(pmDateFormat).parse(map['PM_Date'] ?? '1970-01-01'),
       gen1Re: double.tryParse(map['Gen1_Re']?.toString() ?? '0') ?? 0.0,
       gen2Re: double.tryParse(map['Gen2_Re']?.toString() ?? '0') ?? 0.0,
       cp: double.tryParse(map['CP']?.toString() ?? '0') ?? 0.0,

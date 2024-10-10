@@ -193,13 +193,12 @@ class StepperScreenState extends State<StepperScreen> {
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Here is the data from the selected database:'),
-            const SizedBox(height: 10),
+            const Text('Version:'),
             if (_dataFromDatabase.isEmpty)
               const Text('No data loaded.')
             else
               ..._dataFromDatabase.map((data) => ListTile(
-                    title: Text(data.toString()),
+                    title: Text(data['last_update'] ?? 'Unknown'),
                   )),
           ],
         ),
@@ -252,11 +251,35 @@ class StepperScreenState extends State<StepperScreen> {
         'Setup',
         style: Theme.of(context).textTheme.titleLarge,
       )),
-      body: Stepper(
-        currentStep: _currentStep,
-        steps: _getSteps(),
-        onStepContinue: _onStepContinue,
-        onStepCancel: _onStepCancel,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          elevation: 4,
+          child: Stepper(
+            currentStep: _currentStep,
+            steps: _getSteps(),
+            onStepContinue: _onStepContinue,
+            onStepCancel: _onStepCancel,
+            controlsBuilder: (BuildContext context, ControlsDetails details) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: details.onStepContinue,
+                    child: const Text('Next'),
+                  ),
+                  TextButton(
+                    onPressed: details.onStepCancel,
+                    child: const Text('Back'),
+                  ),
+                ],
+              );
+            },
+
+            type:
+                StepperType.vertical, // You can change to horizontal if needed
+          ),
+        ),
       ),
     );
   }
