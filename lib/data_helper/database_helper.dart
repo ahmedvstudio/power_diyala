@@ -1,18 +1,20 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:power_diyala/calculator/calc_table_helper.dart';
+import 'package:power_diyala/Data_helper/calc_table_helper.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:logger/logger.dart';
 
 class DatabaseHelper {
-  static final Logger logger = Logger();
+  static Logger logger =
+      kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   static Database? _database;
 
   // Define constants for table names
@@ -20,6 +22,7 @@ class DatabaseHelper {
   static const String spmsTable = 'SPMS';
   static const String networkTable = 'Network';
   static const String teamsTable = 'Teams';
+  static const String infoTable = 'info';
 
   static Future<Database> getDatabase() async {
     if (_database != null) return _database!;
@@ -66,6 +69,10 @@ class DatabaseHelper {
 
   static Future<List<Map<String, dynamic>>> loadTeamData() async {
     return loadData(teamsTable);
+  }
+
+  static Future<List<Map<String, dynamic>>> loadInfoData() async {
+    return loadData(infoTable);
   }
 
   static Future<void> deleteDatabase() async {
@@ -143,6 +150,7 @@ class DBHelper {
         await DatabaseHelper.loadSPMSData();
         await DatabaseHelper.loadNetworkData();
         await DatabaseHelper.loadTeamData();
+        await DatabaseHelper.loadInfoData();
       } catch (e) {
         logger.e("Error replacing database: $e");
         // Check if the widget is still mounted before showing the dialog
@@ -161,6 +169,7 @@ class DBHelper {
       await DatabaseHelper.loadSPMSData();
       await DatabaseHelper.loadNetworkData();
       await DatabaseHelper.loadTeamData();
+      await DatabaseHelper.loadInfoData();
 
       if (result.isNotEmpty) {
         // Perform additional checks as needed

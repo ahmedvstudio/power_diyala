@@ -1,7 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
-final Logger logger = Logger();
+final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 final DateTime defaultDate = DateTime(1970);
 
 // For SPMS table

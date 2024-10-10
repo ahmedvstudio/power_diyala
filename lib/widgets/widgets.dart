@@ -9,8 +9,7 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    backgroundColor:
-        Theme.of(context).secondaryHeaderColor, // Use card color for background
+    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
     elevation: 10,
     builder: (BuildContext modalContext) {
       return StatefulBuilder(
@@ -28,6 +27,8 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
                     labelText: 'Search Site Name',
                     labelStyle: TextStyle(
                         color: Theme.of(context).colorScheme.onSecondary),
+                    floatingLabelStyle:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                     border: OutlineInputBorder(
                       borderRadius:
                           BorderRadius.circular(15), // Rounded corners
@@ -46,7 +47,7 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
                     fillColor: Theme.of(context)
                         .colorScheme
                         .surface
-                        .withOpacity(0.8), // Light fill color
+                        .withOpacity(0.5), // Light fill color
                   ),
                   onChanged: (value) {
                     setState(() {}); // Update state when text changes
@@ -68,14 +69,15 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
                           .toList();
                       return Card(
                         elevation: 8, // Increase elevation for more shadow
-                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        margin: const EdgeInsets.symmetric(vertical: 3),
                         shape: RoundedRectangleBorder(
                           borderRadius:
-                              BorderRadius.circular(10), // Rounded corners
+                              BorderRadius.circular(25), // Rounded corners
                         ),
                         color: Theme.of(context)
                             .colorScheme
-                            .surface, // Set a solid background color
+                            .surface
+                            .withOpacity(0.8), // Set a solid background color
                         shadowColor: Theme.of(context)
                             .shadowColor, // Add shadow color for depth
 

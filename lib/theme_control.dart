@@ -52,13 +52,12 @@ class ThemeControl with ChangeNotifier {
     return ThemeData(
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
       primaryColor: primaryColor,
-
       scaffoldBackgroundColor:
           isDarkMode ? darkBackgroundColor : lightBackgroundColor,
       secondaryHeaderColor: secondaryColor,
       cardColor: isDarkMode ? darkSurfaceColor : lightSurfaceColor,
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: isDarkMode ? secondaryColor : primaryColor,
+        backgroundColor: isDarkMode ? secondaryColor : accentColor,
         foregroundColor:
             isDarkMode ? darkBackgroundColor : lightBackgroundColor,
       ),
@@ -77,7 +76,6 @@ class ThemeControl with ChangeNotifier {
               const EdgeInsets.all(16)), // Padding around the icon
         ),
       ),
-
       dividerColor: isDarkMode ? Colors.white70 : primaryColor,
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
@@ -97,17 +95,29 @@ class ThemeControl with ChangeNotifier {
         onError: Colors.white,
         brightness: isDarkMode ? Brightness.dark : Brightness.light,
       ),
-
       listTileTheme: ListTileThemeData(
-          textColor: isDarkMode ? Colors.white : Colors.black,
-          iconColor: isDarkMode ? accentColor : Colors.blue),
+          titleTextStyle: TextStyle(
+              color: isDarkMode ? lightBackgroundColor : Colors.black,
+              fontSize: 17),
+          iconColor: isDarkMode
+              ? lightBackgroundColor.withOpacity(0.8)
+              : darkBackgroundColor.withOpacity(0.8),
+          leadingAndTrailingTextStyle: TextStyle(
+              color: isDarkMode ? Colors.amber : accentColor, fontSize: 14),
+          subtitleTextStyle: TextStyle(
+              color: isDarkMode ? Colors.amber.withOpacity(0.8) : accentColor,
+              fontSize: 14)),
+      expansionTileTheme: ExpansionTileThemeData(
+          textColor: isDarkMode ? warningColor : primaryColor,
+          collapsedIconColor: isDarkMode ? secondaryColor : accentColor,
+          collapsedTextColor: isDarkMode ? Colors.white : Colors.black),
+
       textTheme: TextTheme(
         labelMedium: TextStyle(
             fontSize: 14.0,
             color: isDarkMode ? Colors.blueGrey : Colors.blueGrey),
         labelSmall: const TextStyle(color: secondaryColor),
-        headlineLarge: const TextStyle(
-            fontSize: 20.0, fontWeight: FontWeight.bold, color: warningColor),
+        headlineLarge: const TextStyle(fontSize: 20.0, color: warningColor),
         headlineSmall: const TextStyle(
             fontSize: 15.0, fontWeight: FontWeight.bold, color: accentColor),
         headlineMedium: TextStyle(
@@ -120,11 +130,11 @@ class ThemeControl with ChangeNotifier {
             TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87),
         titleLarge: TextStyle(
             fontSize: 20.0,
-            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic,
             color: isDarkMode ? Colors.white : primaryColor),
         titleMedium: TextStyle(
             fontSize: 18.0,
-            fontWeight: FontWeight.bold,
+            // fontWeight: FontWeight.bold,
             color: isDarkMode ? secondaryColor : Colors.black),
         titleSmall: TextStyle(
             fontSize: 16.0, color: isDarkMode ? Colors.white70 : Colors.grey),
@@ -140,7 +150,7 @@ class ThemeControl with ChangeNotifier {
       ),
       popupMenuTheme: PopupMenuThemeData(
         iconColor: isDarkMode ? Colors.white : Colors.black,
-        surfaceTintColor: primaryColor,
+        surfaceTintColor: accentColor,
         color: isDarkMode
             ? darkSurfaceColor
             : lightSurfaceColor, // Background color of the popup menu
@@ -148,28 +158,22 @@ class ThemeControl with ChangeNotifier {
           color: isDarkMode ? Colors.white : Colors.black, // Text color
           fontSize: 16.0, // Font size
         ),
+        labelTextStyle: WidgetStateProperty.all<TextStyle>(
+            TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
         shape: RoundedRectangleBorder(
           borderRadius:
               BorderRadius.circular(12.0), // Rounded corners for the popup menu
         ),
       ),
       datePickerTheme: DatePickerThemeData(
-        backgroundColor: isDarkMode
-            ? darkSurfaceColor
-            : lightSurfaceColor, // Background color of the date picker
-        headerBackgroundColor: isDarkMode
-            ? darkBackgroundColor
-            : lightBackgroundColor, // Header background
+        backgroundColor: isDarkMode ? darkSurfaceColor : lightSurfaceColor,
+        headerBackgroundColor:
+            isDarkMode ? darkBackgroundColor : lightBackgroundColor,
         headerForegroundColor: isDarkMode ? Colors.white : Colors.black,
-
-        // Text styles for days, year, and weekdays
-        dayStyle: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black), // Day text color
-        yearStyle: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black), // Year text color
-        weekdayStyle: TextStyle(
-            color:
-                isDarkMode ? Colors.white : Colors.black), // Weekday text color
+        dayStyle: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+        yearStyle: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+        weekdayStyle:
+            TextStyle(color: isDarkMode ? Colors.white : Colors.black),
 
         // Background colors
         rangePickerBackgroundColor:
@@ -200,6 +204,21 @@ class ThemeControl with ChangeNotifier {
               : null; // No overlay color when not pressed
         }),
         surfaceTintColor: secondaryColor,
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+            padding:
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
+            foregroundColor: Colors.black.withOpacity(0.7), // Text color
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(35),
+            ),
+            side: const BorderSide(color: primaryColor),
+            overlayColor: primaryColor,
+            backgroundColor: secondaryColor,
+            textStyle: const TextStyle(
+                fontSize: 15, letterSpacing: 1, wordSpacing: 2)),
       ),
     );
   }

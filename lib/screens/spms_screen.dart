@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'package:power_diyala/spms/spms_tables_helper.dart';
+import 'package:flutter/foundation.dart';
+import 'package:power_diyala/Data_helper/spms_tables_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../database_helper.dart';
-import 'package:power_diyala/calculator/widgets.dart';
+import '../Data_helper/database_helper.dart';
+import 'package:power_diyala/Widgets/widgets.dart';
 import 'package:logger/logger.dart';
 
 class SpmsScreen extends StatefulWidget {
@@ -18,7 +19,8 @@ class SpmsScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<SpmsScreen> {
-  final Logger logger = Logger();
+  final Logger logger =
+      kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   List<Map<String, dynamic>>? _data;
   String? _selectedSiteName;
   List<String> _siteNames = [];
@@ -168,7 +170,7 @@ class HomeScreenState extends State<SpmsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData(); // Call your data loading function
+      _loadData();
     });
   }
 
@@ -207,49 +209,43 @@ class HomeScreenState extends State<SpmsScreen> {
     return Spms.fromMap(filteredData);
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(
-            _getSitename(),
-            style: Theme.of(context).textTheme.headlineLarge,
-            textAlign: TextAlign.start,
-          ),
-        ),
-        const Icon(Icons.location_on),
-      ],
-    );
-  }
-
   Widget _buildContent(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Column(
       children: [
-        Expanded(
-            child: Text(_getSitecode(),
-                style: Theme.of(context).textTheme.titleMedium)),
-        const SizedBox(width: 20),
-        Expanded(
-            child: Text(_getKvaG1(),
-                style: Theme.of(context).textTheme.titleMedium)),
-        Expanded(
-            child: Text(_getKvaG2(),
-                style: Theme.of(context).textTheme.titleMedium)),
-      ],
-    );
-  }
-
-  Widget _buildFooter(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Text('Item', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(width: 20),
-        Text('G1', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(width: 8),
-        Text('G2', style: Theme.of(context).textTheme.titleMedium),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                _getSitename(),
+                style: Theme.of(context).textTheme.headlineLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+        const Divider(thickness: 0.5, color: Colors.red),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(_getSitecode(), style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(width: 20),
+            Text(_getKvaG1(), style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(width: 8),
+            Text(_getKvaG2(), style: Theme.of(context).textTheme.titleSmall),
+          ],
+        ),
+        const Divider(thickness: 0.5, color: Colors.red),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text('Item', style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(width: 20),
+            Text('G1', style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(width: 8),
+            Text('G2', style: Theme.of(context).textTheme.titleSmall),
+          ],
+        ),
       ],
     );
   }
@@ -270,9 +266,7 @@ class HomeScreenState extends State<SpmsScreen> {
     return _getFormattedDate(date);
   }
 
-//
-  String _getStringValue(dynamic value,
-      [String defaultValue = 'Not Selected']) {
+  String _getStringValue(dynamic value, [String defaultValue = '  N/A']) {
     if (value == null) {
       return defaultValue;
     }
@@ -282,65 +276,27 @@ class HomeScreenState extends State<SpmsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () => showSearchableDropdown(
-              context,
-              _siteNames,
-              (selected) {
-                setState(() {
-                  _selectedSiteName = selected;
-                });
-              },
-              _searchController,
-            ),
-            icon: const Icon(Icons.menu_open),
-          )
-        ],
-        title: Text(
-          'SPMS',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: _data == null
-          ? const Center(child: CircularProgressIndicator())
-          : SafeArea(
-              child: Column(
+      body: SafeArea(
+        child: _data == null
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(15.0),
+                    padding: const EdgeInsets.all(10.0),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).cardColor,
-                          Theme.of(context).primaryColor.withOpacity(0.1),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.2),
                           blurRadius: 8,
-                          offset: const Offset(0, 4), // Shadow position
                         ),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildHeader(context),
-                        const Divider(thickness: 1.2, color: Colors.grey),
                         _buildContent(context),
-                        const Divider(thickness: 1.2, color: Colors.grey),
-                        const SizedBox(height: 8),
-                        _buildFooter(context),
                       ],
                     ),
                   ),
@@ -364,7 +320,22 @@ class HomeScreenState extends State<SpmsScreen> {
                   ),
                 ],
               ),
-            ),
+      ),
+      floatingActionButton: FloatingActionButton.small(
+        onPressed: () => showSearchableDropdown(
+          context,
+          _siteNames,
+          (selected) {
+            setState(() {
+              _selectedSiteName = selected;
+            });
+          },
+          _searchController,
+        ),
+        shape: const CircleBorder(),
+        tooltip: 'Select Site',
+        child: const Icon(Icons.menu),
+      ),
     );
   }
 }

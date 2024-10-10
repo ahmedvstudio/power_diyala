@@ -1,5 +1,6 @@
-import 'package:power_diyala/teams/teams_table_helper.dart';
-import 'package:power_diyala/database_helper.dart';
+import 'package:flutter/foundation.dart';
+import 'package:power_diyala/Data_helper/teams_table_helper.dart';
+import 'package:power_diyala/Data_helper/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:logger/logger.dart';
@@ -21,7 +22,8 @@ class TeamsScreen extends StatefulWidget {
 class TeamsScreenState extends State<TeamsScreen> {
   DateTime selectedDay = DateTime.now();
   List<Map<String, dynamic>>? _data;
-  final Logger logger = Logger();
+  final Logger logger =
+      kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 
   // Cache to store events for each date
   final Map<DateTime, List<Map<String, dynamic>>> _eventsCache = {};
@@ -86,22 +88,15 @@ class TeamsScreenState extends State<TeamsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Team Calendar',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(fontWeight: FontWeight.bold),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildCalendar(),
+            Expanded(
+              child: _buildEventList(selectedDay),
+            ),
+          ],
         ),
-      ),
-      body: Column(
-        children: [
-          _buildCalendar(),
-          Expanded(
-            child: _buildEventList(selectedDay),
-          ),
-        ],
       ),
     );
   }

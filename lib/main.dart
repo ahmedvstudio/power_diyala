@@ -1,13 +1,14 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:power_diyala/calculator/calc_table_helper.dart';
-import 'package:power_diyala/pages/stepper.dart';
-import 'package:power_diyala/setting/setting_screen.dart';
-import 'package:power_diyala/teams/teams_screen.dart';
+import 'package:power_diyala/Data_helper/calc_table_helper.dart';
+import 'package:power_diyala/Screens/network_screen.dart';
+import 'package:power_diyala/Screens/stepper.dart';
+import 'package:power_diyala/Screens/setting_screen.dart';
+import 'package:power_diyala/Screens/teams_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'calculator/calc_screen.dart';
+import 'Screens/calc_screen.dart';
 import 'theme_control.dart';
-import 'package:power_diyala/spms/spms_screen.dart';
+import 'package:power_diyala/Screens/spms_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding
@@ -76,7 +77,7 @@ class MainScreenState extends State<MainScreen> {
     _screens.add(
       Consumer<ThemeControl>(
         builder: (context, themeControl, child) {
-          return SpmsScreen(
+          return TeamsScreen(
             themeMode: themeControl.themeMode,
             onThemeChanged: (value) {
               themeControl.toggleTheme(value);
@@ -87,7 +88,7 @@ class MainScreenState extends State<MainScreen> {
     ); // SPMS screen placeholder
     _screens.add(Consumer<ThemeControl>(
       builder: (context, themeControl, child) {
-        return TeamsScreen(
+        return SpmsScreen(
           themeMode: themeControl.themeMode,
           onThemeChanged: (value) {
             themeControl.toggleTheme(value);
@@ -95,10 +96,19 @@ class MainScreenState extends State<MainScreen> {
         );
       },
     ));
-    _screens.add(Container(
-      color: Colors.blueGrey,
-      child: const Center(child: Text('Soon ...')),
-    ));
+    _screens.add(
+      Consumer<ThemeControl>(
+        builder: (context, themeControl, child) {
+          return NetworkScreen(
+            themeMode: themeControl.themeMode,
+            onThemeChanged: (value) {
+              themeControl.toggleTheme(value);
+            },
+          );
+        },
+      ),
+    );
+
     _screens.add(Consumer<ThemeControl>(
       builder: (context, themeControl, child) {
         return SettingsScreen(
@@ -120,6 +130,22 @@ class MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Power Diyala',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => _screens[4]));
+            },
+            icon: const Icon(Icons.engineering),
+            tooltip: 'Settings',
+          ),
+        ],
+      ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -142,20 +168,16 @@ class MainScreenState extends State<MainScreen> {
                 label: 'Calculator',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.home_repair_service),
-                label: 'SPMS',
-              ),
-              BottomNavigationBarItem(
                 icon: Icon(Icons.groups_sharp),
                 label: 'Teams',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.webhook),
-                label: 'Test',
+                icon: Icon(Icons.home_repair_service),
+                label: 'SPMS',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.settings),
-                label: 'Settings',
+                icon: Icon(Icons.webhook),
+                label: 'Network',
               ),
             ],
             currentIndex: _selectedIndex,

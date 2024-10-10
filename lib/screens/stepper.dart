@@ -1,9 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:power_diyala/database_helper.dart';
+import 'package:power_diyala/Data_helper/database_helper.dart';
 import 'package:power_diyala/main.dart'; // Make sure to import this
 
 class StepperScreen extends StatefulWidget {
@@ -14,7 +14,8 @@ class StepperScreen extends StatefulWidget {
 }
 
 class StepperScreenState extends State<StepperScreen> {
-  static final Logger logger = Logger();
+  final Logger logger =
+      kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   int _currentStep = 0;
   bool _permissionGranted = false; // Track permission status
   bool _dbReplaced = false; // Track database replacement status
@@ -143,7 +144,7 @@ class StepperScreenState extends State<StepperScreen> {
                     });
 
                     // Load data from the newly replaced database
-                    _dataFromDatabase = await DatabaseHelper.loadTeamData();
+                    _dataFromDatabase = await DatabaseHelper.loadInfoData();
                   } else {
                     logger.e("Database replaced but data validation failed.");
                     if (!context.mounted) return;
@@ -260,57 +261,6 @@ class StepperScreenState extends State<StepperScreen> {
         onStepContinue: _onStepContinue,
         onStepCancel: _onStepCancel,
       ),
-    );
-  }
-}
-
-//app reset
-class ResetIconButton extends StatelessWidget {
-  const ResetIconButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.refresh),
-      tooltip: 'Reset App',
-      onPressed: () async {
-        // Show confirmation dialog
-        bool? confirmReset = await showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Reset App'),
-              content: const Text(
-                  'Are you sure you want to reset the app? This will delete all data.'),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () {
-                    Navigator.of(context).pop(false);
-                  },
-                ),
-                TextButton(
-                  child: const Text('Reset'),
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                ),
-              ],
-            );
-          },
-        );
-
-        // If confirmed, delete the database and exit the app
-        if (confirmReset == true) {
-          await DatabaseHelper.deleteDatabase();
-          // Reset SharedPreferences
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.clear(); // Clear all saved state
-
-          // Exit the app
-          SystemNavigator.pop(); // This will exit the app
-        }
-      },
     );
   }
 }
