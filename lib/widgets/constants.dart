@@ -12,3 +12,6 @@ const String repoLink =
     'https://api.github.com/repos/Ahmed47v/power_diyala/releases/latest';
 const String updateLink =
     'https://github.com/Ahmed47v/power_diyala/releases/latest';
+List<double> oilCheck = [0, 400];
+List<double> airCheck = [0, 900];
+List<double> coolantCheck = [0, 2900];

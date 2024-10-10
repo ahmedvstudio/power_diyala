@@ -4,13 +4,14 @@ import 'package:power_diyala/data_helper/calc_table_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:power_diyala/widgets/calculations.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
+import 'package:power_diyala/widgets/constants.dart';
 import 'package:power_diyala/widgets/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 class CalculatorScreen extends StatefulWidget {
-  final ThemeMode themeMode; // Accept current theme mode
-  final Function(ThemeMode) onThemeChanged; // Function to handle theme changes
+  final ThemeMode themeMode;
+  final Function(ThemeMode) onThemeChanged;
 
   const CalculatorScreen(
       {super.key, required this.themeMode, required this.onThemeChanged});
@@ -45,7 +46,7 @@ class HomeScreenState extends State<CalculatorScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData(); // Call your data loading function
+      _loadData();
     });
 
     _g1Controller.addListener(_onInputChanged);
@@ -57,7 +58,7 @@ class HomeScreenState extends State<CalculatorScreen> {
     try {
       List<Map<String, dynamic>> data =
           await DatabaseHelper.loadCalculatorData();
-      logger.i(data); // Check what is being loaded
+      logger.i(data);
 
       if (mounted) {
         setState(() {
@@ -67,7 +68,6 @@ class HomeScreenState extends State<CalculatorScreen> {
       }
     } catch (e) {
       if (mounted) {
-        // Use a method to show snackbars safely
         _showSnackbar('Error loading data: ${e.toString()}');
       }
     }
@@ -77,12 +77,10 @@ class HomeScreenState extends State<CalculatorScreen> {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       setState(() {
-        // Format inputs to remove leading zeros
         _g1Controller.text = removeLeadingZeros(_g1Controller.text);
         _g2Controller.text = removeLeadingZeros(_g2Controller.text);
         _cpController.text = removeLeadingZeros(_cpController.text);
 
-        // Update calculations based on formatted input
         _calculatedG1 =
             calculate(_g1Controller.text, double.parse(_getGen1Re()));
 
@@ -117,7 +115,6 @@ class HomeScreenState extends State<CalculatorScreen> {
 
   Site? _getSite() {
     if (_selectedSiteName == null) return null;
-    // Return null instead of throwing an exception
 
     final filteredData = _data!.firstWhere(
       (item) => item['Site_name'] == _selectedSiteName,
@@ -176,7 +173,6 @@ class HomeScreenState extends State<CalculatorScreen> {
     return _getStringValue(_getSite()?.coolantG2);
   }
 
-// Helper method to retrieve string values with default fallback
   String _getStringValue(dynamic value, [String defaultValue = '0']) {
     if (value == null) {
       return defaultValue;
@@ -208,7 +204,6 @@ class HomeScreenState extends State<CalculatorScreen> {
       setState(() {
         _selectedDate = picked;
       });
-      // Show selected date message
       _showSnackbar(
           'Selected date: ${_selectedDate!.toLocal().toString().split(' ')[0]}');
     }
@@ -234,7 +229,6 @@ class HomeScreenState extends State<CalculatorScreen> {
     return _calculateDateDifferences()['days'] ?? 0;
   }
 
-// Helper method for calculating Gen/Day
   String _calculateGenPerDay() {
     if (_calculateTotalDaysDifference() > 0 && (_totalGen != null)) {
       return (_totalGen! / _calculateTotalDaysDifference()).toStringAsFixed(2);
@@ -242,7 +236,6 @@ class HomeScreenState extends State<CalculatorScreen> {
     return 'N/A';
   }
 
-// Helper method for calculating Total Difference
   String _calculateTotalDifference() {
     return '${_total != null ? (_total! - _calculateTotalHoursDifference()) : 'N/A'}';
   }
@@ -268,9 +261,8 @@ class HomeScreenState extends State<CalculatorScreen> {
       _calculatedG1 = null;
       _calculatedG2 = null;
       _calculatedCP = null;
-    }); // Reset calculated values
+    });
 
-    // Show snackbar after clearing selection
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Selection cleared')),
     );
@@ -279,12 +271,6 @@ class HomeScreenState extends State<CalculatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(
-      //     'PM Calculator',
-      //     style: Theme.of(context).textTheme.titleLarge,
-      //   ),
-      // ),
       body: SafeArea(
         child: _data == null
             ? const Center(child: CircularProgressIndicator())
@@ -303,26 +289,21 @@ class HomeScreenState extends State<CalculatorScreen> {
                               _selectedSiteName = selected;
                             });
                           },
-                          _searchController, // search controller here
+                          _searchController,
                         ),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               vertical: 12.0, horizontal: 16.0),
                           decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).cardColor, // Background color
-                            border: Border.all(
-                                color: Colors.grey.shade300), // Lighter border
-                            borderRadius:
-                                BorderRadius.circular(12.0), // Rounded corners
+                            color: Theme.of(context).cardColor,
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(12.0),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black
-                                    .withOpacity(0.1), // Subtle shadow
+                                color: Colors.black.withOpacity(0.1),
                                 spreadRadius: 1,
                                 blurRadius: 5,
-                                offset: const Offset(
-                                    0, 2), // Changes the position of the shadow
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -335,7 +316,7 @@ class HomeScreenState extends State<CalculatorScreen> {
                               ),
                               Icon(
                                 Icons.arrow_drop_down,
-                                color: Colors.grey[700], // Icon color
+                                color: Colors.grey[700],
                               ),
                             ],
                           ),
@@ -357,8 +338,7 @@ class HomeScreenState extends State<CalculatorScreen> {
                                       : 'N/A'),
                               ElevatedButton.icon(
                                 onPressed: () => _selectDate(context),
-                                icon: const Icon(Icons
-                                    .calendar_today), // Icon for the button
+                                icon: const Icon(Icons.calendar_today),
                                 label: const Text('Select Date'),
                               ),
                             ],
@@ -427,29 +407,24 @@ class HomeScreenState extends State<CalculatorScreen> {
                           ),
                           const SizedBox(height: 8.0),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment
-                                .spaceBetween, // Distribute space evenly
-                            crossAxisAlignment: CrossAxisAlignment
-                                .start, // Align children at the start
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               buildHeaderColumn(['#', 'G1', 'G2']),
-                              const SizedBox(
-                                  width:
-                                      8.0), // Increased space between header and values
+                              const SizedBox(width: 8.0),
                               Expanded(
                                 child: Card(
                                   color: Theme.of(context).cardColor,
                                   elevation: 2,
                                   margin: const EdgeInsets.symmetric(
-                                      horizontal: 4.0), // Margin around card
+                                      horizontal: 4.0),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(
-                                        2.0), // Padding inside the card
+                                    padding: const EdgeInsets.all(2.0),
                                     child: buildValueColumn(
                                       'Oil',
                                       _calculateOilG1(),
                                       _calculateOilG2(),
-                                      [0, 400], // Thresholds for Oil
+                                      oilCheck,
                                     ),
                                   ),
                                 ),
@@ -467,7 +442,7 @@ class HomeScreenState extends State<CalculatorScreen> {
                                       'Air Filter',
                                       _calculateAirG1(),
                                       _calculateAirG2(),
-                                      [0, 900], // Thresholds for Air
+                                      airCheck, // Thresholds for Air
                                     ),
                                   ),
                                 ),
@@ -485,7 +460,7 @@ class HomeScreenState extends State<CalculatorScreen> {
                                       'Coolant',
                                       _calculateCoolantG1(),
                                       _calculateCoolantG2(),
-                                      [0, 2900],
+                                      coolantCheck,
                                     ),
                                   ),
                                 ),

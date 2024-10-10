@@ -11,8 +11,7 @@ import 'theme_control.dart';
 import 'package:power_diyala/screens/spms_screen.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding
-      .ensureInitialized(); // Ensure Flutter bindings are initialized
+  WidgetsFlutterBinding.ensureInitialized();
   try {
     await dotenv.load(fileName: ".env");
     if (dotenv.env['DB_PASSWORD'] == null) {
@@ -123,7 +122,7 @@ class MainScreenState extends State<MainScreen> {
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index; // Update selected index
+      _selectedIndex = index;
     });
   }
 

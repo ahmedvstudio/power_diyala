@@ -1,7 +1,6 @@
 import 'package:power_diyala/theme_control.dart';
 import 'package:flutter/material.dart';
 
-//Searchable Dropdown
 void showSearchableDropdown(BuildContext context, List<String> siteNames,
     Function(String) onSelected, TextEditingController searchController) {
   showModalBottomSheet(
@@ -16,8 +15,7 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
         builder: (BuildContext context, StateSetter setState) {
           return Container(
             padding: const EdgeInsets.all(16.0),
-            height: MediaQuery.of(context).size.height *
-                0.6, // Set a height for dropdown
+            height: MediaQuery.of(context).size.height * 0.6,
             child: Column(
               children: [
                 // Search TextField
@@ -30,8 +28,7 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
                     floatingLabelStyle:
                         TextStyle(color: Theme.of(context).colorScheme.primary),
                     border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(15), // Rounded corners
+                      borderRadius: BorderRadius.circular(15),
                       borderSide:
                           BorderSide(color: Theme.of(context).dividerColor),
                     ),
@@ -40,17 +37,15 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
                       icon: const Icon(Icons.clear, color: Colors.grey),
                       onPressed: () {
                         searchController.clear();
-                        setState(() {}); // Trigger a rebuild to update the list
+                        setState(() {});
                       },
                     ),
                     filled: true,
-                    fillColor: Theme.of(context)
-                        .colorScheme
-                        .surface
-                        .withOpacity(0.5), // Light fill color
+                    fillColor:
+                        Theme.of(context).colorScheme.surface.withOpacity(0.5),
                   ),
                   onChanged: (value) {
-                    setState(() {}); // Update state when text changes
+                    setState(() {});
                   },
                 ),
                 const SizedBox(height: 10),
@@ -68,27 +63,22 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
                               .contains(searchController.text.toLowerCase()))
                           .toList();
                       return Card(
-                        elevation: 8, // Increase elevation for more shadow
+                        elevation: 8,
                         margin: const EdgeInsets.symmetric(vertical: 3),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(25), // Rounded corners
+                          borderRadius: BorderRadius.circular(25),
                         ),
                         color: Theme.of(context)
                             .colorScheme
                             .surface
-                            .withOpacity(0.8), // Set a solid background color
-                        shadowColor: Theme.of(context)
-                            .shadowColor, // Add shadow color for depth
-
+                            .withOpacity(0.8),
+                        shadowColor: Theme.of(context).shadowColor,
                         child: ListTile(
                           title: Text(
                             filteredSites[index],
                             style: TextStyle(
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.color, // Use theme color
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
                             ),
                           ),
                           onTap: () {
@@ -109,7 +99,6 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
   );
 }
 
-// Helper method to build a TextField
 Widget buildTextField(TextEditingController controller, String label) {
   return Expanded(
     child: TextField(
@@ -117,33 +106,28 @@ Widget buildTextField(TextEditingController controller, String label) {
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle:
-            const TextStyle(color: ThemeControl.errorColor), // Label color
+        labelStyle: const TextStyle(color: ThemeControl.errorColor),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0), // Rounded corners
-          borderSide: const BorderSide(
-              color: ThemeControl.secondaryColor), // Border color
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: const BorderSide(color: ThemeControl.secondaryColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(
-              color: ThemeControl.accentColor,
-              width: 2.0), // Focused border color
+          borderSide:
+              const BorderSide(color: ThemeControl.accentColor, width: 2.0),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(
-              color: Colors.grey, width: 1.5), // Enabled border color
+          borderSide: const BorderSide(color: Colors.grey, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 16.0, horizontal: 12.0), // Padding inside the text field
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
       ),
-      style: const TextStyle(fontSize: 16.0), // Text style
+      style: const TextStyle(fontSize: 16.0),
     ),
   );
 }
 
-// Helper method to build a label and value pair
 Widget buildLabelValue(BuildContext context, String label, String value) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,
@@ -154,7 +138,6 @@ Widget buildLabelValue(BuildContext context, String label, String value) {
   );
 }
 
-// Helper method to build a header card
 Widget buildHeaderCard(BuildContext context, String title) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.start,
@@ -162,19 +145,17 @@ Widget buildHeaderCard(BuildContext context, String title) {
       Expanded(
         child: Divider(
           endIndent: 10,
-          color: Theme.of(context).dividerColor, // Use context to access theme
+          color: Theme.of(context).dividerColor,
         ),
       ),
       Text(
         title,
-        style: Theme.of(context)
-            .textTheme
-            .headlineMedium, // Use context to access theme
+        style: Theme.of(context).textTheme.headlineMedium,
       ),
       Expanded(
         child: Divider(
           indent: 10,
-          color: Theme.of(context).dividerColor, // Use context to access theme
+          color: Theme.of(context).dividerColor,
         ),
       ),
     ],
@@ -200,7 +181,6 @@ Widget buildCalculationRow(BuildContext context, String label, dynamic value) {
   );
 }
 
-// Helper method to build the header column
 Column buildHeaderColumn(List<String> labels) {
   return Column(
     children: labels
@@ -209,37 +189,33 @@ Column buildHeaderColumn(List<String> labels) {
   );
 }
 
-//replacement colors
+// Replacement colors
 Column buildValueColumn(
     String title, double? value1, double? value2, List<double> thresholds) {
-  // Extract thresholds from the list
   double lowThreshold = thresholds[0];
   double highThreshold = thresholds[1];
 
-  // Determine text color for value1
+  // Text color for value1
   Color textColor1;
   if (value1 == null) {
-    textColor1 = Colors.grey; // Default color if value is null
+    textColor1 = Colors.grey; // Default
   } else if (value1 >= highThreshold) {
-    textColor1 = Colors.red; // Color for values above highThreshold
+    textColor1 = Colors.red; // above
   } else if (value1 >= lowThreshold) {
-    textColor1 = Colors.green; // Color for values within the normal range
+    textColor1 = Colors.green; // normal
   } else {
-    textColor1 =
-        Colors.grey; // Default color for negative values (if applicable)
+    textColor1 = Colors.grey; // negative
   }
 
-  // Determine text color for value2
   Color textColor2;
   if (value2 == null) {
-    textColor2 = Colors.grey; // Default color if value is null
+    textColor2 = Colors.grey;
   } else if (value2 >= highThreshold) {
-    textColor2 = Colors.red; // Color for values above highThreshold
+    textColor2 = Colors.red;
   } else if (value2 >= lowThreshold) {
-    textColor2 = Colors.green; // Color for values within the normal range
+    textColor2 = Colors.green;
   } else {
-    textColor2 =
-        Colors.grey; // Default color for negative values (if applicable)
+    textColor2 = Colors.grey;
   }
 
   return Column(

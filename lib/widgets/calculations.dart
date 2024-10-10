@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:power_diyala/widgets/widgets.dart';
 
-// Method to calculate
 double? calculate(String inputText, double referenceValue) {
   if (inputText.isNotEmpty) {
     double inputValue = double.tryParse(inputText) ?? 0;
@@ -14,10 +13,6 @@ double? calculate(String inputText, double referenceValue) {
 String removeLeadingZeros(String input) {
   return input.replaceAll(RegExp(r'^0+(?!$)'), '');
 }
-
-// Add other calculation methods as needed...
-
-// Import your custom widgets if needed
 
 class RuntimeCalculations extends StatelessWidget {
   final double? calculatedG1;
@@ -47,8 +42,7 @@ class RuntimeCalculations extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        buildHeaderCard(context,
-            'Runtime Calculations'), // Ensure this helper function is accessible
+        buildHeaderCard(context, 'Runtime Calculations'),
         buildCalculationCard([
           buildCalculationRow(context, 'G1 RT:', calculatedG1),
           buildCalculationRow(context, 'G2 RT:', calculatedG2),

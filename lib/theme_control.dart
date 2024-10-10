@@ -2,28 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeControl with ChangeNotifier {
-  ThemeMode _themeMode = ThemeMode.system; // Default to system theme mode
+  ThemeMode _themeMode = ThemeMode.system;
 
-  // Define your color palette
   static const Color primaryColor = Color(0xffC95A3D);
   static const Color secondaryColor = Color(0xffD9C3B2);
-  static const Color accentColor = Color(0xff8E4B4A); // New accent color
+  static const Color accentColor = Color(0xff8E4B4A);
   static const Color warningColor = Color(0xFFFF7D00);
   static const Color errorColor = Color(0xFFFF3D00);
   static const Color lightBackgroundColor =
       Color(0xFFF5F5F5); // Light background
-  static const Color lightSurfaceColor = Colors.white; // Light surface
-  static const Color darkBackgroundColor = Color(0xFF2F2F2F); // Dark background
-  static const Color darkSurfaceColor = Color(0xFF1E1E1E); // Dark surface
-  static const Color lightShadowColor =
-      Color(0x1F000000); // Light shadow color for light theme
-  static const Color darkShadowColor =
-      Color(0x37FFFFFF); // Light shadow color for dark theme
+  static const Color lightSurfaceColor = Colors.white;
+  static const Color darkBackgroundColor = Color(0xFF2F2F2F);
+  static const Color darkSurfaceColor = Color(0xFF1E1E1E);
+  static const Color lightShadowColor = Color(0x1F000000);
+  static const Color darkShadowColor = Color(0x37FFFFFF);
 
   ThemeMode get themeMode => _themeMode;
 
   ThemeControl() {
-    _loadThemePreference(); // Load theme preference on initialization
+    _loadThemePreference();
   }
 
   Future<void> _loadThemePreference() async {
@@ -36,12 +33,12 @@ class ThemeControl with ChangeNotifier {
         orElse: () => ThemeMode.system,
       );
     }
-    notifyListeners(); // Notify listeners after loading preference
+    notifyListeners();
   }
 
   Future<void> toggleTheme(ThemeMode mode) async {
     _themeMode = mode;
-    notifyListeners(); // Notify listeners to rebuild with new theme
+    notifyListeners();
 
     // Save the selected theme in shared preferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -61,19 +58,14 @@ class ThemeControl with ChangeNotifier {
         foregroundColor:
             isDarkMode ? darkBackgroundColor : lightBackgroundColor,
       ),
-      shadowColor: isDarkMode
-          ? darkShadowColor
-          : lightShadowColor, // Apply shadow color based on theme
-
+      shadowColor: isDarkMode ? darkShadowColor : lightShadowColor,
       iconButtonTheme: IconButtonThemeData(
         style: ButtonStyle(
-          backgroundColor:
-              WidgetStateProperty.all(Colors.transparent), // Background color
+          backgroundColor: WidgetStateProperty.all(Colors.transparent),
           foregroundColor: WidgetStateProperty.all(
             isDarkMode ? Colors.white : primaryColor,
           ), // Icon color
-          padding: WidgetStateProperty.all(
-              const EdgeInsets.all(16)), // Padding around the icon
+          padding: WidgetStateProperty.all(const EdgeInsets.all(16)),
         ),
       ),
       dividerColor: isDarkMode ? Colors.white70 : primaryColor,
@@ -111,7 +103,6 @@ class ThemeControl with ChangeNotifier {
           textColor: isDarkMode ? warningColor : primaryColor,
           collapsedIconColor: isDarkMode ? secondaryColor : accentColor,
           collapsedTextColor: isDarkMode ? Colors.white : Colors.black),
-
       textTheme: TextTheme(
         labelMedium: TextStyle(
             fontSize: 14.0,
@@ -142,27 +133,24 @@ class ThemeControl with ChangeNotifier {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: accentColor, // Background color on button
+          backgroundColor: accentColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0), // Rounded corners
+            borderRadius: BorderRadius.circular(8.0),
           ),
         ),
       ),
       popupMenuTheme: PopupMenuThemeData(
         iconColor: isDarkMode ? Colors.white : Colors.black,
         surfaceTintColor: accentColor,
-        color: isDarkMode
-            ? darkSurfaceColor
-            : lightSurfaceColor, // Background color of the popup menu
+        color: isDarkMode ? darkSurfaceColor : lightSurfaceColor,
         textStyle: TextStyle(
-          color: isDarkMode ? Colors.white : Colors.black, // Text color
-          fontSize: 16.0, // Font size
+          color: isDarkMode ? Colors.white : Colors.black,
+          fontSize: 16.0,
         ),
         labelTextStyle: WidgetStateProperty.all<TextStyle>(
             TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
         shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(12.0), // Rounded corners for the popup menu
+          borderRadius: BorderRadius.circular(12.0),
         ),
       ),
       datePickerTheme: DatePickerThemeData(
@@ -174,16 +162,12 @@ class ThemeControl with ChangeNotifier {
         yearStyle: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
         weekdayStyle:
             TextStyle(color: isDarkMode ? Colors.white : Colors.black),
-
-        // Background colors
         rangePickerBackgroundColor:
             isDarkMode ? darkSurfaceColor : lightSurfaceColor,
         dividerColor: isDarkMode ? Colors.white : Colors.black,
         rangeSelectionBackgroundColor: isDarkMode
             ? warningColor.withOpacity(0.2)
             : secondaryColor.withOpacity(0.2),
-
-        // Day foreground color based on state
         dayForegroundColor:
             WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
           if (states.contains(WidgetState.pressed)) {
@@ -193,19 +177,16 @@ class ThemeControl with ChangeNotifier {
           }
           return isDarkMode ? Colors.white : Colors.black;
         }),
-
-        // Day overlay color based on state
         dayOverlayColor:
             WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
           return states.contains(WidgetState.pressed)
               ? (isDarkMode
                   ? Colors.white.withOpacity(0.8)
                   : Colors.black.withOpacity(0.8))
-              : null; // No overlay color when not pressed
+              : null;
         }),
         surfaceTintColor: secondaryColor,
       ),
-
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
             padding:

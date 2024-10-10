@@ -29,7 +29,6 @@ class ResetTextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () async {
-        // Show confirmation dialog
         bool? confirmReset = await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
@@ -54,7 +53,6 @@ class ResetTextButton extends StatelessWidget {
             );
           },
         );
-        // If confirmed, delete the database and exit the app
         if (confirmReset == true) {
           await DatabaseHelper.deleteDatabase();
           // Reset SharedPreferences
@@ -63,26 +61,23 @@ class ResetTextButton extends StatelessWidget {
           _showToast("App is resetting...");
 
           await Future.delayed(const Duration(seconds: 1));
-          // Exit the app
           SystemNavigator.pop(); // This will exit the app
         }
       },
       child: const Text(
-        'Nuke Everything!',
-        style: TextStyle(color: Colors.redAccent), // Styling for the button
+        'Reset',
       ),
     );
   }
 }
 
 class UpdateButton extends StatelessWidget {
-  const UpdateButton({super.key}); // Example current version
+  const UpdateButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () async {
-        // Call checkForUpdates within a function to avoid async gaps
         await _checkForUpdates(context);
       },
       child: const Text('Check For Updates'),
@@ -94,11 +89,9 @@ Future<void> _checkForUpdates(BuildContext context) async {
   const url = repoLink;
 
   try {
-    final response = await http
-        .get(Uri.parse(url))
-        .timeout(const Duration(seconds: 10)); // Set a timeout
+    final response =
+        await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
 
-    // Debugging: Print status code and response body
     logger.i("Status Code: ${response.statusCode}");
     logger.i("Response Body: ${response.body}");
 
@@ -112,8 +105,7 @@ Future<void> _checkForUpdates(BuildContext context) async {
         }
       } else {
         if (context.mounted) {
-          _showUpdateDialog(
-              context, latestVersion); // Only show dialog if mounted
+          _showUpdateDialog(context, latestVersion);
         }
       }
     } else {
@@ -147,7 +139,7 @@ void _showUpdateDialog(BuildContext context, String latestVersion) {
           TextButton(
             child: const Text("Download"),
             onPressed: () async {
-              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop();
               _showToast("Redirecting to download...");
               const url = updateLink;
 

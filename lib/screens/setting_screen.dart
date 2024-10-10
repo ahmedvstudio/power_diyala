@@ -266,7 +266,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         IconButton(
                           onPressed: () async {
-                            Navigator.of(context).pop();
                             const url = faceBook;
                             if (await canLaunchUrl(Uri.parse(url))) {
                               await launchUrl(Uri.parse(url),
@@ -281,7 +280,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                         ),
                         IconButton(
                           onPressed: () async {
-                            Navigator.of(context).pop();
                             const url = gitHub;
                             if (await canLaunchUrl(Uri.parse(url))) {
                               await launchUrl(Uri.parse(url),
@@ -296,7 +294,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                         ),
                         IconButton(
                           onPressed: () async {
-                            Navigator.of(context).pop();
                             const url = xTwitter;
                             if (await canLaunchUrl(Uri.parse(url))) {
                               await launchUrl(Uri.parse(url),

@@ -199,8 +199,7 @@ class StepperScreenState extends State<StepperScreen> {
               const Text('No data loaded.')
             else
               ..._dataFromDatabase.map((data) => ListTile(
-                    title: Text(
-                        data.toString()), // Customize this display as needed
+                    title: Text(data.toString()),
                   )),
           ],
         ),
@@ -220,13 +219,11 @@ class StepperScreenState extends State<StepperScreen> {
         _currentStep++;
       });
     } else {
-      // All steps completed, mark setup as complete
       setState(() {
         _isSetupComplete = true;
       });
 
-      await _saveSetupState(); // Save the setup state
-      // Check if the widget is still in the widget tree
+      await _saveSetupState();
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const MainScreen()),

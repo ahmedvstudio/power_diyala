@@ -760,7 +760,7 @@ class HomeScreenState extends State<NetworkScreen> {
                           height: MediaQuery.of(context).size.height,
                           child: Center(
                               child: Text(
-                            'Please Select a Site ...',
+                            'Select a Site ...',
                             style: Theme.of(context).textTheme.titleLarge,
                           )),
                         )

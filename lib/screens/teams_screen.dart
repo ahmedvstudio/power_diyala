@@ -25,16 +25,14 @@ class TeamsScreenState extends State<TeamsScreen> {
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 
-  // Cache to store events for each date
   final Map<DateTime, List<Map<String, dynamic>>> _eventsCache = {};
-  // Declare a variable for the calendar format
   CalendarFormat _calendarFormat = CalendarFormat.month; // Default format
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData(); // Call your data loading function
+      _loadData();
     });
   }
 
@@ -65,11 +63,9 @@ class TeamsScreenState extends State<TeamsScreen> {
 
   void _cacheEvents() {
     for (var team in _data ?? []) {
-      String? teamDateString =
-          team['Date']; // Ensure this matches your data structure
+      String? teamDateString = team['Date'];
       if (teamDateString != null) {
         DateTime teamDate = Teams.parseDate(teamDateString);
-        // Add event to cache
         _eventsCache.putIfAbsent(teamDate, () => []).add(team);
       }
     }
@@ -81,7 +77,6 @@ class TeamsScreenState extends State<TeamsScreen> {
     DateTime localSelectedDate =
         DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
 
-    // Return the cached events for the selected date
     return _eventsCache[localSelectedDate] ?? [];
   }
 
@@ -105,44 +100,39 @@ class TeamsScreenState extends State<TeamsScreen> {
     return TableCalendar(
       firstDay: DateTime.utc(2020, 1, 1),
       lastDay: DateTime.utc(2030, 12, 31),
-
       focusedDay: selectedDay,
       currentDay: selectedDay,
-      calendarFormat: _calendarFormat, // Use the calendar format variable
+      calendarFormat: _calendarFormat,
       onDaySelected: (selectedDay, focusedDay) {
         setState(() {
           this.selectedDay = selectedDay;
         });
       },
       onFormatChanged: (format) {
-        // Handle format changes
         setState(() {
-          _calendarFormat = format; // Update the calendar format variable
+          _calendarFormat = format;
         });
       },
       headerStyle: const HeaderStyle(
         formatButtonVisible: true,
       ),
       daysOfWeekStyle: const DaysOfWeekStyle(
-        weekdayStyle:
-            TextStyle(color: Colors.blue), // Color for weekdays (Sun-Thu)
-        weekendStyle:
-            TextStyle(color: Colors.red), // Color for weekends (Fri-Sat)
+        weekdayStyle: TextStyle(color: Colors.blue),
+        weekendStyle: TextStyle(color: Colors.red),
       ),
       calendarBuilders: CalendarBuilders(
         defaultBuilder: (context, date, events) => _buildDayCell(date),
         dowBuilder: (context, day) {
-          // Display weekday names
           final weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
           return Center(
             child: Text(
-              weekDays[day.weekday % 7], // Get the name from the list
+              weekDays[day.weekday % 7],
               style: TextStyle(
                 color: day.weekday == DateTime.friday ||
                         day.weekday == DateTime.saturday
                     ? Colors.red
-                    : Colors.blue, // Color based on weekend or weekday
+                    : Colors.blue,
               ),
             ),
           );
@@ -181,11 +171,11 @@ class TeamsScreenState extends State<TeamsScreen> {
                 events.length,
                 (index) => Container(
                   margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                  width: 6.0, // Diameter of the dot
-                  height: 6.0, // Diameter of the dot
+                  width: 6.0,
+                  height: 6.0,
                   decoration: const BoxDecoration(
-                    color: Colors.blueGrey, // Color of the dot
-                    shape: BoxShape.circle, // Make it circular
+                    color: Colors.blueGrey,
+                    shape: BoxShape.circle,
                   ),
                 ),
               ),
