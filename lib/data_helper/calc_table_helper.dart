@@ -1,11 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:power_diyala/widgets/constants.dart';
+import 'package:power_diyala/widgets/detect_date_format.dart';
 
 final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 
-//For Calculator table
+// For Calculator table
 class Site {
   final String siteName;
   final String siteCode;
@@ -39,7 +38,7 @@ class Site {
     return Site(
       siteName: map['Site_name'] as String,
       siteCode: map['Site_Code'] as String,
-      pmDate: DateFormat(pmDateFormat).parse(map['PM_Date'] ?? '1970-01-01'),
+      pmDate: parseDate(map['PM_Date']),
       gen1Re: double.tryParse(map['Gen1_Re']?.toString() ?? '0') ?? 0.0,
       gen2Re: double.tryParse(map['Gen2_Re']?.toString() ?? '0') ?? 0.0,
       cp: double.tryParse(map['CP']?.toString() ?? '0') ?? 0.0,

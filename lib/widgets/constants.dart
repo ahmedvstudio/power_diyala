@@ -15,4 +15,3 @@ const String updateLink =
 List<double> oilCheck = [0, 400];
 List<double> airCheck = [0, 900];
 List<double> coolantCheck = [0, 2900];
-const String pmDateFormat = "d/M/yyyy";

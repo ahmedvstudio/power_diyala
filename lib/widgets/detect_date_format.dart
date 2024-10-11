@@ -1,3 +1,17 @@
+import 'package:intl/intl.dart';
+
+DateTime parseDate(String? date) {
+  if (date == null || date.isEmpty) return DateTime.parse('1970-01-01');
+
+  String format = detectDateFormat(date);
+
+  if (format == 'Unknown') {
+    return DateTime.parse('1970-01-01'); // Fallback
+  }
+
+  return DateFormat(format).parse(date);
+}
+
 String detectDateFormat(String? dateString) {
   if (dateString == null || dateString.isEmpty) {
     return 'Unknown'; // Handle null or empty case
