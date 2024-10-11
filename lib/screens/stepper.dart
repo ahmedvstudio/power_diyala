@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:power_diyala/screens/main_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
-import 'package:power_diyala/main.dart';
 
 class StepperScreen extends StatefulWidget {
   const StepperScreen({super.key});
