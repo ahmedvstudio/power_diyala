@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:power_diyala/widgets/detect_date_format.dart';
 
 final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 final DateTime defaultDate = DateTime(1970);
@@ -110,27 +110,6 @@ class Spms {
     required this.tempG1,
     required this.tempG2,
   });
-
-  // Helper method to parse dates safely
-  static DateTime parseDate(String? dateString) {
-    if (dateString != null && dateString.isNotEmpty) {
-      try {
-        return DateFormat("d/M/yyyy").parse(dateString);
-      } catch (e) {
-        // Use logger instead of print
-        logger.e("Error parsing date: $e");
-      }
-    }
-    return defaultDate; // Return default date if null or parse fails
-  }
-
-  // Method to convert DateTime to String, returning 'N/A' if null or default date
-  String formatDate(DateTime? date) {
-    if (date == null || date == defaultDate) {
-      return 'N/A';
-    }
-    return DateFormat('d/M/yyyy').format(date);
-  }
 
   factory Spms.fromMap(Map<String, dynamic> map) {
     return Spms(

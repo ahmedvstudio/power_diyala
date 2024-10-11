@@ -4,7 +4,7 @@ import 'package:power_diyala/data_helper/calc_table_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:power_diyala/widgets/calculations.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
-import 'package:power_diyala/widgets/constants.dart';
+import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/widgets/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';

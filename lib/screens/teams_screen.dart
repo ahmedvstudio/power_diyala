@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:power_diyala/data_helper/teams_table_helper.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:power_diyala/widgets/detect_date_format.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:logger/logger.dart';
 
@@ -65,7 +65,7 @@ class TeamsScreenState extends State<TeamsScreen> {
     for (var team in _data ?? []) {
       String? teamDateString = team['Date'];
       if (teamDateString != null) {
-        DateTime teamDate = Teams.parseDate(teamDateString);
+        DateTime teamDate = parseDate(teamDateString);
         _eventsCache.putIfAbsent(teamDate, () => []).add(team);
       }
     }

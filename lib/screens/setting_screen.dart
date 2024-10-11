@@ -4,7 +4,7 @@ import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:power_diyala/widgets/buttons.dart';
 import 'package:power_diyala/screens/licences.dart';
 import 'package:logger/logger.dart';
-import 'package:power_diyala/widgets/constants.dart';
+import 'package:power_diyala/settings/constants.dart';
 import 'package:simple_icons/simple_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 

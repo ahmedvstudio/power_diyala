@@ -7,7 +7,7 @@ import 'package:power_diyala/screens/teams_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Screens/calc_screen.dart';
-import 'theme_control.dart';
+import 'settings/theme_control.dart';
 import 'package:power_diyala/screens/spms_screen.dart';
 
 Future<void> main() async {
