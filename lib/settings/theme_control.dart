@@ -4,9 +4,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ThemeControl with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
 
-  static const Color primaryColor = Color(0xffC95A3D);
-  static const Color secondaryColor = Color(0xffD9C3B2);
-  static const Color accentColor = Color(0xff8E4B4A);
+  // Instance variables for colors with default values
+  Color _primaryColor = const Color(0xffC95A3D);
+  Color _secondaryColor = const Color(0xffD9C3B2);
+  Color _accentColor = const Color(0xff8E4B4A);
+
+  // static const Color primaryColor = Color(0xffC95A3D);
+  // static const Color secondaryColor = Color(0xffD9C3B2);
+  // static const Color accentColor = Color(0xff8E4B4A);
+  static const Color _defaultPrimaryColor = Color(0xffC95A3D);
+  static const Color _defaultSecondaryColor = Color(0xffD9C3B2);
+  static const Color _defaultAccentColor = Color(0xff8E4B4A);
+
   static const Color warningColor = Color(0xFFFF7D00);
   static const Color errorColor = Color(0xFFFF3D00);
   static const Color lightBackgroundColor =
@@ -21,6 +30,40 @@ class ThemeControl with ChangeNotifier {
 
   ThemeControl() {
     _loadThemePreference();
+    _loadColorPreferences();
+  }
+
+  // Load colors from SharedPreferences
+  Future<void> _loadColorPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // Load and assign colors or use default values
+    // Load and assign colors or use default values
+    _primaryColor =
+        Color(prefs.getInt('primary_color') ?? _defaultPrimaryColor.value);
+    _secondaryColor =
+        Color(prefs.getInt('secondary_color') ?? _defaultSecondaryColor.value);
+    _accentColor =
+        Color(prefs.getInt('accent_color') ?? _defaultAccentColor.value);
+    notifyListeners();
+  }
+
+  // Getter methods for the colors
+  Color get primaryColor => _primaryColor;
+  Color get secondaryColor => _secondaryColor;
+  Color get accentColor => _accentColor;
+
+  // Save color preferences
+  Future<void> saveColors(Color primary, Color secondary, Color accent) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('primary_color', primary.value);
+    await prefs.setInt('secondary_color', secondary.value);
+    await prefs.setInt('accent_color', accent.value);
+
+    _primaryColor = primary;
+    _secondaryColor = secondary;
+    _accentColor = accent;
+
+    notifyListeners();
   }
 
   Future<void> _loadThemePreference() async {
@@ -48,13 +91,13 @@ class ThemeControl with ChangeNotifier {
   ThemeData appTheme({required bool isDarkMode}) {
     return ThemeData(
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
-      primaryColor: primaryColor,
+      primaryColor: _primaryColor,
       scaffoldBackgroundColor:
           isDarkMode ? darkBackgroundColor : lightBackgroundColor,
-      secondaryHeaderColor: secondaryColor,
+      secondaryHeaderColor: _secondaryColor,
       cardColor: isDarkMode ? darkSurfaceColor : lightSurfaceColor,
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: isDarkMode ? secondaryColor : accentColor,
+        backgroundColor: isDarkMode ? _secondaryColor : _accentColor,
         foregroundColor:
             isDarkMode ? darkBackgroundColor : lightBackgroundColor,
       ),
@@ -63,12 +106,12 @@ class ThemeControl with ChangeNotifier {
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.all(Colors.transparent),
           foregroundColor: WidgetStateProperty.all(
-            isDarkMode ? Colors.white : primaryColor,
+            isDarkMode ? Colors.white : _primaryColor,
           ), // Icon color
           padding: WidgetStateProperty.all(const EdgeInsets.all(16)),
         ),
       ),
-      dividerColor: isDarkMode ? Colors.white70 : primaryColor,
+      dividerColor: isDarkMode ? Colors.white70 : _primaryColor,
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor:
@@ -77,8 +120,8 @@ class ThemeControl with ChangeNotifier {
             TextStyle(color: isDarkMode ? Colors.black : Colors.white),
       ),
       colorScheme: ColorScheme(
-        primary: primaryColor,
-        secondary: secondaryColor,
+        primary: _primaryColor,
+        secondary: _secondaryColor,
         surface: isDarkMode ? darkSurfaceColor : lightSurfaceColor,
         error: errorColor,
         onPrimary: Colors.white,
@@ -95,26 +138,26 @@ class ThemeControl with ChangeNotifier {
               ? lightBackgroundColor.withOpacity(0.8)
               : darkBackgroundColor.withOpacity(0.8),
           leadingAndTrailingTextStyle: TextStyle(
-              color: isDarkMode ? Colors.amber : accentColor, fontSize: 14),
+              color: isDarkMode ? Colors.amber : _accentColor, fontSize: 14),
           subtitleTextStyle: TextStyle(
-              color: isDarkMode ? Colors.amber.withOpacity(0.8) : accentColor,
+              color: isDarkMode ? Colors.amber.withOpacity(0.8) : _accentColor,
               fontSize: 14)),
       expansionTileTheme: ExpansionTileThemeData(
-          textColor: isDarkMode ? warningColor : primaryColor,
-          collapsedIconColor: isDarkMode ? secondaryColor : accentColor,
+          textColor: isDarkMode ? warningColor : _primaryColor,
+          collapsedIconColor: isDarkMode ? _secondaryColor : _accentColor,
           collapsedTextColor: isDarkMode ? Colors.white : Colors.black),
       textTheme: TextTheme(
         labelMedium: TextStyle(
             fontSize: 14.0,
             color: isDarkMode ? Colors.blueGrey : Colors.blueGrey),
-        labelSmall: const TextStyle(color: secondaryColor),
+        labelSmall: TextStyle(color: _secondaryColor),
         headlineLarge: const TextStyle(fontSize: 20.0, color: warningColor),
-        headlineSmall: const TextStyle(
-            fontSize: 15.0, fontWeight: FontWeight.bold, color: accentColor),
+        headlineSmall: TextStyle(
+            fontSize: 15.0, fontWeight: FontWeight.bold, color: _accentColor),
         headlineMedium: TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.bold,
-            color: isDarkMode ? warningColor : primaryColor),
+            color: isDarkMode ? warningColor : _primaryColor),
         bodyLarge: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
         bodyMedium: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
         bodySmall:
@@ -122,18 +165,18 @@ class ThemeControl with ChangeNotifier {
         titleLarge: TextStyle(
             fontSize: 20.0,
             fontStyle: FontStyle.italic,
-            color: isDarkMode ? Colors.white : primaryColor),
+            color: isDarkMode ? Colors.white : _primaryColor),
         titleMedium: TextStyle(
             fontSize: 18.0,
             // fontWeight: FontWeight.bold,
-            color: isDarkMode ? secondaryColor : Colors.black),
+            color: isDarkMode ? _secondaryColor : Colors.black),
         titleSmall: TextStyle(
             fontSize: 16.0, color: isDarkMode ? Colors.white70 : Colors.grey),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: accentColor,
+          backgroundColor: _accentColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
@@ -141,7 +184,7 @@ class ThemeControl with ChangeNotifier {
       ),
       popupMenuTheme: PopupMenuThemeData(
         iconColor: isDarkMode ? Colors.white : Colors.black,
-        surfaceTintColor: accentColor,
+        surfaceTintColor: _accentColor,
         color: isDarkMode ? darkSurfaceColor : lightSurfaceColor,
         textStyle: TextStyle(
           color: isDarkMode ? Colors.white : Colors.black,
@@ -167,7 +210,7 @@ class ThemeControl with ChangeNotifier {
         dividerColor: isDarkMode ? Colors.white : Colors.black,
         rangeSelectionBackgroundColor: isDarkMode
             ? warningColor.withOpacity(0.2)
-            : secondaryColor.withOpacity(0.2),
+            : _secondaryColor.withOpacity(0.2),
         dayForegroundColor:
             WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
           if (states.contains(WidgetState.pressed)) {
@@ -185,7 +228,7 @@ class ThemeControl with ChangeNotifier {
                   : Colors.black.withOpacity(0.8))
               : null;
         }),
-        surfaceTintColor: secondaryColor,
+        surfaceTintColor: _secondaryColor,
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -195,9 +238,9 @@ class ThemeControl with ChangeNotifier {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(35),
             ),
-            side: const BorderSide(color: primaryColor),
-            overlayColor: primaryColor,
-            backgroundColor: secondaryColor,
+            side: BorderSide(color: _primaryColor),
+            overlayColor: _primaryColor,
+            backgroundColor: _secondaryColor,
             textStyle: const TextStyle(
                 fontSize: 15, letterSpacing: 1, wordSpacing: 2)),
       ),

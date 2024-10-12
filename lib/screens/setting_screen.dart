@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
+import 'package:power_diyala/widgets/color_picker.dart';
 import 'package:power_diyala/widgets/buttons.dart';
 import 'package:power_diyala/screens/licences.dart';
 import 'package:logger/logger.dart';
@@ -142,11 +143,24 @@ class SettingsScreenState extends State<SettingsScreen> {
                     width: 250,
                   ),
                 ),
-                Text(
-                  'Theme:',
-                  style: Theme.of(context).textTheme.headlineSmall,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Theme:',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => ColorPickerDialog(),
+                          );
+                        },
+                        icon: Icon(Icons.colorize_rounded),
+                        color: Theme.of(context).primaryColor)
+                  ],
                 ),
-                const SizedBox(height: 10), // Spacing
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
                   child: Row(

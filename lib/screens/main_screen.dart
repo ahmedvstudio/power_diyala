@@ -91,6 +91,7 @@ class MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeControl = Provider.of<ThemeControl>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -144,7 +145,7 @@ class MainScreenState extends State<MainScreen> {
             ],
             currentIndex: _selectedIndex,
             unselectedItemColor: Colors.grey,
-            selectedItemColor: ThemeControl.primaryColor,
+            selectedItemColor: themeControl.primaryColor,
             showUnselectedLabels: true,
             onTap: _onItemTapped,
             type: BottomNavigationBarType.fixed,

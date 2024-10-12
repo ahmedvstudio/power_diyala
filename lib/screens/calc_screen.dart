@@ -386,11 +386,11 @@ class HomeScreenState extends State<CalculatorScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              buildTextField(_g1Controller, 'G1'),
+                              buildTextField(_g1Controller, 'G1', context),
                               const SizedBox(width: 10),
-                              buildTextField(_g2Controller, 'G2'),
+                              buildTextField(_g2Controller, 'G2', context),
                               const SizedBox(width: 10),
-                              buildTextField(_cpController, 'CP'),
+                              buildTextField(_cpController, 'CP', context),
                             ],
                           ),
                           const SizedBox(height: 16.0),

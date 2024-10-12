@@ -1,5 +1,6 @@
 import 'package:power_diyala/settings/theme_control.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void showSearchableDropdown(BuildContext context, List<String> siteNames,
     Function(String) onSelected, TextEditingController searchController) {
@@ -99,22 +100,23 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
   );
 }
 
-Widget buildTextField(TextEditingController controller, String label) {
+Widget buildTextField(
+    TextEditingController controller, String label, BuildContext context) {
+  final themeControl = Provider.of<ThemeControl>(context);
   return Expanded(
     child: TextField(
       controller: controller,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: ThemeControl.errorColor),
+        labelStyle: TextStyle(color: ThemeControl.errorColor),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: ThemeControl.secondaryColor),
+          borderSide: BorderSide(color: themeControl.secondaryColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide:
-              const BorderSide(color: ThemeControl.accentColor, width: 2.0),
+          borderSide: BorderSide(color: themeControl.accentColor, width: 2.0),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
