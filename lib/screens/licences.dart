@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:power_diyala/settings/constants.dart';
 
-class LicenceSimple extends StatelessWidget {
-  const LicenceSimple({super.key});
+class LicencePage extends StatelessWidget {
+  const LicencePage({super.key});
 
   @override
   Widget build(BuildContext context) => LicensePage(

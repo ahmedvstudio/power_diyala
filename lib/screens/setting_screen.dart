@@ -223,7 +223,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       ),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const LicenceSimple()));
+                            builder: (context) => const LicencePage()));
                       },
                     ),
                     const SizedBox(height: 8),
