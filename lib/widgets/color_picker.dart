@@ -35,6 +35,7 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
   }
 
 // Method to pick any color using ColorPicker
+
   void _pickColor(Color currentColor, ValueChanged<Color> onColorChanged) {
     showDialog(
       context: context,
@@ -48,7 +49,7 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
               onColorChanged: (color) {
                 tempColor = color;
               },
-
+              labelTypes: [ColorLabelType.rgb, ColorLabelType.hex],
               pickerAreaHeightPercent:
                   0.8, // Adjust the size of the picker area
             ),
