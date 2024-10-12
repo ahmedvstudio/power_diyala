@@ -27,7 +27,7 @@ class ResetTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
+    return OutlinedButton(
       onPressed: () async {
         bool? confirmReset = await showDialog<bool>(
           context: context,
@@ -76,7 +76,7 @@ class UpdateButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
+    return OutlinedButton(
       onPressed: () async {
         await _checkForUpdates(context);
       },

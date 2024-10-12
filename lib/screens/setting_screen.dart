@@ -103,6 +103,31 @@ class SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     const double iconSize = 30;
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => ColorPickerDialog(),
+                );
+              },
+              icon: Icon(Icons.color_lens_rounded),
+              tooltip: 'Color Palette'),
+          IconButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              const url = reportIssue;
+              if (await canLaunchUrl(Uri.parse(url))) {
+                await launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalApplication);
+              } else {}
+            },
+            icon: Icon(Icons.bug_report_rounded),
+            tooltip: 'Report an bug',
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -111,56 +136,13 @@ class SettingsScreenState extends State<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      icon: Icon(Icons.arrow_back_ios),
-                      color: Theme.of(context).colorScheme.onSecondary,
-                      tooltip: 'Back',
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        Navigator.of(context).pop();
-                        const url = reportIssue;
-                        if (await canLaunchUrl(Uri.parse(url))) {
-                          await launchUrl(Uri.parse(url),
-                              mode: LaunchMode.externalApplication);
-                        } else {}
-                      },
-                      icon: Icon(Icons.report_gmailerrorred_rounded),
-                      color: Theme.of(context).colorScheme.error,
-                      tooltip: 'Report an issue',
-                    ),
-                  ],
-                ),
                 Center(
                   child: Image.asset(
                     iconPath,
                     width: 250,
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Theme:',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => ColorPickerDialog(),
-                          );
-                        },
-                        icon: Icon(Icons.colorize_rounded),
-                        color: Theme.of(context).primaryColor)
-                  ],
-                ),
+                SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
                   child: Row(
@@ -232,13 +214,14 @@ class SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     const UpdateButton(),
                     const SizedBox(height: 8),
-                    TextButton(
+                    OutlinedButton(
                       child: const Text(
                         'Open Sources Licences',
                       ),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const LicencePage()));
+                          builder: (context) => const LicencePage(),
+                        ));
                       },
                     ),
                     const SizedBox(height: 8),
@@ -288,7 +271,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                           },
                           icon: Icon(
                             SimpleIcons.facebook,
-                            color: Theme.of(context).primaryColor,
                             size: iconSize,
                           ),
                         ),
@@ -302,7 +284,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                           },
                           icon: Icon(
                             SimpleIcons.github,
-                            color: Theme.of(context).primaryColor,
                             size: iconSize,
                           ),
                         ),
@@ -316,7 +297,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                           },
                           icon: Icon(
                             SimpleIcons.x,
-                            color: Theme.of(context).primaryColor,
                             size: iconSize,
                           ),
                         ),

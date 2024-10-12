@@ -106,7 +106,7 @@ class ThemeControl with ChangeNotifier {
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.all(Colors.transparent),
           foregroundColor: WidgetStateProperty.all(
-            isDarkMode ? Colors.white : _primaryColor,
+            isDarkMode ? secondaryColor : _primaryColor,
           ), // Icon color
           padding: WidgetStateProperty.all(const EdgeInsets.all(16)),
         ),
@@ -165,7 +165,7 @@ class ThemeControl with ChangeNotifier {
         titleLarge: TextStyle(
             fontSize: 20.0,
             fontStyle: FontStyle.italic,
-            color: isDarkMode ? Colors.white : _primaryColor),
+            color: isDarkMode ? _secondaryColor : _primaryColor),
         titleMedium: TextStyle(
             fontSize: 18.0,
             // fontWeight: FontWeight.bold,
@@ -232,17 +232,51 @@ class ThemeControl with ChangeNotifier {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-            padding:
-                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
-            foregroundColor: Colors.black.withOpacity(0.7), // Text color
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(35),
-            ),
-            side: BorderSide(color: _primaryColor),
-            overlayColor: _primaryColor,
-            backgroundColor: _secondaryColor,
-            textStyle: const TextStyle(
-                fontSize: 15, letterSpacing: 1, wordSpacing: 2)),
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
+          foregroundColor:
+              isDarkMode ? _secondaryColor : _primaryColor, // Text color
+          overlayColor: _primaryColor, // Overlay color on press
+        ),
+      ),
+      dialogTheme: DialogTheme(
+        backgroundColor: isDarkMode ? Colors.black : Colors.white,
+        surfaceTintColor: secondaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          side: BorderSide(
+            color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300,
+            width: 1.0,
+          ),
+        ),
+        elevation: 8.0,
+        titleTextStyle: TextStyle(
+            fontSize: 20.0,
+            fontStyle: FontStyle.italic,
+            color: isDarkMode ? _primaryColor : _accentColor,
+            fontWeight: FontWeight.bold),
+        contentTextStyle: TextStyle(
+          color: isDarkMode ? Colors.white70 : Colors.black87,
+          fontSize: 16.0,
+        ),
+        insetPadding: const EdgeInsets.all(16.0),
+        actionsPadding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
+          foregroundColor:
+              isDarkMode ? lightBackgroundColor : darkBackgroundColor,
+          backgroundColor: isDarkMode
+              ? darkBackgroundColor
+              : lightBackgroundColor, // Background color
+          overlayColor: _primaryColor, // Overlay color on press
+          side: BorderSide(color: _primaryColor),
+          textStyle: const TextStyle(
+            fontSize: 15,
+            letterSpacing: 1,
+            wordSpacing: 2,
+          ),
+        ),
       ),
     );
   }
