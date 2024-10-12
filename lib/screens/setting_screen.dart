@@ -117,7 +117,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      icon: const Icon(Icons.arrow_back_ios),
+                      icon: Icon(Icons.arrow_back_ios),
+                      color: Theme.of(context).colorScheme.onSecondary,
                       tooltip: 'Back',
                     ),
                     IconButton(
@@ -129,8 +130,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                               mode: LaunchMode.externalApplication);
                         } else {}
                       },
-                      icon: const Icon(Icons.report_gmailerrorred_rounded),
-                      color: Colors.red.withOpacity(0.8),
+                      icon: Icon(Icons.report_gmailerrorred_rounded),
+                      color: Theme.of(context).colorScheme.error,
                       tooltip: 'Report an issue',
                     ),
                   ],
@@ -271,9 +272,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   mode: LaunchMode.externalApplication);
                             } else {}
                           },
-                          icon: const Icon(
+                          icon: Icon(
                             SimpleIcons.facebook,
-                            color: SimpleIconColors.trakt,
+                            color: Theme.of(context).primaryColor,
                             size: iconSize,
                           ),
                         ),
@@ -285,9 +286,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   mode: LaunchMode.externalApplication);
                             } else {}
                           },
-                          icon: const Icon(
+                          icon: Icon(
                             SimpleIcons.github,
-                            color: SimpleIconColors.trakt,
+                            color: Theme.of(context).primaryColor,
                             size: iconSize,
                           ),
                         ),
@@ -299,9 +300,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   mode: LaunchMode.externalApplication);
                             } else {}
                           },
-                          icon: const Icon(
+                          icon: Icon(
                             SimpleIcons.x,
-                            color: SimpleIconColors.trakt,
+                            color: Theme.of(context).primaryColor,
                             size: iconSize,
                           ),
                         ),
