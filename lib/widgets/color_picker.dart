@@ -34,23 +34,30 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
     });
   }
 
-  // Function to open a color picker for any color
+// Method to pick any color using ColorPicker
   void _pickColor(Color currentColor, ValueChanged<Color> onColorChanged) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        Color tempColor = currentColor;
         return AlertDialog(
           title: const Text('Select Color'),
           content: SingleChildScrollView(
-            child: BlockPicker(
+            child: ColorPicker(
               pickerColor: currentColor,
-              onColorChanged: onColorChanged,
+              onColorChanged: (color) {
+                tempColor = color;
+              },
+
+              pickerAreaHeightPercent:
+                  0.8, // Adjust the size of the picker area
             ),
           ),
           actions: [
             TextButton(
               child: const Text('Select'),
               onPressed: () {
+                onColorChanged(tempColor); // Return the selected color
                 Navigator.of(context).pop();
               },
             ),
