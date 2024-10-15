@@ -104,6 +104,10 @@ class SettingsScreenState extends State<SettingsScreen> {
     const double iconSize = 30;
     return Scaffold(
       appBar: AppBar(
+        title: Text(
+          'Settings',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         actions: [
           IconButton(
               onPressed: () {
@@ -185,8 +189,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                     color: Colors.white,
                                     size: 20,
                                   ),
-                                const SizedBox(
-                                    width: 8), // Space between icon and text
+                                const SizedBox(width: 8),
 
                                 Text(
                                   index == 0
@@ -195,10 +198,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                                           ? 'Light'
                                           : 'Dark',
                                   style: TextStyle(
-                                    color: _selectedIndex == index
-                                        ? Colors.white
-                                        : Colors.black,
-                                  ),
+                                      color: _selectedIndex == index
+                                          ? Colors.white
+                                          : Colors.black,
+                                      fontStyle: FontStyle.italic),
                                 ),
                               ],
                             ),
@@ -208,16 +211,14 @@ class SettingsScreenState extends State<SettingsScreen> {
                     }),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const UpdateButton(),
                     const SizedBox(height: 8),
                     OutlinedButton(
-                      child: const Text(
-                        'Open Sources Licences',
-                      ),
+                      child: const Text('Open Sources Licences'),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => const LicencePage(),
@@ -226,6 +227,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 8),
                     const ResetTextButton(),
+                    const SizedBox(height: 8),
                     Center(
                       child: Text(
                         appName,
@@ -233,30 +235,23 @@ class SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                     Center(
-                      child: Text(
-                        'Stable $appVersion',
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
+                      child: Text('Stable $appVersion',
+                          style: Theme.of(context).textTheme.labelSmall),
                     ),
                     Center(
-                      child: Text(
-                        'Last update: $lastUpdate',
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
+                      child: Text('Last update: $lastUpdate',
+                          style: Theme.of(context).textTheme.labelSmall),
                     ),
                     if (_infoData != null &&
                         _infoData!.containsKey('last_update'))
                       Center(
                         child: Text(
-                          'Data version: ${_infoData!['last_update'] ?? 'N/A'}',
-                          style: Theme.of(context).textTheme.labelSmall,
-                        ),
+                            'Data version: ${_infoData!['last_update'] ?? 'N/A'}',
+                            style: Theme.of(context).textTheme.labelSmall),
                       ),
                     Center(
-                      child: Text(
-                        appLegalese,
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
+                      child: Text(appLegalese,
+                          style: Theme.of(context).textTheme.labelSmall),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -269,10 +264,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   mode: LaunchMode.externalApplication);
                             } else {}
                           },
-                          icon: Icon(
-                            SimpleIcons.facebook,
-                            size: iconSize,
-                          ),
+                          icon: Icon(SimpleIcons.facebook, size: iconSize),
                         ),
                         IconButton(
                           onPressed: () async {
@@ -282,10 +274,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   mode: LaunchMode.externalApplication);
                             } else {}
                           },
-                          icon: Icon(
-                            SimpleIcons.github,
-                            size: iconSize,
-                          ),
+                          icon: Icon(SimpleIcons.github, size: iconSize),
                         ),
                         IconButton(
                           onPressed: () async {
@@ -295,10 +284,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   mode: LaunchMode.externalApplication);
                             } else {}
                           },
-                          icon: Icon(
-                            SimpleIcons.x,
-                            size: iconSize,
-                          ),
+                          icon: Icon(SimpleIcons.x, size: iconSize),
                         ),
                       ],
                     ),

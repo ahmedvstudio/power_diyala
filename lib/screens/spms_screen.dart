@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:power_diyala/Widgets/widgets.dart';
 import 'package:logger/logger.dart';
+import 'package:power_diyala/screens/statistics_screen.dart';
 
 class SpmsScreen extends StatefulWidget {
   final ThemeMode themeMode;
@@ -216,10 +217,22 @@ class HomeScreenState extends State<SpmsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: Text(
-                _getSitename(),
-                style: Theme.of(context).textTheme.headlineLarge,
-                textAlign: TextAlign.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _getSitename(),
+                    style: Theme.of(context).textTheme.headlineLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => StatisticsScreen(),
+                        ));
+                      },
+                      icon: Icon(Icons.insert_chart_outlined_rounded)),
+                ],
               ),
             ),
           ],
@@ -250,7 +263,7 @@ class HomeScreenState extends State<SpmsScreen> {
     );
   }
 
-  String _getSitename() => _getStringValue(_getSPMS()?.siteName);
+  String _getSitename() => _getStringSite(_getSPMS()?.siteName);
   String _getSitecode() => _getStringValue(_getSPMS()?.siteCode);
   String _getKvaG1() => _getStringValue(_getSPMS()?.kvaG1);
   String _getKvaG2() => _getStringValue(_getSPMS()?.kvaG2);
@@ -264,6 +277,14 @@ class HomeScreenState extends State<SpmsScreen> {
   String _getFormattedField(String fieldName) {
     final date = _getSPMS()?.getFieldByName(fieldName);
     return _getFormattedDate(date);
+  }
+
+  String _getStringSite(dynamic value,
+      [String defaultValue = 'Select Site Name']) {
+    if (value == null) {
+      return defaultValue;
+    }
+    return value.toString();
   }
 
   String _getStringValue(dynamic value, [String defaultValue = '  N/A']) {

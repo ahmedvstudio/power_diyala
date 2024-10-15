@@ -147,31 +147,29 @@ class ThemeControl with ChangeNotifier {
           collapsedIconColor: isDarkMode ? _secondaryColor : _accentColor,
           collapsedTextColor: isDarkMode ? Colors.white : Colors.black),
       textTheme: TextTheme(
+        labelSmall: TextStyle(color: _secondaryColor),
         labelMedium: TextStyle(
             fontSize: 14.0,
             color: isDarkMode ? Colors.blueGrey : Colors.blueGrey),
-        labelSmall: TextStyle(color: _secondaryColor),
-        headlineLarge: const TextStyle(fontSize: 20.0, color: warningColor),
         headlineSmall: TextStyle(
             fontSize: 15.0, fontWeight: FontWeight.bold, color: _accentColor),
         headlineMedium: TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.bold,
             color: isDarkMode ? warningColor : _primaryColor),
-        bodyLarge: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
-        bodyMedium: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+        headlineLarge: const TextStyle(fontSize: 20.0, color: warningColor),
         bodySmall:
             TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87),
+        bodyMedium: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+        bodyLarge: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
         titleLarge: TextStyle(
             fontSize: 20.0,
             fontStyle: FontStyle.italic,
             color: isDarkMode ? _secondaryColor : _primaryColor),
-        titleMedium: TextStyle(
-            fontSize: 18.0,
-            // fontWeight: FontWeight.bold,
-            color: isDarkMode ? _secondaryColor : Colors.black),
         titleSmall: TextStyle(
             fontSize: 16.0, color: isDarkMode ? Colors.white70 : Colors.grey),
+        titleMedium: TextStyle(
+            fontSize: 18.0, color: isDarkMode ? _secondaryColor : Colors.black),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

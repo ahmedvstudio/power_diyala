@@ -1,10 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 
+final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 DateTime parseDate(String? date) {
   if (date == null || date.isEmpty) return DateTime.parse('1970-01-01');
-
+  logger.w('Received null or empty date, defaulting to 1970-01-01');
   String format = detectDateFormat(date);
-
+  logger.d('Detected format for date "$date": $format');
   if (format == 'Unknown') {
     return DateTime.parse('1970-01-01'); // Fallback
   }
@@ -14,6 +17,7 @@ DateTime parseDate(String? date) {
 
 String detectDateFormat(String? dateString) {
   if (dateString == null || dateString.isEmpty) {
+    logger.w('Received null or empty date string.');
     return 'Unknown'; // Handle null or empty case
   }
 
