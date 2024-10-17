@@ -12,10 +12,10 @@ class StatisticsScreen extends StatefulWidget {
 
 class StatisticsScreenState extends State<StatisticsScreen> {
   late Future<List<Spms>> spmsData;
-  int selectedStartYear = 2018;
+  int selectedStartYear = 2020;
   int selectedEndYear = 2024;
   List<int> availableYears =
-      List.generate(7, (index) => 2018 + index); // Years from 2018 to 2024
+      List.generate(5, (index) => 2020 + index); // Years from 2020 to 2024
 
   String selectedComponent = 'Search Item Name';
   List<String> componentOptions = [
@@ -271,7 +271,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                      height: 300,
+                      height: 200,
                       child: BarChart(
                         BarChartData(
                           alignment: BarChartAlignment.spaceEvenly,
@@ -337,66 +337,80 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         }
 
                         final filteredList = filterSpmsData(snapshot.data!);
-                        Map<int, List<Widget>> yearGroupedWidgets = {};
+                        Map<int, Map<int, List<Widget>>>
+                            yearMonthGroupedWidgets = {};
 
+                        // Group the data by year and month
                         for (var spms in filteredList) {
                           DateTime? replacementDateG1 =
                               getReplacementDate(selectedComponent, 'G1', spms);
                           DateTime? replacementDateG2 =
                               getReplacementDate(selectedComponent, 'G2', spms);
 
-                          // Group by year for G1
-                          if (replacementDateG1 != null) {
+                          if (replacementDateG1 != null &&
+                              replacementDateG1.year >= selectedStartYear &&
+                              replacementDateG1.year <= selectedEndYear) {
                             int year = replacementDateG1.year;
-                            if (!yearGroupedWidgets.containsKey(year)) {
-                              yearGroupedWidgets[year] = [];
+                            int month = replacementDateG1.month;
+
+                            if (!yearMonthGroupedWidgets.containsKey(year)) {
+                              yearMonthGroupedWidgets[year] = {};
                             }
-                            yearGroupedWidgets[year]!.add(
+                            if (!yearMonthGroupedWidgets[year]!
+                                .containsKey(month)) {
+                              yearMonthGroupedWidgets[year]![month] = [];
+                            }
+
+                            yearMonthGroupedWidgets[year]![month]!.add(
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 1.0, horizontal: 8.0),
                                 child: ListTile(
                                   leading: Icon(Icons.looks_one_rounded),
                                   title: Text(
-                                    '${spms.siteName} G1', // Title
+                                    '${spms.siteName} G1',
                                     style: TextStyle(
                                         fontSize: 16.0, color: Colors.blue),
                                   ),
                                   subtitle: Text(
                                     formatDate(replacementDateG1),
                                     style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
+                                        fontSize: 14, color: Colors.grey),
                                   ),
                                 ),
                               ),
                             );
                           }
 
-                          // Group by year for G2
-                          if (replacementDateG2 != null) {
+                          if (replacementDateG2 != null &&
+                              replacementDateG2.year >= selectedStartYear &&
+                              replacementDateG2.year <= selectedEndYear) {
                             int year = replacementDateG2.year;
-                            if (!yearGroupedWidgets.containsKey(year)) {
-                              yearGroupedWidgets[year] = [];
+                            int month = replacementDateG2.month;
+
+                            if (!yearMonthGroupedWidgets.containsKey(year)) {
+                              yearMonthGroupedWidgets[year] = {};
                             }
-                            yearGroupedWidgets[year]!.add(
+                            if (!yearMonthGroupedWidgets[year]!
+                                .containsKey(month)) {
+                              yearMonthGroupedWidgets[year]![month] = [];
+                            }
+
+                            yearMonthGroupedWidgets[year]![month]!.add(
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 1.0, horizontal: 8.0),
                                 child: ListTile(
                                   leading: Icon(Icons.looks_two_rounded),
                                   title: Text(
-                                    '${spms.siteName} G2', // Title
+                                    '${spms.siteName} G2',
                                     style: TextStyle(
                                         fontSize: 16.0, color: Colors.teal),
                                   ),
                                   subtitle: Text(
                                     formatDate(replacementDateG2),
                                     style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
+                                        fontSize: 14, color: Colors.grey),
                                   ),
                                 ),
                               ),
@@ -404,23 +418,43 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           }
                         }
 
+                        // Build the widgets for display
                         List<Widget> displayWidgets = [];
 
-                        var sortedYears = yearGroupedWidgets.keys.toList()
+                        var sortedYears = yearMonthGroupedWidgets.keys.toList()
                           ..sort((a, b) => b.compareTo(a));
 
                         for (var year in sortedYears) {
+                          List<Widget> monthWidgets = [];
+
+                          var sortedMonths = yearMonthGroupedWidgets[year]!
+                              .keys
+                              .toList()
+                            ..sort((a, b) => b.compareTo(a));
+
+                          for (var month in sortedMonths) {
+                            monthWidgets.add(
+                              ExpansionTile(
+                                title: Text(
+                                  '$month',
+                                ),
+                                children: yearMonthGroupedWidgets[year]![month]!
+                                    .map((widget) => widget)
+                                    .toList(),
+                              ),
+                            );
+                          }
+
                           displayWidgets.add(
                             ExpansionTile(
                               title: Text(
                                 '$year',
                               ),
-                              children: yearGroupedWidgets[year]!
-                                  .map((widget) => widget)
-                                  .toList(),
+                              children: monthWidgets,
                             ),
                           );
                         }
+
                         return ListView(
                           children: displayWidgets,
                         );
