@@ -128,7 +128,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               } else {}
             },
             icon: Icon(Icons.bug_report_rounded),
-            tooltip: 'Report an bug',
+            tooltip: 'Report a bug',
           ),
         ],
       ),

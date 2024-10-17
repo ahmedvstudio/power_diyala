@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.power.power_diyala"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
