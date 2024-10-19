@@ -228,6 +228,20 @@ class ThemeControl with ChangeNotifier {
         }),
         surfaceTintColor: _secondaryColor,
       ),
+      timePickerTheme: TimePickerThemeData(
+        dayPeriodColor: _secondaryColor,
+        dayPeriodTextColor: isDarkMode ? _primaryColor : darkSurfaceColor,
+        entryModeIconColor: _primaryColor,
+        backgroundColor: isDarkMode ? darkSurfaceColor : lightSurfaceColor,
+        hourMinuteShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        hourMinuteTextColor: isDarkMode ? Colors.white : Colors.black,
+        dialBackgroundColor: isDarkMode ? _secondaryColor : lightSurfaceColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
