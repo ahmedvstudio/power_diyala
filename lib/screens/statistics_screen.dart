@@ -285,36 +285,64 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     value.toInt().toString(),
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.teal,
-                                      fontSize: 10,
+                                      color: Theme.of(context).primaryColor,
+                                      fontSize:
+                                          12, // Increased font size for better visibility
                                     ),
                                   );
                                 },
                               ),
                             ),
                             topTitles: AxisTitles(
-                              // Disable the top titles
                               sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
                           barTouchData: BarTouchData(
                             enabled: true,
+                            touchTooltipData: BarTouchTooltipData(
+                              getTooltipItem:
+                                  (group, groupIndex, rod, rodIndex) {
+                                return BarTooltipItem(
+                                  'Year ${group.x.toInt()}\n',
+                                  TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: rod.toY.toString(),
+                                      style:
+                                          TextStyle(color: Colors.yellowAccent),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                           ),
-
-                          borderData: FlBorderData(show: true),
-                          gridData: FlGridData(show: true), // Show grid lines
+                          borderData: FlBorderData(
+                              show: true), // Improved border styling
+                          gridData: FlGridData(
+                              show: true,
+                              horizontalInterval: 1), // More visible grid lines
                           barGroups: yearCounts.entries.map((entry) {
                             return BarChartGroupData(
-                              x: entry.key, // Year as x value
+                              x: entry.key,
                               barRods: [
                                 BarChartRodData(
                                   toY: entry.value.toDouble(),
-                                  color: Colors.tealAccent,
+                                  color: Theme.of(context).primaryColor,
                                   borderSide: BorderSide(
-                                    color: Colors.blueGrey, // Add border color
+                                    color: Colors.black54, // Add border color
                                     width: 1,
                                   ),
-                                  width: 15, // Width of the bars
+                                  width:
+                                      20, // Increased width of the bars for better visibility
+                                  backDrawRodData: BackgroundBarChartRodData(
+                                    show: true,
+                                    toY: 10, // Background rod height (optional)
+                                    color: Colors.grey
+                                        .shade300, // Background color of the bar
+                                  ),
                                 ),
                               ],
                             );
