@@ -238,10 +238,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                       child: Text('Stable $appVersion',
                           style: Theme.of(context).textTheme.labelSmall),
                     ),
-                    Center(
-                      child: Text('Last update: $lastUpdate',
-                          style: Theme.of(context).textTheme.labelSmall),
-                    ),
                     if (_infoData != null &&
                         _infoData!.containsKey('last_update'))
                       Center(
