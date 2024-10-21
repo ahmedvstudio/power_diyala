@@ -171,7 +171,7 @@ class TeamsScreenState extends State<TeamsScreen> {
                 events.length,
                 (index) => Container(
                   margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                  width: 6.0,
+                  width: 4.0,
                   height: 6.0,
                   decoration: const BoxDecoration(
                     color: Colors.blueGrey,
