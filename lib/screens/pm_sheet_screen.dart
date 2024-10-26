@@ -3,10 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:power_diyala/Widgets/widgets.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
-import 'package:power_diyala/data_helper/sheets_helper/input_helper.dart';
+import 'package:power_diyala/data_helper/sheets_helper/ac_helper.dart';
+import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
+import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
+import 'package:power_diyala/data_helper/sheets_helper/toggles.dart';
+import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
+import '../settings/theme_control.dart';
 
 class PmSheetPage extends StatefulWidget {
-  const PmSheetPage({super.key});
+  final ThemeMode themeMode;
+  final Function(ThemeMode) onThemeChanged;
+
+  const PmSheetPage(
+      {super.key, required this.themeMode, required this.onThemeChanged});
 
   @override
   PmSheetPageState createState() => PmSheetPageState();
@@ -18,17 +27,41 @@ class PmSheetPageState extends State<PmSheetPage> {
   List<Map<String, dynamic>>? _data;
   List<String> _siteNames = [];
   final TextEditingController _searchController = TextEditingController();
-  Map<String, dynamic>? _selectedSiteData; // To hold the selected site's data
+  final TextEditingController _generalComment = TextEditingController();
+  Map<String, dynamic>? _selectedSiteData;
   List<TextEditingController> genControllers = [];
-  DateTime? _selectedDate;
-  TimeOfDay? fromTime; // To hold the start time
-  TimeOfDay? toTime; // To hold the end time
-  int _currentStep = 0; // Current step in the stepper
+  List<TextEditingController> genVLControllers = [];
+  List<TextEditingController> acControllers = [];
+  List<TextEditingController> tankControllers = [];
+  TextEditingController siteController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  TextEditingController cpController = TextEditingController();
+  TextEditingController kwhController = TextEditingController();
+  List<bool> checkboxValues = [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ];
+
+  TimeOfDay? fromTime;
+  TimeOfDay? toTime;
+  int _currentStep = 0;
 
   @override
   void initState() {
     super.initState();
-    genControllers = List.generate(8, (index) => TextEditingController());
+    genControllers = List.generate(5, (index) => TextEditingController());
+    tankControllers = List.generate(5, (index) => TextEditingController());
+    genVLControllers = List.generate(20, (index) => TextEditingController());
+    acControllers = List.generate(20, (index) => TextEditingController());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
     });
@@ -39,6 +72,16 @@ class PmSheetPageState extends State<PmSheetPage> {
     for (var controller in genControllers) {
       controller.dispose();
     }
+    for (var controller in tankControllers) {
+      controller.dispose();
+    }
+    for (var controller in genVLControllers) {
+      controller.dispose();
+    }
+    for (var controller in acControllers) {
+      controller.dispose();
+    }
+    siteController.dispose(); // Dispose of the site controller
     super.dispose();
   }
 
@@ -64,20 +107,22 @@ class PmSheetPageState extends State<PmSheetPage> {
     final selectedSite = _data?.firstWhere((item) => item['site'] == siteName);
     setState(() {
       _selectedSiteData = selectedSite;
+      siteController.text =
+          siteName; // Update the site controller with the selected site name
     });
   }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
+      initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
 
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null) {
       setState(() {
-        _selectedDate = picked;
+        _dateController.text = picked.toString().split(" ")[0];
       });
     }
   }
@@ -106,6 +151,12 @@ class PmSheetPageState extends State<PmSheetPage> {
     }
   }
 
+  void handleCheckboxChange(int index, bool value) {
+    setState(() {
+      checkboxValues[index] = value;
+    });
+  }
+
   void _showSnackbar(String message,
       {Duration duration = const Duration(seconds: 3)}) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -124,10 +175,11 @@ class PmSheetPageState extends State<PmSheetPage> {
             ? const Center(child: CircularProgressIndicator())
             : Stepper(
                 currentStep: _currentStep,
-                type: StepperType.horizontal,
+                type: StepperType.vertical,
+                physics: ScrollPhysics(),
                 onStepTapped: (step) => setState(() => _currentStep = step),
                 onStepContinue: () {
-                  if (_currentStep < 2) {
+                  if (_currentStep < 6) {
                     // Change this to the number of steps you have minus one
                     setState(() => _currentStep++);
                   }
@@ -139,11 +191,12 @@ class PmSheetPageState extends State<PmSheetPage> {
                 },
                 steps: [
                   Step(
-                    title: Text('Input Fields'),
-                    isActive: true,
+                    isActive: _currentStep == 0,
+                    title: Text('General'),
                     content: Column(
                       children: [
-                        GestureDetector(
+                        const SizedBox(height: 8.0),
+                        TextField(
                           onTap: () => showSearchableDropdown(
                             context,
                             _siteNames,
@@ -154,120 +207,144 @@ class PmSheetPageState extends State<PmSheetPage> {
                             },
                             _searchController,
                           ),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12.0, horizontal: 16.0),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).cardColor,
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(12.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 1,
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                          controller: siteController,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(
+                              Icons.cell_tower_rounded,
+                              color: ThemeControl().accentColor,
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // Wrap the text in Expanded to avoid overflow
-                                Expanded(
-                                  child: Text(
-                                    _selectedSiteData != null
-                                        ? '${_selectedSiteData!['site']}'
-                                        : 'No site selected',
-                                    overflow: TextOverflow
-                                        .ellipsis, // Handle long text with ellipsis
-                                    style: TextStyle(
-                                      fontSize:
-                                          16.0, // Adjust text size as needed
-                                    ),
-                                  ),
-                                ),
-                                Icon(Icons.arrow_drop_down,
-                                    color: Colors.grey[700]),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            TextButton(
-                              onPressed: () => _selectDate(context),
-                              child: Text(
-                                _selectedDate != null
-                                    ? "${_selectedDate!.toLocal()}"
-                                        .split(' ')[0]
-                                    : "Select Date",
-                                style: TextStyle(
-                                  color: _selectedDate != null
-                                      ? Colors.greenAccent
-                                      : Colors.red,
-                                ),
+                            label: Text(
+                              _selectedSiteData != null
+                                  ? 'Site Name:'
+                                  : 'No site selected',
+                              overflow: TextOverflow
+                                  .ellipsis, // Handle long text with ellipsis
+                              style: TextStyle(
+                                fontSize: 16.0, // Adjust text size as needed
                               ),
                             ),
-                            Text(
-                              _selectedSiteData != null
-                                  ? '${_selectedSiteData!['sheet']}'
-                                  : 'Sheet',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                            filled: true,
+                            labelStyle: TextStyle(
+                                color:
+                                    ThemeControl.errorColor.withOpacity(0.8)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().secondaryColor),
                             ),
-                            Text(
-                              _selectedSiteData != null
-                                  ? '${_selectedSiteData!['Location']}'
-                                  : 'Location',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().accentColor,
+                                  width: 2.0),
                             ),
-                          ],
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.grey, width: 1.5),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 12.0),
+                          ),
+                          keyboardType: TextInputType.number,
+                          readOnly: true,
+                        ),
+                        const SizedBox(height: 12.0),
+                        TextField(
+                          onTap: () => _selectDate(context),
+                          controller: _dateController,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(
+                              Icons.calendar_month_rounded,
+                              color: ThemeControl().accentColor,
+                            ),
+                            label: Text('Select Date'),
+                            filled: true,
+                            labelStyle: TextStyle(
+                                color:
+                                    ThemeControl.errorColor.withOpacity(0.8)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().secondaryColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().accentColor,
+                                  width: 2.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.grey, width: 1.5),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 12.0),
+                          ),
+                          keyboardType: TextInputType.number,
+                          readOnly: true,
                         ),
                         const SizedBox(height: 12.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: TextButton(
+                              child: OutlinedButton.icon(
                                 onPressed: () => _selectFromTime(context),
-                                child: Text(
+                                style: OutlinedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 15.0, horizontal: 10.0),
+                                  side: BorderSide(
+                                      color: Colors.grey, width: 2.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                ),
+                                label: Text(
                                   fromTime != null
                                       ? fromTime!.format(context)
                                       : 'Time in',
-                                  style: TextStyle(
-                                    color: fromTime != null
-                                        ? Colors.greenAccent
-                                        : Colors.red,
-                                  ),
                                 ),
+                                icon: Icon(Icons.access_time_rounded,
+                                    color: fromTime != null
+                                        ? ThemeControl().accentColor
+                                        : Colors.grey),
                               ),
                             ),
+                            SizedBox(width: 15),
                             Expanded(
-                              child: TextButton(
+                              child: OutlinedButton.icon(
                                 onPressed: () => _selectToTime(context),
-                                child: Text(
+                                style: OutlinedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 15.0, horizontal: 10.0),
+                                  side: BorderSide(
+                                      color: Colors.grey, width: 2.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                ),
+                                label: Text(
                                   toTime != null
                                       ? toTime!.format(context)
                                       : 'Time out',
-                                  style: TextStyle(
-                                    color: toTime != null
-                                        ? Colors.greenAccent
-                                        : Colors.red,
-                                  ),
+                                ),
+                                icon: Icon(
+                                  Icons.access_time_rounded,
+                                  color: toTime != null
+                                      ? ThemeControl().accentColor
+                                      : Colors.grey,
                                 ),
                               ),
-                            ),
+                            )
                           ],
                         ),
-                        const SizedBox(height: 12.0),
+                        const SizedBox(height: 8.0),
                         if (_selectedSiteData != null)
                           Row(
                             children: [
-                              // Safely map and expand the generated input fields
+                              // Generate input fields based on sheet number
                               ...GenInput(_selectedSiteData!['sheet'])
                                   .genInputs(genControllers)
                                   .map((inputField) {
@@ -280,54 +357,166 @@ class PmSheetPageState extends State<PmSheetPage> {
                               }),
                             ],
                           ),
+                        const SizedBox(height: 8.0),
+                        if (_selectedSiteData != null)
+                          Row(
+                            children: [
+                              // Generate CP and Kwh inputs if cp is yes
+                              ...CpInput(_selectedSiteData!['cp'])
+                                  .cpInputs(cpController, kwhController)
+                                  .map((inputField) {
+                                return Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: inputField,
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        const SizedBox(height: 8.0),
+                        if (_selectedSiteData != null)
+                          Row(
+                            children: [
+                              // Generate input fields based on sheet number
+                              ...TankInput(_selectedSiteData!['sheet'])
+                                  .tankInputs(tankControllers)
+                                  .map((inputField) {
+                                return Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: inputField,
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        const SizedBox(height: 8.0),
+                        if (_selectedSiteData != null)
+                          TextField(
+                            controller: _generalComment,
+                            decoration: InputDecoration(
+                              labelText: 'General Comment',
+                              labelStyle: TextStyle(
+                                  color:
+                                      ThemeControl.errorColor.withOpacity(0.8)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                borderSide: BorderSide(
+                                    color: ThemeControl().secondaryColor),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                borderSide: BorderSide(
+                                    color: ThemeControl().accentColor,
+                                    width: 2.0),
+                              ),
+                              filled: true,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                borderSide: const BorderSide(
+                                    color: Colors.grey, width: 1.5),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 12.0),
+                            ),
+                            keyboardType: TextInputType.text,
+                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              _selectedSiteData != null
+                                  ? '${_selectedSiteData!['sheet']}'
+                                  : 'Location',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                   Step(
-                    title: Text('Next Step'),
-                    content: Center(child: Text('Content for next step')),
+                    isActive: _currentStep == 1,
+                    title: Text('Generator'),
+                    content: Column(
+                      children: [
+                        if (_selectedSiteData != null)
+                          ...ReplacementSwitch(_selectedSiteData!['sheet'])
+                              .genSwitches(
+                                  checkboxValues, handleCheckboxChange),
+                        if (_selectedSiteData != null) ...[
+                          ...SeparatorSwitch(_selectedSiteData!['sheet'],
+                                  _selectedSiteData!.cast<String, String?>())
+                              .sepSwitches(
+                                  checkboxValues, handleCheckboxChange),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Step(
+                    isActive: _currentStep == 2,
+                    title: Text('Load & Voltage'),
+                    content: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            if (_selectedSiteData != null)
+                              ...CpInput(_selectedSiteData!['cp'])
+                                  .cpPhaseInputs(_selectedSiteData!['phase'])
+                                  .map((phaseField) {
+                                return Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: phaseField,
+                                  ),
+                                );
+                              }),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        if (_selectedSiteData != null)
+                          GenVLInput(_selectedSiteData!['sheet'])
+                              .genVLInputs(genVLControllers),
+                      ],
+                    ),
+                  ),
+                  Step(
+                    isActive: _currentStep == 3,
+                    title: Text('AC'),
+                    content: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        if (_selectedSiteData != null)
+                          ...AcInput(_selectedSiteData!['sheet'])
+                              .acInputs(acControllers)
+                              .map((inputField) {
+                            return inputField;
+                          }),
+                      ],
+                    ),
+                  ),
+                  Step(
+                    isActive: _currentStep == 4,
+                    title: Text('Earth & External load'),
+                    content: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [],
+                    ),
+                  ),
+                  Step(
+                    isActive: _currentStep == 5,
+                    title: Text('Next'),
+                    content: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [],
+                    ),
                   ),
                   // Add more steps as needed
                 ],
               ),
-      ),
-    );
-  }
-}
-
-class DateSelectionButton extends StatelessWidget {
-  final DateTime? selectedDate;
-  final VoidCallback onPressed;
-
-  const DateSelectionButton({
-    super.key,
-    required this.selectedDate,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.blue,
-        padding: const EdgeInsets.symmetric(
-            vertical: 16, horizontal: 24), // Text color
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30), // Rounded corners
-        ),
-        elevation: 5, // Add elevation for shadow
-      ),
-      child: Text(
-        selectedDate != null
-            ? "${selectedDate!.toLocal()}".split(' ')[0]
-            : "Select Date",
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: selectedDate != null ? Colors.greenAccent : Colors.red,
-        ),
       ),
     );
   }
