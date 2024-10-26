@@ -5,6 +5,7 @@ import 'package:power_diyala/Widgets/widgets.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/ac_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
+import 'package:power_diyala/data_helper/sheets_helper/earth_load.dart';
 import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
 import 'package:power_diyala/data_helper/sheets_helper/toggles.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
@@ -27,17 +28,17 @@ class PmSheetPageState extends State<PmSheetPage> {
   List<Map<String, dynamic>>? _data;
   List<String> _siteNames = [];
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _generalComment = TextEditingController();
   Map<String, dynamic>? _selectedSiteData;
   List<TextEditingController> genControllers = [];
   List<TextEditingController> genVLControllers = [];
   List<TextEditingController> acControllers = [];
   List<TextEditingController> tankControllers = [];
+  List<TextEditingController> commentsControllers = [];
   TextEditingController siteController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   TextEditingController cpController = TextEditingController();
   TextEditingController kwhController = TextEditingController();
-  List<bool> checkboxValues = [
+  List<bool> toggleValues = [
     false,
     false,
     false,
@@ -62,6 +63,7 @@ class PmSheetPageState extends State<PmSheetPage> {
     tankControllers = List.generate(5, (index) => TextEditingController());
     genVLControllers = List.generate(20, (index) => TextEditingController());
     acControllers = List.generate(20, (index) => TextEditingController());
+    commentsControllers = List.generate(9, (index) => TextEditingController());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
     });
@@ -79,6 +81,9 @@ class PmSheetPageState extends State<PmSheetPage> {
       controller.dispose();
     }
     for (var controller in acControllers) {
+      controller.dispose();
+    }
+    for (var controller in commentsControllers) {
       controller.dispose();
     }
     siteController.dispose(); // Dispose of the site controller
@@ -151,9 +156,9 @@ class PmSheetPageState extends State<PmSheetPage> {
     }
   }
 
-  void handleCheckboxChange(int index, bool value) {
+  void handleToggleChange(int index, bool value) {
     setState(() {
-      checkboxValues[index] = value;
+      toggleValues[index] = value;
     });
   }
 
@@ -177,9 +182,15 @@ class PmSheetPageState extends State<PmSheetPage> {
                 currentStep: _currentStep,
                 type: StepperType.vertical,
                 physics: ScrollPhysics(),
-                onStepTapped: (step) => setState(() => _currentStep = step),
+                onStepTapped: (step) {
+                  if (step == _currentStep) {
+                    setState(() {
+                      _currentStep = step;
+                    });
+                  }
+                },
                 onStepContinue: () {
-                  if (_currentStep < 6) {
+                  if (_currentStep < 7) {
                     // Change this to the number of steps you have minus one
                     setState(() => _currentStep++);
                   }
@@ -393,47 +404,18 @@ class PmSheetPageState extends State<PmSheetPage> {
                           ),
                         const SizedBox(height: 8.0),
                         if (_selectedSiteData != null)
-                          TextField(
-                            controller: _generalComment,
-                            decoration: InputDecoration(
-                              labelText: 'General Comment',
-                              labelStyle: TextStyle(
-                                  color:
-                                      ThemeControl.errorColor.withOpacity(0.8)),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                                borderSide: BorderSide(
-                                    color: ThemeControl().secondaryColor),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text(
+                                _selectedSiteData != null
+                                    ? '${_selectedSiteData!['sheet']}'
+                                    : 'Location',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                                borderSide: BorderSide(
-                                    color: ThemeControl().accentColor,
-                                    width: 2.0),
-                              ),
-                              filled: true,
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                                borderSide: const BorderSide(
-                                    color: Colors.grey, width: 1.5),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 16.0, horizontal: 12.0),
-                            ),
-                            keyboardType: TextInputType.text,
+                            ],
                           ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(
-                              _selectedSiteData != null
-                                  ? '${_selectedSiteData!['sheet']}'
-                                  : 'Location',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
@@ -444,13 +426,11 @@ class PmSheetPageState extends State<PmSheetPage> {
                       children: [
                         if (_selectedSiteData != null)
                           ...ReplacementSwitch(_selectedSiteData!['sheet'])
-                              .genSwitches(
-                                  checkboxValues, handleCheckboxChange),
+                              .genSwitches(toggleValues, handleToggleChange),
                         if (_selectedSiteData != null) ...[
                           ...SeparatorSwitch(_selectedSiteData!['sheet'],
                                   _selectedSiteData!.cast<String, String?>())
-                              .sepSwitches(
-                                  checkboxValues, handleCheckboxChange),
+                              .sepSwitches(toggleValues, handleToggleChange),
                         ],
                       ],
                     ),
@@ -503,18 +483,178 @@ class PmSheetPageState extends State<PmSheetPage> {
                     title: Text('Earth & External load'),
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [],
+                      children: [
+                        EarthInputFields(selectedSiteData: _selectedSiteData),
+                      ],
                     ),
                   ),
                   Step(
                     isActive: _currentStep == 5,
+                    title: Text('Comments'),
+                    content: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        SizedBox(height: 5),
+                        TextField(
+                          controller: commentsControllers[0],
+                          decoration: InputDecoration(
+                            labelText: 'General',
+                            labelStyle: TextStyle(
+                                color:
+                                    ThemeControl.errorColor.withOpacity(0.8)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().secondaryColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().accentColor,
+                                  width: 2.0),
+                            ),
+                            filled: true,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.grey, width: 1.5),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 12.0),
+                          ),
+                          keyboardType: TextInputType.text,
+                        ),
+                        SizedBox(height: 8),
+                        TextField(
+                          controller: commentsControllers[1],
+                          decoration: InputDecoration(
+                            labelText: 'G1',
+                            labelStyle: TextStyle(
+                                color:
+                                    ThemeControl.errorColor.withOpacity(0.8)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().secondaryColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().accentColor,
+                                  width: 2.0),
+                            ),
+                            filled: true,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.grey, width: 1.5),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 12.0),
+                          ),
+                          keyboardType: TextInputType.text,
+                        ),
+                        SizedBox(height: 8),
+                        TextField(
+                          controller: commentsControllers[2],
+                          decoration: InputDecoration(
+                            labelText: 'G2',
+                            labelStyle: TextStyle(
+                                color:
+                                    ThemeControl.errorColor.withOpacity(0.8)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().secondaryColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().accentColor,
+                                  width: 2.0),
+                            ),
+                            filled: true,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.grey, width: 1.5),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 12.0),
+                          ),
+                          keyboardType: TextInputType.text,
+                        ),
+                        SizedBox(height: 8),
+                        TextField(
+                          controller: commentsControllers[3],
+                          decoration: InputDecoration(
+                            labelText: 'AC',
+                            labelStyle: TextStyle(
+                                color:
+                                    ThemeControl.errorColor.withOpacity(0.8)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().secondaryColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().accentColor,
+                                  width: 2.0),
+                            ),
+                            filled: true,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.grey, width: 1.5),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 12.0),
+                          ),
+                          keyboardType: TextInputType.text,
+                        ),
+                        SizedBox(height: 8),
+                        TextField(
+                          controller: commentsControllers[4],
+                          decoration: InputDecoration(
+                            labelText: 'Electric',
+                            labelStyle: TextStyle(
+                                color:
+                                    ThemeControl.errorColor.withOpacity(0.8)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().secondaryColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide(
+                                  color: ThemeControl().accentColor,
+                                  width: 2.0),
+                            ),
+                            filled: true,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: const BorderSide(
+                                  color: Colors.grey, width: 1.5),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 12.0),
+                          ),
+                          keyboardType: TextInputType.text,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Step(
+                    isActive: _currentStep == 6,
                     title: Text('Next'),
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [],
                     ),
                   ),
-                  // Add more steps as needed
                 ],
               ),
       ),
