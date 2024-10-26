@@ -5,29 +5,31 @@
 
 # Power Diyala 
 
-### Full-featured PM Calculator
-An app to make our jobs easier by calculating gens working and replacements.
+### Full-featured Data Analyzer For Daily Use
+This App Will Make Our Job Easy ...I Think !
 
 [![GitHub License](https://img.shields.io/github/license/ahmed47v/power_diyala?labelColor=27303D&color=0877d2)](/LICENSE)
 
 ## Download
 [![GitHub downloads](https://img.shields.io/github/v/release/Ahmed47v/power_diyala?label=Stable&color=2ECC71)](https://github.com/Ahmed47v/power_diyala/releases)
 
+*Requires Android 8.0 or higher.*
 
 ## Features
 
 <div align="left">
 
-* Calculation for PM details including replacements.
-* SPMS replacements tracking.
-* PM team displayed on calendar.
-* Plus much more coming soon...
+* Calculater for PM data runtime/replacement.
+* SPMS items replacements tracking.
+* PM teams plan.
+* Network information.
+* maybe more coming soon...
 
 </div>
 
 ### Disclaimer
 
-This is an unofficial app, just a personal effort.
+This is an Unofficial Application, Just a Personal Effort.
 
 ### License
 
