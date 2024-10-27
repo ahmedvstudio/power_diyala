@@ -104,13 +104,13 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -136,13 +136,13 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -172,13 +172,13 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -205,13 +205,13 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -270,13 +270,13 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -307,7 +307,8 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide(
-                                color: ThemeControl().accentColor, width: 2.0)),
+                                color: Theme.of(context).colorScheme.tertiary,
+                                width: 2.0)),
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: const BorderSide(
@@ -333,7 +334,8 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide(
-                                color: ThemeControl().accentColor, width: 2.0)),
+                                color: Theme.of(context).colorScheme.tertiary,
+                                width: 2.0)),
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: const BorderSide(
@@ -388,13 +390,13 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -420,13 +422,13 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -456,13 +458,13 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),

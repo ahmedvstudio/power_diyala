@@ -9,7 +9,7 @@ import 'package:power_diyala/data_helper/sheets_helper/earth_load.dart';
 import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
 import 'package:power_diyala/data_helper/sheets_helper/toggles.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
-import '../settings/theme_control.dart';
+import 'package:power_diyala/settings/theme_control.dart';
 
 class PmSheetPage extends StatefulWidget {
   final ThemeMode themeMode;
@@ -51,6 +51,7 @@ class PmSheetPageState extends State<PmSheetPage> {
     false,
     false
   ];
+  List<bool> stepCompleted = List.filled(7, false); // Track completed steps
 
   TimeOfDay? fromTime;
   TimeOfDay? toTime;
@@ -182,6 +183,43 @@ class PmSheetPageState extends State<PmSheetPage> {
                 currentStep: _currentStep,
                 type: StepperType.vertical,
                 physics: ScrollPhysics(),
+                controlsBuilder:
+                    (BuildContext context, ControlsDetails controls) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          // Restart the page completely
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PmSheetPage(
+                                  themeMode: widget.themeMode,
+                                  onThemeChanged: widget.onThemeChanged),
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.restart_alt_rounded),
+                        tooltip: 'Restart',
+                      ),
+                      ElevatedButton(
+                        onPressed: controls.onStepCancel,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                        ),
+                        child: Text('Back'),
+                      ),
+                      ElevatedButton(
+                        onPressed: controls.onStepContinue,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                        ),
+                        child: Text('Continue'),
+                      ),
+                    ],
+                  );
+                },
                 onStepTapped: (step) {
                   if (step == _currentStep) {
                     setState(() {
@@ -190,14 +228,21 @@ class PmSheetPageState extends State<PmSheetPage> {
                   }
                 },
                 onStepContinue: () {
-                  if (_currentStep < 7) {
-                    // Change this to the number of steps you have minus one
-                    setState(() => _currentStep++);
+                  if (_currentStep < 6) {
+                    setState(() {
+                      stepCompleted[_currentStep] =
+                          true; // Mark step as completed
+                      _currentStep++;
+                    });
                   }
                 },
                 onStepCancel: () {
                   if (_currentStep > 0) {
-                    setState(() => _currentStep--);
+                    setState(() {
+                      stepCompleted[_currentStep] =
+                          false; // Reset current step on cancel
+                      _currentStep--;
+                    });
                   }
                 },
                 steps: [
@@ -222,7 +267,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                           decoration: InputDecoration(
                             prefixIcon: Icon(
                               Icons.cell_tower_rounded,
-                              color: ThemeControl().accentColor,
+                              color: Theme.of(context).colorScheme.tertiary,
                             ),
                             label: Text(
                               _selectedSiteData != null
@@ -241,12 +286,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().secondaryColor),
+                                  color:
+                                      Theme.of(context).colorScheme.secondary),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().accentColor,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                   width: 2.0),
                             ),
                             enabledBorder: OutlineInputBorder(
@@ -267,7 +313,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                           decoration: InputDecoration(
                             prefixIcon: Icon(
                               Icons.calendar_month_rounded,
-                              color: ThemeControl().accentColor,
+                              color: Theme.of(context).colorScheme.tertiary,
                             ),
                             label: Text('Select Date'),
                             filled: true,
@@ -277,12 +323,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().secondaryColor),
+                                  color:
+                                      Theme.of(context).colorScheme.secondary),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().accentColor,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                   width: 2.0),
                             ),
                             enabledBorder: OutlineInputBorder(
@@ -319,7 +366,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 ),
                                 icon: Icon(Icons.access_time_rounded,
                                     color: fromTime != null
-                                        ? ThemeControl().accentColor
+                                        ? Theme.of(context).colorScheme.tertiary
                                         : Colors.grey),
                               ),
                             ),
@@ -344,7 +391,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 icon: Icon(
                                   Icons.access_time_rounded,
                                   color: toTime != null
-                                      ? ThemeControl().accentColor
+                                      ? Theme.of(context).colorScheme.tertiary
                                       : Colors.grey,
                                 ),
                               ),
@@ -357,7 +404,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                             children: [
                               // Generate input fields based on sheet number
                               ...GenInput(_selectedSiteData!['sheet'])
-                                  .genInputs(genControllers)
+                                  .genInputs(context, genControllers)
                                   .map((inputField) {
                                 return Expanded(
                                   child: Padding(
@@ -374,7 +421,8 @@ class PmSheetPageState extends State<PmSheetPage> {
                             children: [
                               // Generate CP and Kwh inputs if cp is yes
                               ...CpInput(_selectedSiteData!['cp'])
-                                  .cpInputs(cpController, kwhController)
+                                  .cpInputs(
+                                      context, cpController, kwhController)
                                   .map((inputField) {
                                 return Expanded(
                                   child: Padding(
@@ -391,7 +439,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                             children: [
                               // Generate input fields based on sheet number
                               ...TankInput(_selectedSiteData!['sheet'])
-                                  .tankInputs(tankControllers)
+                                  .tankInputs(context, tankControllers)
                                   .map((inputField) {
                                 return Expanded(
                                   child: Padding(
@@ -418,6 +466,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                           ),
                       ],
                     ),
+                    state: stepCompleted[0]
+                        ? StepState.complete
+                        : StepState.indexed,
                   ),
                   Step(
                     isActive: _currentStep == 1,
@@ -434,6 +485,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                         ],
                       ],
                     ),
+                    state: stepCompleted[1]
+                        ? StepState.complete
+                        : StepState.indexed,
                   ),
                   Step(
                     isActive: _currentStep == 2,
@@ -445,7 +499,8 @@ class PmSheetPageState extends State<PmSheetPage> {
                           children: [
                             if (_selectedSiteData != null)
                               ...CpInput(_selectedSiteData!['cp'])
-                                  .cpPhaseInputs(_selectedSiteData!['phase'])
+                                  .cpPhaseInputs(
+                                      context, _selectedSiteData!['phase'])
                                   .map((phaseField) {
                                 return Expanded(
                                   child: Padding(
@@ -459,9 +514,12 @@ class PmSheetPageState extends State<PmSheetPage> {
                         SizedBox(height: 8),
                         if (_selectedSiteData != null)
                           GenVLInput(_selectedSiteData!['sheet'])
-                              .genVLInputs(genVLControllers),
+                              .genVLInputs(context, genVLControllers),
                       ],
                     ),
+                    state: stepCompleted[2]
+                        ? StepState.complete
+                        : StepState.indexed,
                   ),
                   Step(
                     isActive: _currentStep == 3,
@@ -471,12 +529,15 @@ class PmSheetPageState extends State<PmSheetPage> {
                       children: [
                         if (_selectedSiteData != null)
                           ...AcInput(_selectedSiteData!['sheet'])
-                              .acInputs(acControllers)
+                              .acInputs(context, acControllers)
                               .map((inputField) {
                             return inputField;
                           }),
                       ],
                     ),
+                    state: stepCompleted[3]
+                        ? StepState.complete
+                        : StepState.indexed,
                   ),
                   Step(
                     isActive: _currentStep == 4,
@@ -487,6 +548,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                         EarthInputFields(selectedSiteData: _selectedSiteData),
                       ],
                     ),
+                    state: stepCompleted[4]
+                        ? StepState.complete
+                        : StepState.indexed,
                   ),
                   Step(
                     isActive: _currentStep == 5,
@@ -505,12 +569,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().secondaryColor),
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().accentColor,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                   width: 2.0),
                             ),
                             filled: true,
@@ -535,12 +600,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().secondaryColor),
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().accentColor,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                   width: 2.0),
                             ),
                             filled: true,
@@ -565,12 +631,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().secondaryColor),
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().accentColor,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                   width: 2.0),
                             ),
                             filled: true,
@@ -595,12 +662,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().secondaryColor),
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().accentColor,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                   width: 2.0),
                             ),
                             filled: true,
@@ -625,12 +693,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().secondaryColor),
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: BorderSide(
-                                  color: ThemeControl().accentColor,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                   width: 2.0),
                             ),
                             filled: true,
@@ -646,14 +715,20 @@ class PmSheetPageState extends State<PmSheetPage> {
                         ),
                       ],
                     ),
+                    state: stepCompleted[5]
+                        ? StepState.complete
+                        : StepState.indexed,
                   ),
                   Step(
                     isActive: _currentStep == 6,
-                    title: Text('Next'),
+                    title: Text('Review'),
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [],
                     ),
+                    state: stepCompleted[6]
+                        ? StepState.complete
+                        : StepState.indexed,
                   ),
                 ],
               ),

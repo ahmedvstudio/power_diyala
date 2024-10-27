@@ -5,7 +5,8 @@ class GenInput {
   final int? sheetNumber; // Make sheetNumber nullable
   GenInput(this.sheetNumber);
 
-  List<Widget> genInputs(List<TextEditingController> controllers) {
+  List<Widget> genInputs(
+      BuildContext context, List<TextEditingController> controllers) {
     List<Widget> inputFields = [];
 
     // Check for null or invalid sheetNumber
@@ -33,12 +34,13 @@ class GenInput {
                   TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(color: ThemeControl().secondaryColor),
+                borderSide:
+                    BorderSide(color: Theme.of(context).colorScheme.secondary),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
-                borderSide:
-                    BorderSide(color: ThemeControl().accentColor, width: 2.0),
+                borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.tertiary, width: 2.0),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
@@ -66,12 +68,13 @@ class GenInput {
                 TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: ThemeControl().secondaryColor),
+              borderSide:
+                  BorderSide(color: Theme.of(context).colorScheme.secondary),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
-              borderSide:
-                  BorderSide(color: ThemeControl().accentColor, width: 2.0),
+              borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.tertiary, width: 2.0),
             ),
             filled: true,
             enabledBorder: OutlineInputBorder(
@@ -102,7 +105,8 @@ class GenVLInput {
   final int? sheetNumber;
   GenVLInput(this.sheetNumber);
 
-  Widget genVLInputs(List<TextEditingController> controllers) {
+  Widget genVLInputs(
+      BuildContext context, List<TextEditingController> controllers) {
     List<Widget> inputFields = [];
 
     if (sheetNumber == null) {
@@ -120,17 +124,19 @@ class GenVLInput {
       case 8:
       case 9:
       case 16:
-        inputFields.addAll(_generateInputs(controllers, 'PH-N', 0, 3));
-        inputFields.addAll(_generateInputs(controllers, 'PH-L', 3, 3));
-        inputFields.addAll(_generateInputs(controllers, 'Load', 6, 3));
+        inputFields.addAll(_generateInputs(context, controllers, 'PH-N', 0, 3));
+        inputFields.addAll(_generateInputs(context, controllers, 'PH-L', 3, 3));
+        inputFields.addAll(_generateInputs(context, controllers, 'Load', 6, 3));
         inputFields.add(_createTextField(
-            controllers[18], 'Battery Voltage')); // G1 Battery Voltage
+            context, controllers[18], 'Battery Voltage')); // G1 Battery Voltage
 
-        inputFields.addAll(_generateInputs(controllers, 'PH-N', 9, 3));
-        inputFields.addAll(_generateInputs(controllers, 'PH-L', 12, 3));
-        inputFields.addAll(_generateInputs(controllers, 'Load', 15, 3));
+        inputFields.addAll(_generateInputs(context, controllers, 'PH-N', 9, 3));
+        inputFields
+            .addAll(_generateInputs(context, controllers, 'PH-L', 12, 3));
+        inputFields
+            .addAll(_generateInputs(context, controllers, 'Load', 15, 3));
         inputFields.add(_createTextField(
-            controllers[19], 'Battery Voltage')); // G2 Battery Voltage
+            context, controllers[19], 'Battery Voltage')); // G2 Battery Voltage
         break;
 
       case 10:
@@ -138,11 +144,11 @@ class GenVLInput {
       case 12:
       case 13:
       case 14:
-        inputFields.addAll(_generateInputs(controllers, 'PH-N', 0, 3));
-        inputFields.addAll(_generateInputs(controllers, 'PH-L', 3, 3));
-        inputFields.addAll(_generateInputs(controllers, 'Load', 6, 3));
+        inputFields.addAll(_generateInputs(context, controllers, 'PH-N', 0, 3));
+        inputFields.addAll(_generateInputs(context, controllers, 'PH-L', 3, 3));
+        inputFields.addAll(_generateInputs(context, controllers, 'Load', 6, 3));
         inputFields.add(_createTextField(
-            controllers[9], 'Battery Voltage')); // Battery Voltage
+            context, controllers[9], 'Battery Voltage')); // Battery Voltage
         break;
 
       case 15:
@@ -154,17 +160,22 @@ class GenVLInput {
     return _buildBorderedContainer(inputFields);
   }
 
-  List<Widget> _generateInputs(List<TextEditingController> controllers,
-      String prefix, int startIndex, int count) {
+  List<Widget> _generateInputs(
+      BuildContext context,
+      List<TextEditingController> controllers,
+      String prefix,
+      int startIndex,
+      int count) {
     List<Widget> inputs = [];
     for (int i = startIndex; i < startIndex + count; i++) {
-      inputs.add(
-          _createTextField(controllers[i], '$prefix ${i - startIndex + 1}'));
+      inputs.add(_createTextField(
+          context, controllers[i], '$prefix ${i - startIndex + 1}'));
     }
     return inputs;
   }
 
-  Widget _createTextField(TextEditingController controller, String labelText) {
+  Widget _createTextField(BuildContext context,
+      TextEditingController controller, String labelText) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -173,11 +184,13 @@ class GenVLInput {
             color: ThemeControl.errorColor.withOpacity(0.8), fontSize: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(color: ThemeControl().secondaryColor),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.secondary),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(color: ThemeControl().accentColor, width: 2.0),
+          borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.tertiary, width: 2.0),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),

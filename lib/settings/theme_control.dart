@@ -120,16 +120,16 @@ class ThemeControl with ChangeNotifier {
             TextStyle(color: isDarkMode ? Colors.black : Colors.white),
       ),
       colorScheme: ColorScheme(
-        primary: _primaryColor,
-        secondary: _secondaryColor,
-        surface: isDarkMode ? darkSurfaceColor : lightSurfaceColor,
-        error: errorColor,
-        onPrimary: Colors.white,
-        onSecondary: isDarkMode ? lightBackgroundColor : darkSurfaceColor,
-        onSurface: Colors.black,
-        onError: Colors.white,
-        brightness: isDarkMode ? Brightness.dark : Brightness.light,
-      ),
+          primary: _primaryColor,
+          secondary: _secondaryColor,
+          surface: isDarkMode ? darkSurfaceColor : lightSurfaceColor,
+          error: errorColor,
+          onPrimary: Colors.white,
+          onSecondary: isDarkMode ? lightBackgroundColor : darkSurfaceColor,
+          onSurface: Colors.black,
+          onError: Colors.white,
+          brightness: isDarkMode ? Brightness.dark : Brightness.light,
+          tertiary: _accentColor),
       listTileTheme: ListTileThemeData(
           titleTextStyle: TextStyle(
               color: isDarkMode ? lightBackgroundColor : Colors.black,
@@ -289,6 +289,28 @@ class ThemeControl with ChangeNotifier {
             wordSpacing: 2,
           ),
         ),
+      ),
+      toggleButtonsTheme: ToggleButtonsThemeData(
+        borderWidth: 2.0,
+        borderColor: isDarkMode ? Colors.grey.shade700 : _primaryColor,
+        selectedBorderColor: isDarkMode ? _accentColor : _secondaryColor,
+        fillColor: isDarkMode
+            ? _primaryColor.withOpacity(0.2)
+            : _secondaryColor.withOpacity(0.2),
+        color: isDarkMode ? lightBackgroundColor : darkBackgroundColor,
+        selectedColor: isDarkMode ? warningColor : _accentColor,
+        borderRadius: BorderRadius.circular(12.0),
+        textStyle: TextStyle(
+          fontSize: 16.0,
+          fontWeight: FontWeight.bold,
+          color: isDarkMode ? Colors.white : Colors.black,
+        ),
+        splashColor: isDarkMode
+            ? _primaryColor.withOpacity(0.3)
+            : _accentColor.withOpacity(0.3),
+        hoverColor: isDarkMode
+            ? _accentColor.withOpacity(0.2)
+            : _secondaryColor.withOpacity(0.2),
       ),
     );
   }

@@ -89,7 +89,6 @@ class ReplacementSwitch {
           ),
           Switch(
             value: switchValues[g1Index],
-            activeColor: Colors.blue,
             onChanged: (bool value) {
               onChanged(g1Index, value);
               switchValues[g1Index] = value;
@@ -98,7 +97,6 @@ class ReplacementSwitch {
           if (g2Index != null)
             Switch(
               value: switchValues[g2Index],
-              activeColor: Colors.blue,
               onChanged: (bool value) {
                 onChanged(g2Index, value);
                 switchValues[g2Index] = value;
@@ -188,7 +186,6 @@ class SeparatorSwitch {
           isEnabled
               ? Switch(
                   value: switchValues[g1Index],
-                  activeColor: Colors.green,
                   onChanged: (bool value) {
                     onChanged(g1Index, value);
                     switchValues[g1Index] = value;
@@ -199,7 +196,6 @@ class SeparatorSwitch {
             isEnabled
                 ? Switch(
                     value: switchValues[g2Index],
-                    activeColor: Colors.green,
                     onChanged: (bool value) {
                       onChanged(g2Index, value);
                       switchValues[g2Index] = value;

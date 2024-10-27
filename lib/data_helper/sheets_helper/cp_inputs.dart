@@ -6,10 +6,9 @@ class CpInput {
 
   CpInput(this.cpValue);
 
-  List<Widget> cpInputs(
+  List<Widget> cpInputs(BuildContext context,
       TextEditingController cpController, TextEditingController kwhController) {
     List<Widget> cpFields = [];
-    // Check for null or empty cpValue
     if (cpValue == null || cpValue!.isEmpty) {
       return cpFields;
     }
@@ -24,12 +23,14 @@ class CpInput {
               TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(color: ThemeControl().secondaryColor),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
-            borderSide:
-                BorderSide(color: ThemeControl().accentColor, width: 2.0),
+            borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.tertiary, width: 2.0),
           ),
           filled: true,
           enabledBorder: OutlineInputBorder(
@@ -50,13 +51,15 @@ class CpInput {
               TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(color: ThemeControl().secondaryColor),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           ),
           filled: true,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
-            borderSide:
-                BorderSide(color: ThemeControl().accentColor, width: 2.0),
+            borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.tertiary, width: 2.0),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
@@ -68,12 +71,11 @@ class CpInput {
         keyboardType: TextInputType.number,
       ));
     }
-    // If cpValue is 'no', generate no inputs.
 
     return cpFields;
   }
 
-  List<Widget> cpPhaseInputs(String? phase) {
+  List<Widget> cpPhaseInputs(BuildContext context, String? phase) {
     List<Widget> phaseFields = [];
     if (phase == null || phase.isEmpty) {
       return phaseFields;
@@ -97,13 +99,15 @@ class CpInput {
                     fontSize: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
-                  borderSide: BorderSide(color: ThemeControl().secondaryColor),
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.secondary),
                 ),
                 filled: true,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
-                  borderSide:
-                      BorderSide(color: ThemeControl().accentColor, width: 2.0),
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      width: 2.0),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
@@ -129,13 +133,16 @@ class CpInput {
                     fontSize: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
-                  borderSide: BorderSide(color: ThemeControl().secondaryColor),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                 ),
                 filled: true,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
-                  borderSide:
-                      BorderSide(color: ThemeControl().accentColor, width: 2.0),
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      width: 2.0),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
@@ -173,14 +180,15 @@ class CpInput {
                         fontSize: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
-                      borderSide:
-                          BorderSide(color: ThemeControl().secondaryColor),
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.secondary),
                     ),
                     filled: true,
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
                       borderSide: BorderSide(
-                          color: ThemeControl().accentColor, width: 2.0),
+                          color: Theme.of(context).colorScheme.tertiary,
+                          width: 2.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -208,14 +216,15 @@ class CpInput {
                         fontSize: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
-                      borderSide:
-                          BorderSide(color: ThemeControl().secondaryColor),
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.secondary),
                     ),
                     filled: true,
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
                       borderSide: BorderSide(
-                          color: ThemeControl().accentColor, width: 2.0),
+                          color: Theme.of(context).colorScheme.tertiary,
+                          width: 2.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -234,7 +243,6 @@ class CpInput {
       ));
     }
 
-    // Wrap the inputs in a bordered container with a label
     return [
       Container(
         padding: const EdgeInsets.all(16.0), // Padding around the contents

@@ -5,7 +5,8 @@ class AcInput {
   final int? sheetNumber; // Make sheetNumber nullable
   AcInput(this.sheetNumber);
 
-  List<Widget> acInputs(List<TextEditingController> controllers) {
+  List<Widget> acInputs(
+      BuildContext context, List<TextEditingController> controllers) {
     List<Widget> inputFields = [];
     if (sheetNumber == null) {
       return inputFields;
@@ -36,13 +37,13 @@ class AcInput {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -67,13 +68,13 @@ class AcInput {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -109,13 +110,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -140,13 +141,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -171,13 +172,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -218,13 +219,13 @@ class AcInput {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -249,13 +250,13 @@ class AcInput {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -290,13 +291,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -321,13 +322,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -352,13 +353,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -397,13 +398,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -428,13 +429,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -469,13 +470,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -500,13 +501,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -539,13 +540,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -570,13 +571,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -601,13 +602,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -646,13 +647,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -677,13 +678,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -716,13 +717,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -757,13 +758,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -802,13 +803,13 @@ class AcInput {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -833,13 +834,13 @@ class AcInput {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide(
-                            color: ThemeControl().accentColor,
+                            color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
                           ),
                         ),
@@ -875,13 +876,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -906,13 +907,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -946,13 +947,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -977,13 +978,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),
@@ -1008,13 +1009,13 @@ class AcInput {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().secondaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
-                          color: ThemeControl().accentColor,
+                          color: Theme.of(context).colorScheme.tertiary,
                           width: 2.0,
                         ),
                       ),

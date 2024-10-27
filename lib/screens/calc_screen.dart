@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:power_diyala/data_helper/calc_table_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:power_diyala/screens/test.dart';
 import 'package:power_diyala/widgets/calculations.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:power_diyala/settings/constants.dart';
@@ -310,9 +311,12 @@ class HomeScreenState extends State<CalculatorScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                _selectedSiteName ?? 'Select a Site Name',
-                                style: Theme.of(context).textTheme.bodyMedium,
+                              Expanded(
+                                child: Text(
+                                  _selectedSiteName ?? 'Select a Site Name',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                               Icon(
                                 Icons.arrow_drop_down,
@@ -473,6 +477,14 @@ class HomeScreenState extends State<CalculatorScreen> {
                               onPressed: () => _clearSelection(),
                               label: const Text('Clear Selection'),
                             ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ExcelEditor(),
+                              ));
+                            },
+                            label: const Text('565464'),
                           ),
                         ],
                       ),

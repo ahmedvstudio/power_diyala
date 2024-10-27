@@ -5,7 +5,8 @@ class TankInput {
   final int? sheetNumber;
   TankInput(this.sheetNumber);
 
-  List<Widget> tankInputs(List<TextEditingController> controllers) {
+  List<Widget> tankInputs(
+      BuildContext context, List<TextEditingController> controllers) {
     List<Widget> inputFields = [];
     if (sheetNumber == null) {
       return inputFields; // Return empty list if sheetNumber is null
@@ -23,12 +24,13 @@ class TankInput {
                   TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(color: ThemeControl().secondaryColor),
+                borderSide:
+                    BorderSide(color: Theme.of(context).colorScheme.secondary),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
-                borderSide:
-                    BorderSide(color: ThemeControl().accentColor, width: 2.0),
+                borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.tertiary, width: 2.0),
               ),
               filled: true,
               enabledBorder: OutlineInputBorder(
@@ -56,12 +58,13 @@ class TankInput {
                   TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(color: ThemeControl().secondaryColor),
+                borderSide:
+                    BorderSide(color: Theme.of(context).colorScheme.secondary),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
-                borderSide:
-                    BorderSide(color: ThemeControl().accentColor, width: 2.0),
+                borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.tertiary, width: 2.0),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
@@ -92,12 +95,13 @@ class TankInput {
                 TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: ThemeControl().secondaryColor),
+              borderSide:
+                  BorderSide(color: Theme.of(context).colorScheme.secondary),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
-              borderSide:
-                  BorderSide(color: ThemeControl().accentColor, width: 2.0),
+              borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.tertiary, width: 2.0),
             ),
             filled: true,
             enabledBorder: OutlineInputBorder(
