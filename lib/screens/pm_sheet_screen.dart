@@ -417,21 +417,11 @@ class PmSheetPageState extends State<PmSheetPage> {
                           ),
                         const SizedBox(height: 8.0),
                         if (_selectedSiteData != null)
-                          Row(
-                            children: [
-                              // Generate CP and Kwh inputs if cp is yes
-                              ...CpInput(_selectedSiteData!['cp'])
-                                  .cpInputs(
-                                      context, cpController, kwhController)
-                                  .map((inputField) {
-                                return Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: inputField,
-                                  ),
-                                );
-                              }),
-                            ],
+                          // Usage in some parent widget
+                          CpInput(
+                            cpValue: _selectedSiteData!['cp'],
+                            cpController: cpController,
+                            kwhController: kwhController,
                           ),
                         const SizedBox(height: 8.0),
                         if (_selectedSiteData != null)
@@ -495,22 +485,10 @@ class PmSheetPageState extends State<PmSheetPage> {
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Row(
-                          children: [
-                            if (_selectedSiteData != null)
-                              ...CpInput(_selectedSiteData!['cp'])
-                                  .cpPhaseInputs(
-                                      context, _selectedSiteData!['phase'])
-                                  .map((phaseField) {
-                                return Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: phaseField,
-                                  ),
-                                );
-                              }),
-                          ],
-                        ),
+                        if (_selectedSiteData != null)
+                          CpPhaseInputWidget(
+                              cpValue: _selectedSiteData!['cp'],
+                              phase: _selectedSiteData!['phase']),
                         SizedBox(height: 8),
                         if (_selectedSiteData != null)
                           GenVLInput(_selectedSiteData!['sheet'])
