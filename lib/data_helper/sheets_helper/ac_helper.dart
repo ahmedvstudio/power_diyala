@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:power_diyala/settings/theme_control.dart';
+import 'dart:math';
 
 class AcInput {
-  final int? sheetNumber; // Make sheetNumber nullable
+  final int? sheetNumber;
+  final Random random = Random();
+
   AcInput(this.sheetNumber);
+  int generateAcVoltage() {
+    return random.nextInt(21) + 210; // Generates a number between 210 and 230
+  }
+
+  int generateOutdoorVoltage() {
+    return random.nextInt(5) + 52; // Generates a number between 52 and 56
+  }
+
+  int generateRoomTemperature() {
+    return random.nextInt(6) + 19; // Generates a number between 19 and 24
+  }
 
   List<Widget> acInputs(
       BuildContext context, List<TextEditingController> controllers) {
@@ -17,7 +31,6 @@ class AcInput {
       case 3:
       case 10:
       case 11:
-        // Create rows with three TextFields (Voltage, Load, another input) for each AC
         for (int i = 0; i < 3; i++) {
           inputFields.add(
             Padding(
@@ -28,7 +41,8 @@ class AcInput {
                   const SizedBox(width: 8.0),
                   Expanded(
                     child: TextField(
-                      controller: controllers[i * 3 + 1],
+                      controller: TextEditingController(
+                          text: generateAcVoltage().toString()),
                       decoration: InputDecoration(
                         labelText: 'V ${i + 1}',
                         labelStyle: TextStyle(
@@ -101,7 +115,7 @@ class AcInput {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: controllers[9],
+                    controller: TextEditingController(text: '55'),
                     decoration: InputDecoration(
                       labelText: 'HP',
                       labelStyle: TextStyle(
@@ -132,7 +146,7 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[10],
+                    controller: TextEditingController(text: '45'),
                     decoration: InputDecoration(
                       labelText: 'LP',
                       labelStyle: TextStyle(
@@ -163,7 +177,8 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[11],
+                    controller: TextEditingController(
+                        text: generateRoomTemperature().toString()),
                     decoration: InputDecoration(
                       labelText: 'Room temp.',
                       labelStyle: TextStyle(
@@ -210,7 +225,8 @@ class AcInput {
                   const SizedBox(width: 8.0),
                   Expanded(
                     child: TextField(
-                      controller: controllers[i * 3 + 1],
+                      controller: TextEditingController(
+                          text: generateAcVoltage().toString()),
                       decoration: InputDecoration(
                         labelText: 'V ${i + 1}',
                         labelStyle: TextStyle(
@@ -282,7 +298,7 @@ class AcInput {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: controllers[9],
+                    controller: TextEditingController(text: '55'),
                     decoration: InputDecoration(
                       labelText: 'HP',
                       labelStyle: TextStyle(
@@ -313,7 +329,7 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[10],
+                    controller: TextEditingController(text: '45'),
                     decoration: InputDecoration(
                       labelText: 'LP',
                       labelStyle: TextStyle(
@@ -344,7 +360,8 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[11],
+                    controller: TextEditingController(
+                        text: generateRoomTemperature().toString()),
                     decoration: InputDecoration(
                       labelText: 'Room temp.',
                       labelStyle: TextStyle(
@@ -389,7 +406,8 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[1],
+                    controller: TextEditingController(
+                        text: generateOutdoorVoltage().toString()),
                     decoration: InputDecoration(
                       labelText: 'V',
                       labelStyle: TextStyle(
@@ -461,7 +479,8 @@ class AcInput {
                 const SizedBox(width: 30.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[3],
+                    controller: TextEditingController(
+                        text: generateAcVoltage().toString()),
                     decoration: InputDecoration(
                       labelText: 'V',
                       labelStyle: TextStyle(
@@ -531,7 +550,7 @@ class AcInput {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: controllers[9],
+                    controller: TextEditingController(text: '55'),
                     decoration: InputDecoration(
                       labelText: 'HP',
                       labelStyle: TextStyle(
@@ -562,7 +581,7 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[10],
+                    controller: TextEditingController(text: '45'),
                     decoration: InputDecoration(
                       labelText: 'LP',
                       labelStyle: TextStyle(
@@ -593,7 +612,8 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[11],
+                    controller: TextEditingController(
+                        text: generateRoomTemperature().toString()),
                     decoration: InputDecoration(
                       labelText: 'Room temp.',
                       labelStyle: TextStyle(
@@ -638,7 +658,8 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[1],
+                    controller: TextEditingController(
+                        text: generateOutdoorVoltage().toString()),
                     decoration: InputDecoration(
                       labelText: 'V',
                       labelStyle: TextStyle(
@@ -708,7 +729,8 @@ class AcInput {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: controllers[11],
+                    controller: TextEditingController(
+                        text: generateRoomTemperature().toString()),
                     decoration: InputDecoration(
                       labelText: 'Room temp.',
                       labelStyle: TextStyle(
@@ -749,7 +771,8 @@ class AcInput {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: controllers[11],
+                    controller: TextEditingController(
+                        text: generateRoomTemperature().toString()),
                     decoration: InputDecoration(
                       labelText: 'Room temp.',
                       labelStyle: TextStyle(
@@ -794,7 +817,8 @@ class AcInput {
                   const SizedBox(width: 30.0),
                   Expanded(
                     child: TextField(
-                      controller: controllers[i * 3 + 1],
+                      controller: TextEditingController(
+                          text: generateAcVoltage().toString()),
                       decoration: InputDecoration(
                         labelText: 'V ${i + 1}',
                         labelStyle: TextStyle(
@@ -867,7 +891,8 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[9],
+                    controller: TextEditingController(
+                        text: generateOutdoorVoltage().toString()),
                     decoration: InputDecoration(
                       labelText: 'V',
                       labelStyle: TextStyle(
@@ -930,7 +955,6 @@ class AcInput {
             ),
           ),
         );
-        // Additional fields: HP, LP, and Room temp. in a row
         inputFields.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -938,7 +962,7 @@ class AcInput {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: controllers[11],
+                    controller: TextEditingController(text: '55'),
                     decoration: InputDecoration(
                       labelText: 'HP',
                       labelStyle: TextStyle(
@@ -969,7 +993,7 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[12],
+                    controller: TextEditingController(text: '45'),
                     decoration: InputDecoration(
                       labelText: 'LP',
                       labelStyle: TextStyle(
@@ -1000,7 +1024,8 @@ class AcInput {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
-                    controller: controllers[13],
+                    controller: TextEditingController(
+                        text: generateRoomTemperature().toString()),
                     decoration: InputDecoration(
                       labelText: 'Room temp.',
                       labelStyle: TextStyle(
@@ -1034,7 +1059,6 @@ class AcInput {
         );
         break;
       default:
-        // Handle any unexpected sheet numbers if necessary
         break;
     }
 
