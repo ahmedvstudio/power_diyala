@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 import 'package:power_diyala/settings/theme_control.dart';
 
 class GenInput {
@@ -103,7 +102,10 @@ class GenInput {
 //==============================volt load=====================
 class GenVLInput {
   final int? sheetNumber;
-  GenVLInput(this.sheetNumber);
+
+  GenVLInput(
+    this.sheetNumber,
+  );
 
   Widget genVLInputs(
       BuildContext context, List<TextEditingController> controllers) {
@@ -127,15 +129,16 @@ class GenVLInput {
         inputFields.addAll(_generateInputs(context, controllers, 'PH-N', 0, 3));
         inputFields.addAll(_generateInputs(context, controllers, 'PH-L', 3, 3));
         inputFields.addAll(_generateInputs(context, controllers, 'Load', 6, 3));
-        inputFields.add(_createTextField(context, controllers[18],
-            'Battery Voltage', 13.4, 14.0)); // G1 Battery Voltage
-
-        inputFields.addAll(_generateInputs(context, controllers, 'PH-N', 9, 3));
         inputFields
-            .addAll(_generateInputs(context, controllers, 'PH-L', 12, 3));
+            .add(_createTextField(context, controllers[9], 'Battery Voltage'));
+
+        inputFields
+            .addAll(_generateInputs(context, controllers, 'PH-N', 10, 3));
+        inputFields
+            .addAll(_generateInputs(context, controllers, 'PH-L', 13, 3));
         inputFields.addAll(_generateInputs(context, controllers, 'Load', 6, 3));
-        inputFields.add(_createTextField(context, controllers[19],
-            'Battery Voltage', 13.4, 14.0)); // G2 Battery Voltage
+        inputFields
+            .add(_createTextField(context, controllers[19], 'Battery Voltage'));
         break;
 
       case 10:
@@ -147,7 +150,7 @@ class GenVLInput {
         inputFields.addAll(_generateInputs(context, controllers, 'PH-L', 3, 3));
         inputFields.addAll(_generateInputs(context, controllers, 'Load', 6, 3));
         inputFields.add(_createTextField(context, controllers[9],
-            'Battery Voltage', 13.4, 14.0)); // Battery Voltage
+            'Battery Voltage', 9, 3)); // Battery Voltage
         break;
 
       case 15:
@@ -166,19 +169,9 @@ class GenVLInput {
       int startIndex,
       int count) {
     List<Widget> inputs = [];
-    Random random = Random(); // Create a Random instance
 
     for (int i = startIndex; i < startIndex + count; i++) {
       String labelText = '$prefix ${i - startIndex + 1}';
-
-      // Set random values for PH-N and PH-L
-      if (prefix == 'PH-N') {
-        controllers[i].text =
-            (220 + random.nextInt(12)).toString(); // Random between 220-231
-      } else if (prefix == 'PH-L') {
-        controllers[i].text =
-            (375 + random.nextInt(31)).toString(); // Random between 375-405
-      }
 
       inputs.add(_createTextField(context, controllers[i], labelText));
     }
@@ -188,13 +181,6 @@ class GenVLInput {
   Widget _createTextField(
       BuildContext context, TextEditingController controller, String labelText,
       [double? min, double? max]) {
-    if (min != null && max != null) {
-      // Generate a random value for Battery Voltage if min and max are provided
-      double randomVoltage = (min + Random().nextDouble() * (max - min));
-      controller.text = randomVoltage
-          .toStringAsFixed(1); // Set random voltage to the controller
-    }
-
     return TextField(
       controller: controller,
       decoration: InputDecoration(

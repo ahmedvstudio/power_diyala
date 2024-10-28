@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:power_diyala/settings/theme_control.dart';
 
@@ -94,35 +93,44 @@ class CpInputState extends State<CpInput> {
 }
 
 //====================================
-
-class CpPhaseInputWidget extends StatefulWidget {
+class CpPhaseInput extends StatefulWidget {
   final String? cpValue;
   final String? phase;
+  final List<TextEditingController> voltageControllers;
+  final List<TextEditingController> loadControllers;
+  final bool isCpEnabled; // New: Add a parameter to control the toggle state
+  final ValueChanged<bool>
+      onCpEnabledChanged; // New: Callback function for toggle state changes
 
-  const CpPhaseInputWidget(
-      {super.key, required this.cpValue, required this.phase});
+  CpPhaseInput({
+    super.key,
+    required this.cpValue,
+    required this.phase,
+    List<TextEditingController>? voltageControllers,
+    List<TextEditingController>? loadControllers,
+    required this.isCpEnabled, // Required to ensure it's passed from outside
+    required this.onCpEnabledChanged, // Required callback to manage state from outside
+  })  : voltageControllers = voltageControllers ?? [],
+        loadControllers = loadControllers ?? [];
 
   @override
   CpPhaseInputWidgetState createState() => CpPhaseInputWidgetState();
 }
 
-class CpPhaseInputWidgetState extends State<CpPhaseInputWidget> {
-  final Random _random = Random();
+class CpPhaseInputWidgetState extends State<CpPhaseInput> {
   bool isCpEnabled = false;
 
-  int _generateRandomVoltage() {
-    // Function to generate a random number between 209 and 220
-    return _random.nextInt(12) + 209; // 0 to 11 + 209 gives 209 to 220
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // If the cp value is not "yes", return an empty Container
     if (widget.cpValue == null || widget.cpValue!.toLowerCase() != 'yes') {
       return Container();
     }
 
-    // Create the phase input fields based on the phase type
     List<Widget> phaseFields = [];
     if (widget.phase != null && widget.phase!.isNotEmpty) {
       if (widget.phase!.toLowerCase() == 'three phase') {
@@ -133,10 +141,10 @@ class CpPhaseInputWidgetState extends State<CpPhaseInputWidget> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(16.0), // Padding around the contents
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey), // Border color
-        borderRadius: BorderRadius.circular(8.0), // Rounded corners
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,22 +153,20 @@ class CpPhaseInputWidgetState extends State<CpPhaseInputWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Main', // Label for the inputs
-                style: TextStyle(fontSize: 18), // Title style
+                'Main',
+                style: TextStyle(fontSize: 18),
               ),
               Switch(
-                value: isCpEnabled,
+                value: widget.isCpEnabled, // Use the external control variable
                 onChanged: (bool value) {
-                  setState(() {
-                    isCpEnabled = value;
-                  });
+                  widget
+                      .onCpEnabledChanged(value); // Use the callback to update
                 },
               ),
             ],
           ),
-
-          SizedBox(height: 8), // Space between title and input fields
-          ...phaseFields, // Add the generated phase input fields here
+          SizedBox(height: 8),
+          ...phaseFields,
         ],
       ),
     );
@@ -170,130 +176,15 @@ class CpPhaseInputWidgetState extends State<CpPhaseInputWidget> {
     List<Widget> vInputs = [];
     List<Widget> loadInputs = [];
 
-    for (int i = 1; i <= 3; i++) {
+    for (int i = 0; i < 3; i++) {
       vInputs.add(Expanded(
         child: Padding(
           padding: const EdgeInsets.all(1.0),
           child: TextField(
-            controller: TextEditingController(
-                text: _generateRandomVoltage().toString()), // Random value
-            decoration: InputDecoration(
-              labelText: 'V$i',
-              labelStyle: TextStyle(
-                  color: ThemeControl.errorColor.withOpacity(0.8),
-                  fontSize: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide:
-                    BorderSide(color: Theme.of(context).colorScheme.secondary),
-              ),
-              filled: true,
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.tertiary, width: 2.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: const BorderSide(color: Colors.grey, width: 1.5),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
-            ),
-            keyboardType: TextInputType.number,
-            enabled: isCpEnabled,
-          ),
-        ),
-      ));
-
-      loadInputs.add(Expanded(
-        child: Padding(
-          padding: const EdgeInsets.all(1.0),
-          child: TextField(
-            controller: TextEditingController(),
-            decoration: InputDecoration(
-              labelText: 'Load $i',
-              labelStyle: TextStyle(
-                  color: ThemeControl.errorColor.withOpacity(0.8),
-                  fontSize: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              filled: true,
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.tertiary, width: 2.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: const BorderSide(color: Colors.grey, width: 1.5),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
-            ),
-            keyboardType: TextInputType.number,
-            enabled: isCpEnabled,
-          ),
-        ),
-      ));
-    }
-
-    return [
-      Row(children: vInputs), // Row for V inputs
-      SizedBox(height: 8), // Space between rows
-      Row(children: loadInputs), // Row for Load inputs
-    ];
-  }
-
-  List<Widget> _buildSinglePhaseInputs() {
-    return [
-      Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: TextEditingController(
-                  text: _generateRandomVoltage().toString()), // Random value
+              controller: widget
+                  .voltageControllers[i], // Use the passed voltage controller
               decoration: InputDecoration(
-                labelText: 'V1',
-                labelStyle: TextStyle(
-                    color: ThemeControl.errorColor.withOpacity(0.8),
-                    fontSize: 12),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.secondary),
-                ),
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.tertiary,
-                      width: 2.0),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: const BorderSide(color: Colors.grey, width: 1.5),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 16.0, horizontal: 12.0),
-              ),
-              keyboardType: TextInputType.number, enabled: isCpEnabled,
-            ),
-          )
-        ],
-      ),
-      SizedBox(height: 8), // Space between Phase and Load
-      Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: TextEditingController(),
-              decoration: InputDecoration(
-                labelText: 'Load 1',
+                labelText: 'V${i + 1}',
                 labelStyle: TextStyle(
                     color: ThemeControl.errorColor.withOpacity(0.8),
                     fontSize: 12),
@@ -317,8 +208,127 @@ class CpPhaseInputWidgetState extends State<CpPhaseInputWidget> {
                     vertical: 16.0, horizontal: 12.0),
               ),
               keyboardType: TextInputType.number,
-              enabled: isCpEnabled,
-            ),
+              enabled: widget.isCpEnabled),
+        ),
+      ));
+
+      loadInputs.add(Expanded(
+        child: Padding(
+          padding: const EdgeInsets.all(1.0),
+          child: TextField(
+              controller:
+                  widget.loadControllers[i], // Use the passed load controller
+              decoration: InputDecoration(
+                labelText: 'Load $i',
+                labelStyle: TextStyle(
+                    color: ThemeControl.errorColor.withOpacity(0.8),
+                    fontSize: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.secondary),
+                ),
+                filled: true,
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      width: 2.0),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16.0, horizontal: 12.0),
+              ),
+              keyboardType: TextInputType.number,
+              enabled: widget.isCpEnabled),
+        ),
+      ));
+    }
+
+    return [
+      Row(children: vInputs), // Row for V inputs
+      SizedBox(height: 8), // Space between rows
+      Row(children: loadInputs), // Row for Load inputs
+    ];
+  }
+
+  List<Widget> _buildSinglePhaseInputs() {
+    return [
+      Row(
+        children: [
+          Expanded(
+            child: TextField(
+                controller: widget.voltageControllers.isNotEmpty
+                    ? widget.voltageControllers[0]
+                    : TextEditingController(), // Use the first voltage controller if available
+                decoration: InputDecoration(
+                  labelText: 'V1',
+                  labelStyle: TextStyle(
+                      color: ThemeControl.errorColor.withOpacity(0.8),
+                      fontSize: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary),
+                  ),
+                  filled: true,
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        width: 2.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide:
+                        const BorderSide(color: Colors.grey, width: 1.5),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 12.0),
+                ),
+                keyboardType: TextInputType.number,
+                enabled: widget.isCpEnabled),
+          )
+        ],
+      ),
+      SizedBox(height: 8), // Space between Phase and Load
+      Row(
+        children: [
+          Expanded(
+            child: TextField(
+                controller: widget.loadControllers.isNotEmpty
+                    ? widget.loadControllers[0]
+                    : TextEditingController(), // Use the first load controller if available
+                decoration: InputDecoration(
+                  labelText: 'Load 1',
+                  labelStyle: TextStyle(
+                      color: ThemeControl.errorColor.withOpacity(0.8),
+                      fontSize: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary),
+                  ),
+                  filled: true,
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        width: 2.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide:
+                        const BorderSide(color: Colors.grey, width: 1.5),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 12.0),
+                ),
+                keyboardType: TextInputType.number,
+                enabled: widget.isCpEnabled),
           )
         ],
       ),
