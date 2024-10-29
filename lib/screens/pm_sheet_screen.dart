@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -31,13 +32,31 @@ class PmSheetPageState extends State<PmSheetPage> {
   Map<String, dynamic>? _selectedSiteData;
   List<TextEditingController> genControllers = [];
   List<TextEditingController> genVLControllers = [];
-  List<TextEditingController> acControllers = [];
+
   List<TextEditingController> tankControllers = [];
   List<TextEditingController> commentsControllers = [];
   TextEditingController siteController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   TextEditingController cpController = TextEditingController();
   TextEditingController kwhController = TextEditingController();
+
+  final List<TextEditingController> acVoltControllers =
+      List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> acLoadControllers =
+      List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> acOtherController =
+      List.generate(3, (index) => TextEditingController());
+
+  final List<TextEditingController> groundControllers =
+      List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> externalLoadControllers =
+      List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> batteryTestControllers =
+      List.generate(3, (index) => TextEditingController());
+
+  List<TextEditingController> voltageControllers = [];
+  List<TextEditingController> loadControllers = [];
+  final _random = Random();
   List<bool> toggleValues = [
     false,
     false,
@@ -51,8 +70,12 @@ class PmSheetPageState extends State<PmSheetPage> {
     false,
     false
   ];
-  List<bool> stepCompleted = List.filled(7, false); // Track completed steps
-
+  bool isCpEnabled = true;
+  bool isLowVoltage = false;
+  bool isEarthEnabled = false;
+  bool isBatteryTestEnabled = false;
+  List<bool> stepCompleted = List.filled(7, false);
+  List<bool> gensSwitches = [true, true];
   TimeOfDay? fromTime;
   TimeOfDay? toTime;
   int _currentStep = 0;
@@ -60,34 +83,54 @@ class PmSheetPageState extends State<PmSheetPage> {
   @override
   void initState() {
     super.initState();
+
     genControllers = List.generate(5, (index) => TextEditingController());
     tankControllers = List.generate(5, (index) => TextEditingController());
     genVLControllers = List.generate(20, (index) => TextEditingController());
-    acControllers = List.generate(20, (index) => TextEditingController());
     commentsControllers = List.generate(9, (index) => TextEditingController());
+    voltageControllers = List.generate(3, (index) => TextEditingController());
+    loadControllers = List.generate(3, (index) => TextEditingController());
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
     });
   }
 
   @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+
+    if (_currentStep == 1) {
+      _calculateAndDisplayCycles();
+    }
+    if (_currentStep == 4) {
+      _loadSelectedSiteData();
+    }
+    if (_currentStep == 3) {
+      _generateRandomValues();
+    }
+  }
+
+  @override
   void dispose() {
-    for (var controller in genControllers) {
+    for (var controller in [
+      ...genControllers,
+      ...tankControllers,
+      ...genVLControllers,
+      ...commentsControllers,
+      ...voltageControllers,
+      ...loadControllers,
+      ...acVoltControllers,
+      ...acLoadControllers,
+      ...acOtherController,
+      ...groundControllers,
+      ...externalLoadControllers,
+      ...batteryTestControllers,
+      siteController,
+    ]) {
       controller.dispose();
     }
-    for (var controller in tankControllers) {
-      controller.dispose();
-    }
-    for (var controller in genVLControllers) {
-      controller.dispose();
-    }
-    for (var controller in acControllers) {
-      controller.dispose();
-    }
-    for (var controller in commentsControllers) {
-      controller.dispose();
-    }
-    siteController.dispose(); // Dispose of the site controller
+
     super.dispose();
   }
 
@@ -163,11 +206,212 @@ class PmSheetPageState extends State<PmSheetPage> {
     });
   }
 
+  double _calculateCycle(double inputValue) {
+    int completedCycles = (inputValue / 3000).floor();
+    double accountedAmount = completedCycles * 3000;
+    double remainingAmount = inputValue - accountedAmount;
+
+    if (remainingAmount > 2750) {
+      return 3000;
+    } else if (remainingAmount > 2500) {
+      return 2750;
+    } else if (remainingAmount > 2250) {
+      return 2500;
+    } else if (remainingAmount > 2000) {
+      return 2250;
+    } else if (remainingAmount > 1750) {
+      return 2000;
+    } else if (remainingAmount > 1500) {
+      return 1750;
+    } else if (remainingAmount > 1250) {
+      return 1500;
+    } else if (remainingAmount > 1000) {
+      return 1250;
+    } else if (remainingAmount > 750) {
+      return 1000;
+    } else if (remainingAmount > 500) {
+      return 750;
+    } else if (remainingAmount > 250) {
+      return 500;
+    } else if (remainingAmount > 0) {
+      return 250;
+    }
+    return 0;
+  }
+
+  void _calculateAndDisplayCycles() {
+    double valueFromController0 =
+        double.tryParse(genControllers[0].text) ?? 0.0;
+    double cycleForController0 = _calculateCycle(valueFromController0);
+
+    double valueFromController1 =
+        double.tryParse(genControllers[1].text) ?? 0.0;
+    double cycleForController1 = _calculateCycle(valueFromController1);
+    logger.i("Cycle for G1: $cycleForController0");
+    logger.i("Cycle for G2: $cycleForController1");
+  }
+
+  void _generateRandomValues() {
+    setState(() {
+      acVoltControllers[0].text = (_random.nextInt(13) + 218).toString();
+      acVoltControllers[1].text = (_random.nextInt(13) + 218).toString();
+      acVoltControllers[2].text = (_random.nextInt(13) + 218).toString();
+      acVoltControllers[3].text = (_random.nextInt(2) + 53).toString();
+      acOtherController[0].text = (_random.nextInt(6) + 20).toString();
+      acOtherController[1].text = '55';
+      acOtherController[2].text = '45';
+    });
+  }
+
+  void _loadSelectedSiteData() {
+    if (_selectedSiteData != null) {
+      setState(() {
+        externalLoadControllers[0].text = _selectedSiteData!['owner'] ?? '';
+        externalLoadControllers[1].text = _selectedSiteData!['neighbour'] ?? '';
+        externalLoadControllers[2].text = _selectedSiteData!['3rdparty'] ?? '';
+        isEarthEnabled = (_selectedSiteData!['earth'] == 'Yes');
+      });
+    }
+  }
+
+  Map<String, dynamic> _collectData() {
+    return {
+      //step1
+      'siteName': siteController.text,
+      'date': _dateController.text,
+      'timeIn': fromTime?.format(context),
+      'timeOut': toTime?.format(context),
+      'G1': genControllers[0].text,
+      'G2': genControllers[1].text,
+      'CP': cpController.text,
+      'Kwh': kwhController.text,
+      'T1': tankControllers[0].text,
+      'T2': tankControllers[1].text,
+      'T3': tankControllers[2].text,
+
+      '--------------------': '----------------',
+      //step2
+      'g1 oil': toggleValues[0],
+      'g1 air': toggleValues[1],
+      'g1 coolant': toggleValues[2],
+      'g1 gen sep': toggleValues[6],
+      'g1 tank sep': toggleValues[7],
+      'g2 oil': toggleValues[3],
+      'g2 air': toggleValues[4],
+      'g2 coolant': toggleValues[5],
+      'g2 gen sep': toggleValues[8],
+      'g2 tank sep': toggleValues[9],
+      '-------------------': '----------------',
+      //step3
+      'Main available': isCpEnabled,
+      'Main v1': voltageControllers[0].text,
+      'Main v2': voltageControllers[1].text,
+      'Main v3': voltageControllers[2].text,
+      'Main l1': loadControllers[0].text,
+      'Main l2': loadControllers[1].text,
+      'Main l3': loadControllers[2].text,
+      'g1 switch': gensSwitches[0],
+      'gen1 voltage ph-n1': genVLControllers[0].text,
+      'gen1 voltage ph-n2': genVLControllers[1].text,
+      'gen1 voltage ph-n3': genVLControllers[2].text,
+      'gen1 voltage ph-l1': genVLControllers[3].text,
+      'gen1 voltage ph-l2': genVLControllers[4].text,
+      'gen1 voltage ph-l3': genVLControllers[5].text,
+      'gen1 load 1': genVLControllers[6].text,
+      'gen1 load 2': genVLControllers[7].text,
+      'gen1 load 3': genVLControllers[8].text,
+      'gen1 battery': genVLControllers[9].text,
+      'g2 switch': gensSwitches[1],
+      'gen2 voltage ph-n1': genVLControllers[10].text,
+      'gen2 voltage ph-n2': genVLControllers[11].text,
+      'gen2 voltage ph-n3': genVLControllers[12].text,
+      'gen2 voltage ph-l1': genVLControllers[13].text,
+      'gen2 voltage ph-l2': genVLControllers[14].text,
+      'gen2 voltage ph-l3': genVLControllers[15].text,
+      'gen2 load 1': genVLControllers[16].text,
+      'gen2 load 2': genVLControllers[17].text,
+      'gen2 load 3': genVLControllers[18].text,
+      'gen2 battery': genVLControllers[19].text,
+      '------------------': '----------------',
+      //step4
+      'ac1 volt': acVoltControllers[0].text,
+      'ac2 volt': acVoltControllers[1].text,
+      'ac3 volt': acVoltControllers[2].text,
+      'outdoor volt': acVoltControllers[3].text,
+      'ac1 load': acLoadControllers[0].text,
+      'ac2 load': acLoadControllers[1].text,
+      'ac3 load': acLoadControllers[2].text,
+      'outdoor load': acLoadControllers[3].text,
+      'room temp': acOtherController[0].text,
+      'HP': acOtherController[1].text,
+      'LP': acOtherController[2].text,
+      '-----------------': '----------------',
+
+      //step5
+      'ground earth': groundControllers[0].text,
+      'tel earth': groundControllers[1].text,
+      'leg earth': groundControllers[2].text,
+      'light earth': groundControllers[3].text,
+      'owner load': externalLoadControllers[0].text,
+      'neighbor load': externalLoadControllers[1].text,
+      '3rd load': externalLoadControllers[2].text,
+      'battery switch': isBatteryTestEnabled,
+      'start dc': batteryTestControllers[0].text,
+      'end dc': batteryTestControllers[1].text,
+      'fire': batteryTestControllers[2].text,
+      '----------------------': '----------------',
+
+      //step6
+      'generalComments': commentsControllers[0].text,
+      'g1Comments': commentsControllers[1].text,
+      'g2Comments': commentsControllers[2].text,
+      'acComments': commentsControllers[3].text,
+      'electricComments': commentsControllers[4].text,
+      // Add more fields as necessary
+    };
+  }
+
   void _showSnackbar(String message,
       {Duration duration = const Duration(seconds: 3)}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), duration: duration),
     );
+  }
+
+  void _updateComments() {
+    // Set the base text based on isCpEnabled
+    String baseText = isCpEnabled ? "Gen Load on CP" : "CP load on Gen";
+
+    setState(() {
+      commentsControllers[0].text = baseText;
+
+      // Initialize a variable to build the comment text
+      String commentText = "";
+      if (_selectedSiteData!['earth'] == 'No') {
+        logger.i("Earth is No");
+        commentText += "The Site without a point of ground measurement /";
+      } else {
+        logger.i("Earth is Yes");
+      }
+      if (!isBatteryTestEnabled) {
+        logger.i("Battery test is not enabled");
+        commentText +=
+            " The Batteries were tested at (${_selectedSiteData!['batterytest']})";
+      }
+
+      // Set the final comment text to commentsControllers[4]
+      commentsControllers[4].text = commentText; // Combine A and B
+    });
+  }
+
+  void _updateCPText() {
+    String baseText = isCpEnabled ? "Gen Load on CP" : "CP load on Gen";
+    if (isLowVoltage) {
+      baseText += " / System low voltage";
+    }
+    setState(() {
+      commentsControllers[0].text = baseText;
+    });
   }
 
   @override
@@ -221,7 +465,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                   );
                 },
                 onStepTapped: (step) {
-                  if (step == _currentStep) {
+                  if (step != _currentStep) {
                     setState(() {
                       _currentStep = step;
                     });
@@ -486,13 +730,40 @@ class PmSheetPageState extends State<PmSheetPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         if (_selectedSiteData != null)
-                          CpPhaseInputWidget(
-                              cpValue: _selectedSiteData!['cp'],
-                              phase: _selectedSiteData!['phase']),
+                          CpPhaseInput(
+                            cpValue: _selectedSiteData!['cp'],
+                            phase: _selectedSiteData!['phase'],
+                            voltageControllers: voltageControllers,
+                            loadControllers: loadControllers,
+                            isCpEnabled: isCpEnabled,
+                            onCpEnabledChanged: (bool value) {
+                              setState(() {
+                                isCpEnabled = value;
+                                if (!isCpEnabled) {
+                                  final random = Random();
+                                  voltageControllers[0].text =
+                                      (random.nextInt(21) + 210).toString();
+                                  voltageControllers[1].text =
+                                      (random.nextInt(21) + 210).toString();
+                                  voltageControllers[2].text =
+                                      (random.nextInt(21) + 210).toString();
+                                }
+                              });
+                            },
+                          ),
                         SizedBox(height: 8),
                         if (_selectedSiteData != null)
-                          GenVLInput(_selectedSiteData!['sheet'])
-                              .genVLInputs(context, genVLControllers),
+                          GenVLInput(
+                            sheetNumber: _selectedSiteData![
+                                'sheet'], // Pass the sheet number here
+                            controllers: genVLControllers,
+                            gensSwitches: gensSwitches,
+                            onSwitchChanged: (index, value) {
+                              setState(() {
+                                gensSwitches[index] = value;
+                              });
+                            },
+                          ),
                       ],
                     ),
                     state: stepCompleted[2]
@@ -506,11 +777,12 @@ class PmSheetPageState extends State<PmSheetPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         if (_selectedSiteData != null)
-                          ...AcInput(_selectedSiteData!['sheet'])
-                              .acInputs(context, acControllers)
-                              .map((inputField) {
-                            return inputField;
-                          }),
+                          AcInput(
+                            _selectedSiteData!['sheet'],
+                            acVoltControllers: acVoltControllers,
+                            acLoadControllers: acLoadControllers,
+                            acOtherController: acOtherController,
+                          ),
                       ],
                     ),
                     state: stepCompleted[3]
@@ -523,7 +795,18 @@ class PmSheetPageState extends State<PmSheetPage> {
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        EarthInputFields(selectedSiteData: _selectedSiteData),
+                        EarthInputFields(
+                            selectedSiteData: _selectedSiteData,
+                            groundControllers: groundControllers,
+                            externalLoadControllers: externalLoadControllers,
+                            batteryTestControllers: batteryTestControllers,
+                            isBatteryTestEnabled: isBatteryTestEnabled,
+                            isEarthEnabled: isEarthEnabled,
+                            onBatteryTestEnabledChanged: (bool value) {
+                              setState(() {
+                                isBatteryTestEnabled = value;
+                              });
+                            }),
                       ],
                     ),
                     state: stepCompleted[4]
@@ -532,165 +815,55 @@ class PmSheetPageState extends State<PmSheetPage> {
                   ),
                   Step(
                     isActive: _currentStep == 5,
-                    title: Text('Comments'),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(child: Text('Comments')),
+                        if (_currentStep == 5)
+                          Text(
+                            'Press this first ->',
+                            style: TextStyle(fontSize: 8, color: Colors.red),
+                          ),
+                        if (_currentStep == 5)
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isCpEnabled = isCpEnabled;
+                                isBatteryTestEnabled = isBatteryTestEnabled;
+                              });
+                              _updateComments();
+                            },
+                            icon: Icon(Icons.add),
+                          ),
+                      ],
+                    ),
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        SizedBox(height: 5),
-                        TextField(
-                          controller: commentsControllers[0],
-                          decoration: InputDecoration(
-                            labelText: 'General',
-                            labelStyle: TextStyle(
-                                color:
-                                    ThemeControl.errorColor.withOpacity(0.8)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
+                        buildCommentField(
+                            'General', commentsControllers[0], context),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: isLowVoltage,
+                              onChanged: (value) {
+                                setState(() {
+                                  isLowVoltage = value ?? false;
+                                });
+                                _updateCPText();
+                              },
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  width: 2.0),
-                            ),
-                            filled: true,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.grey, width: 1.5),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 12.0),
-                          ),
-                          keyboardType: TextInputType.text,
+                            Text("System low voltage"),
+                          ],
                         ),
-                        SizedBox(height: 8),
-                        TextField(
-                          controller: commentsControllers[1],
-                          decoration: InputDecoration(
-                            labelText: 'G1',
-                            labelStyle: TextStyle(
-                                color:
-                                    ThemeControl.errorColor.withOpacity(0.8)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  width: 2.0),
-                            ),
-                            filled: true,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.grey, width: 1.5),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 12.0),
-                          ),
-                          keyboardType: TextInputType.text,
-                        ),
-                        SizedBox(height: 8),
-                        TextField(
-                          controller: commentsControllers[2],
-                          decoration: InputDecoration(
-                            labelText: 'G2',
-                            labelStyle: TextStyle(
-                                color:
-                                    ThemeControl.errorColor.withOpacity(0.8)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  width: 2.0),
-                            ),
-                            filled: true,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.grey, width: 1.5),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 12.0),
-                          ),
-                          keyboardType: TextInputType.text,
-                        ),
-                        SizedBox(height: 8),
-                        TextField(
-                          controller: commentsControllers[3],
-                          decoration: InputDecoration(
-                            labelText: 'AC',
-                            labelStyle: TextStyle(
-                                color:
-                                    ThemeControl.errorColor.withOpacity(0.8)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  width: 2.0),
-                            ),
-                            filled: true,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.grey, width: 1.5),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 12.0),
-                          ),
-                          keyboardType: TextInputType.text,
-                        ),
-                        SizedBox(height: 8),
-                        TextField(
-                          controller: commentsControllers[4],
-                          decoration: InputDecoration(
-                            labelText: 'Electric',
-                            labelStyle: TextStyle(
-                                color:
-                                    ThemeControl.errorColor.withOpacity(0.8)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  width: 2.0),
-                            ),
-                            filled: true,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.grey, width: 1.5),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 12.0),
-                          ),
-                          keyboardType: TextInputType.text,
-                        ),
+                        buildCommentField(
+                            'G1', commentsControllers[1], context),
+                        buildCommentField(
+                            'G2', commentsControllers[2], context),
+                        buildCommentField(
+                            'AC', commentsControllers[3], context),
+                        buildCommentField(
+                            'Electric', commentsControllers[4], context),
                       ],
                     ),
                     state: stepCompleted[5]
@@ -701,8 +874,15 @@ class PmSheetPageState extends State<PmSheetPage> {
                     isActive: _currentStep == 6,
                     title: Text('Review'),
                     content: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [],
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ..._collectData().entries.map((entry) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Text('${entry.key}: ${entry.value}'),
+                          );
+                        }),
+                      ],
                     ),
                     state: stepCompleted[6]
                         ? StepState.complete
@@ -713,4 +893,41 @@ class PmSheetPageState extends State<PmSheetPage> {
       ),
     );
   }
+}
+
+Widget buildCommentField(
+    String labelText, TextEditingController controller, BuildContext context) {
+  return Column(
+    children: [
+      SizedBox(height: 8),
+      TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle:
+              TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide:
+                BorderSide(color: Theme.of(context).colorScheme.secondary),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.tertiary,
+              width: 2.0,
+            ),
+          ),
+          filled: true,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+        ),
+        keyboardType: TextInputType.text,
+      ),
+    ],
+  );
 }
