@@ -3,6 +3,7 @@ import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.da
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:power_diyala/data_helper/sheets_helper/google_sheet_helper.dart';
 import 'package:power_diyala/screens/calc_screen.dart';
 import 'package:power_diyala/screens/network_screen.dart';
 import 'package:power_diyala/screens/pm_sheet_screen.dart';
@@ -134,18 +135,6 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           IconButton(
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => PmSheetPage(
-                        themeMode: themeControl.themeMode,
-                        onThemeChanged: (value) {
-                          themeControl.toggleTheme(value);
-                        },
-                      )));
-            },
-            icon: const Icon(Icons.add),
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => SettingsScreen(
                         themeMode: themeControl.themeMode,
                         onThemeChanged: (value) {
@@ -172,17 +161,29 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           SpeedDialChild(
             child: Icon(Icons.add_chart, color: Colors.white),
             backgroundColor: Theme.of(context).colorScheme.secondary,
-            label: 'Add Chart',
+            label: 'CM',
             onTap: () {
-              // Add functionality here
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => GoogleSheetHelper(
+                  templateFileId:
+                      '165kXvZcOPkYG6d9-5kdeGMTBDzNZjtyPrN1S9SINdmc',
+                  targetSheetName: 'Gen',
+                ),
+              ));
             },
           ),
           SpeedDialChild(
             child: Icon(Icons.assessment, color: Colors.white),
             backgroundColor: Theme.of(context).colorScheme.secondary,
-            label: 'View Report',
+            label: 'PM',
             onTap: () {
-              // Add functionality here
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => PmSheetPage(
+                        themeMode: themeControl.themeMode,
+                        onThemeChanged: (value) {
+                          themeControl.toggleTheme(value);
+                        },
+                      )));
             },
           ),
         ],
