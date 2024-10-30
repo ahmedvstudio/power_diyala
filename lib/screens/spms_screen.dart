@@ -220,10 +220,22 @@ class HomeScreenState extends State<SpmsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    _getSitename(),
-                    style: Theme.of(context).textTheme.headlineLarge,
-                    textAlign: TextAlign.center,
+                  GestureDetector(
+                    onTap: () => showSearchableDropdown(
+                      context,
+                      _siteNames,
+                      (selected) {
+                        setState(() {
+                          _selectedSiteName = selected;
+                        });
+                      },
+                      _searchController,
+                    ),
+                    child: Text(
+                      _getSitename(),
+                      style: Theme.of(context).textTheme.headlineLarge,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                   IconButton(
                       onPressed: () {
@@ -341,21 +353,6 @@ class HomeScreenState extends State<SpmsScreen> {
                   ),
                 ],
               ),
-      ),
-      floatingActionButton: FloatingActionButton.small(
-        onPressed: () => showSearchableDropdown(
-          context,
-          _siteNames,
-          (selected) {
-            setState(() {
-              _selectedSiteName = selected;
-            });
-          },
-          _searchController,
-        ),
-        shape: const CircleBorder(),
-        tooltip: 'Select Site',
-        child: const Icon(Icons.menu),
       ),
     );
   }

@@ -107,6 +107,16 @@ class HomeScreenState extends State<NetworkScreen> {
                             '${_selectedSiteData!['Site Code'] ?? 'N/A'}',
                             style: const TextStyle(color: Colors.teal),
                           ),
+                          onTap: () => showSearchableDropdown(
+                            context,
+                            _siteNames,
+                            (selected) {
+                              setState(() {
+                                _updateSelectedSiteData(selected);
+                              });
+                            },
+                            _searchController,
+                          ),
                           tileColor: Theme.of(context).cardColor,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(35)),
@@ -759,31 +769,28 @@ class HomeScreenState extends State<NetworkScreen> {
                           width: MediaQuery.of(context).size.width,
                           height: MediaQuery.of(context).size.height,
                           child: Center(
-                              child: Text(
-                            'Select a Site ...',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          )),
-                        )
+                            child: GestureDetector(
+                                onTap: () => showSearchableDropdown(
+                                      context,
+                                      _siteNames,
+                                      (selected) {
+                                        setState(() {
+                                          _updateSelectedSiteData(selected);
+                                        });
+                                      },
+                                      _searchController,
+                                    ),
+                                child: Text(
+                                  'Select a Site ...',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                )),
+                          ),
+                        ),
                       ]
                     ],
                   ),
                 ),
               ),
-      ),
-      floatingActionButton: FloatingActionButton.small(
-        onPressed: () => showSearchableDropdown(
-          context,
-          _siteNames,
-          (selected) {
-            setState(() {
-              _updateSelectedSiteData(selected);
-            });
-          },
-          _searchController,
-        ),
-        shape: const CircleBorder(),
-        tooltip: 'Select Site',
-        child: const Icon(Icons.menu),
       ),
     );
   }
