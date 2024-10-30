@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:power_diyala/screens/calc_screen.dart';
 import 'package:power_diyala/screens/network_screen.dart';
 import 'package:power_diyala/screens/pm_sheet_screen.dart';
@@ -20,20 +21,17 @@ class MainScreen extends StatefulWidget {
 
 class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final autoSizeGroup = AutoSizeGroup();
-// Default index of the first screen
   int _selectedIndex = 0;
   final List<Widget> _screens = [];
-  late AnimationController _fabAnimationController;
   late AnimationController _borderRadiusAnimationController;
-  late Animation<double> fabAnimation;
   late Animation<double> borderRadiusAnimation;
-  late CurvedAnimation fabCurve;
   late CurvedAnimation borderRadiusCurve;
+
   final List<String> labels = [
-    "Calculator", // For index 0
-    "Teams", // For index 1
-    "SPMS", // For index 2
-    "Network", // For index 3
+    "Calculator",
+    "Teams",
+    "SPMS",
+    "Network",
   ];
 
   final iconList = <IconData>[
@@ -46,7 +44,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-// Initialize screens
+
     _screens.add(
       Consumer<ThemeControl>(
         builder: (context, themeControl, child) {
@@ -97,32 +95,19 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       ),
     );
 
-    _fabAnimationController = AnimationController(
-      duration: Duration(milliseconds: 500),
-      vsync: this,
-    );
     _borderRadiusAnimationController = AnimationController(
       duration: Duration(milliseconds: 500),
       vsync: this,
-    );
-    fabCurve = CurvedAnimation(
-      parent: _fabAnimationController,
-      curve: Interval(0.5, 1.0, curve: Curves.fastOutSlowIn),
     );
     borderRadiusCurve = CurvedAnimation(
       parent: _borderRadiusAnimationController,
       curve: Interval(0.5, 1.0, curve: Curves.fastOutSlowIn),
     );
 
-    fabAnimation = Tween<double>(begin: 0, end: 1).animate(fabCurve);
     borderRadiusAnimation = Tween<double>(begin: 0, end: 1).animate(
       borderRadiusCurve,
     );
 
-    Future.delayed(
-      Duration(seconds: 1),
-      () => _fabAnimationController.forward(),
-    );
     Future.delayed(
       Duration(seconds: 1),
       () => _borderRadiusAnimationController.forward(),
@@ -176,15 +161,31 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       body: NotificationListener<ScrollNotification>(
         child: _screens[_selectedIndex],
       ),
-      floatingActionButton: FadeTransition(
-        opacity: fabAnimation,
-        child: FloatingActionButton(
-          shape: CircleBorder(),
-          child: Icon(
-            Icons.add,
+      floatingActionButton: SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        backgroundColor: Theme.of(context).primaryColor,
+        overlayColor: Colors.black,
+        overlayOpacity: 0.5,
+        spacing: 10,
+        spaceBetweenChildren: 10,
+        children: [
+          SpeedDialChild(
+            child: Icon(Icons.add_chart, color: Colors.white),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            label: 'Add Chart',
+            onTap: () {
+              // Add functionality here
+            },
           ),
-          onPressed: () {},
-        ),
+          SpeedDialChild(
+            child: Icon(Icons.assessment, color: Colors.white),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            label: 'View Report',
+            onTap: () {
+              // Add functionality here
+            },
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: AnimatedBottomNavigationBar.builder(
