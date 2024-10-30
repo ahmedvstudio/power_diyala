@@ -152,15 +152,15 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       ),
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: Theme.of(context).primaryColor,
         overlayColor: Colors.black,
         overlayOpacity: 0.5,
         spacing: 10,
         spaceBetweenChildren: 10,
         children: [
           SpeedDialChild(
+            shape: CircleBorder(),
             child: Icon(Icons.add_chart, color: Colors.white),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
+            backgroundColor: Colors.green,
             label: 'CM',
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
@@ -173,8 +173,9 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             },
           ),
           SpeedDialChild(
+            shape: CircleBorder(),
             child: Icon(Icons.assessment, color: Colors.white),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
+            backgroundColor: Colors.red,
             label: 'PM',
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
@@ -197,7 +198,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(iconList[index],
-                  size: 20,
+                  size: 25,
                   color: isActive
                       ? Theme.of(context).primaryColor
                       : Theme.of(context).secondaryHeaderColor),
@@ -222,7 +223,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         splashColor: Theme.of(context).colorScheme.tertiary,
         notchAndCornersAnimation: borderRadiusAnimation,
         splashSpeedInMilliseconds: 300,
-        notchSmoothness: NotchSmoothness.smoothEdge,
+        notchSmoothness: NotchSmoothness.defaultEdge,
         gapLocation: GapLocation.center,
         leftCornerRadius: 32,
         rightCornerRadius: 32,
