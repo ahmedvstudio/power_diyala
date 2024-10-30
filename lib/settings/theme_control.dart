@@ -157,7 +157,8 @@ class ThemeControl with ChangeNotifier {
             fontSize: 16.0,
             fontWeight: FontWeight.bold,
             color: isDarkMode ? warningColor : _primaryColor),
-        headlineLarge: const TextStyle(fontSize: 20.0, color: warningColor),
+        headlineLarge: const TextStyle(
+            fontSize: 20.0, color: warningColor, fontStyle: FontStyle.italic),
         bodySmall:
             TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87),
         bodyMedium: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
