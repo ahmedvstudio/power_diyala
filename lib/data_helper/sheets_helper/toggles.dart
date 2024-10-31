@@ -183,31 +183,30 @@ class SeparatorSwitch {
           Expanded(
             child: Text(label, style: TextStyle(fontSize: 16)),
           ),
-          isEnabled
-              ? Switch(
-                  value: switchValues[g1Index],
-                  onChanged: (bool value) {
-                    onChanged(g1Index, value);
-                    switchValues[g1Index] = value;
-                  },
-                )
-              : _buildDisabledSwitch(),
+          _buildSwitchWithLabel(
+              g1Index, switchValues[g1Index], onChanged, isEnabled),
           if (g2Index != null)
-            isEnabled
-                ? Switch(
-                    value: switchValues[g2Index],
-                    onChanged: (bool value) {
-                      onChanged(g2Index, value);
-                      switchValues[g2Index] = value;
-                    },
-                  )
-                : _buildDisabledSwitch(),
+            _buildSwitchWithLabel(
+                g2Index, switchValues[g2Index], onChanged, isEnabled),
         ],
       ),
     );
   }
 
-  Widget _buildDisabledSwitch() {
-    return Switch(value: false, onChanged: null, activeColor: Colors.grey[400]);
+  Widget _buildSwitchWithLabel(int index, bool switchValue,
+      Function(int, bool) onChanged, bool isEnabled) {
+    return Row(
+      children: [
+        Switch(
+          value: switchValue,
+          onChanged: isEnabled
+              ? (bool value) {
+                  onChanged(index, value);
+                }
+              : null,
+          activeColor: isEnabled ? null : Colors.grey[400],
+        ),
+      ],
+    );
   }
 }

@@ -8,6 +8,7 @@ import 'package:power_diyala/data_helper/sheets_helper/ac_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
 import 'package:power_diyala/data_helper/sheets_helper/earth_load.dart';
 import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
+import 'package:power_diyala/data_helper/sheets_helper/google_sheet_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/toggles.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
 import 'package:power_diyala/settings/theme_control.dart';
@@ -275,35 +276,64 @@ class PmSheetPageState extends State<PmSheetPage> {
   }
 
   Map<String, dynamic> _collectData() {
+    double valueFromController0 =
+        double.tryParse(genControllers[0].text) ?? 0.0;
+    double cycleForController0 = _calculateCycle(valueFromController0);
+
+    double valueFromController1 =
+        double.tryParse(genControllers[1].text) ?? 0.0;
+    double cycleForController1 = _calculateCycle(valueFromController1);
     return {
       //step1
-      'siteName': siteController.text,
+      'sheet': _selectedSiteData?['sheet'] ?? '',
+      'siteName': '${siteController.text}-${_selectedSiteData?['code'] ?? ''}',
+      'location': _selectedSiteData?['Location'] ?? '',
       'date': _dateController.text,
-      'timeIn': fromTime?.format(context),
-      'timeOut': toTime?.format(context),
+      'timeIn': fromTime?.format(context) ?? '',
+      'timeOut': toTime?.format(context) ?? '',
       'G1': genControllers[0].text,
+      'cycleForG1': cycleForController0,
       'G2': genControllers[1].text,
+      'cycleForG2': cycleForController1,
       'CP': cpController.text,
       'Kwh': kwhController.text,
       'T1': tankControllers[0].text,
+      'T1 shape': _selectedSiteData?['T1_shape'] ?? '',
       'T2': tankControllers[1].text,
+      'T2 shape': _selectedSiteData?['T2_Shape'] ?? '',
       'T3': tankControllers[2].text,
-
+      'T3 shape': _selectedSiteData?['T3_shape'] ?? '',
       '--------------------': '----------------',
       //step2
-      'g1 oil': toggleValues[0],
-      'g1 air': toggleValues[1],
-      'g1 coolant': toggleValues[2],
-      'g1 gen sep': toggleValues[6],
-      'g1 tank sep': toggleValues[7],
-      'g2 oil': toggleValues[3],
-      'g2 air': toggleValues[4],
-      'g2 coolant': toggleValues[5],
-      'g2 gen sep': toggleValues[8],
-      'g2 tank sep': toggleValues[9],
+      'g1 oil': toggleValues[0] ? 'Yes' : 'No',
+      'g1 air': toggleValues[1] ? 'Yes' : 'No',
+      'g1 coolant': toggleValues[2] ? 'Yes' : 'No',
+      'g1 gen sep': _selectedSiteData?['gen sep'] == 'No'
+          ? 'N/A'
+          : (_selectedSiteData?['gen sep'] == 'Yes'
+              ? (toggleValues[8] ? 'Yes' : 'No')
+              : 'N/A'),
+      'g1 tank sep': _selectedSiteData?['tank sep'] == 'No'
+          ? 'N/A'
+          : (_selectedSiteData?['gen sep'] == 'Yes'
+              ? (toggleValues[8] ? 'Yes' : 'No')
+              : 'N/A'),
+      'g2 oil': toggleValues[3] ? 'Yes' : 'No',
+      'g2 air': toggleValues[4] ? 'Yes' : 'No',
+      'g2 coolant': toggleValues[5] ? 'Yes' : 'No',
+      'g2 gen sep': _selectedSiteData?['gen sep'] == 'No'
+          ? 'N/A'
+          : (_selectedSiteData?['gen sep'] == 'Yes'
+              ? (toggleValues[8] ? 'Yes' : 'No')
+              : 'N/A'),
+      'g2 tank sep': _selectedSiteData?['tank sep'] == 'No'
+          ? 'N/A'
+          : (_selectedSiteData?['gen sep'] == 'Yes'
+              ? (toggleValues[8] ? 'Yes' : 'No')
+              : 'N/A'),
       '-------------------': '----------------',
       //step3
-      'Main available': isCpEnabled,
+      'Main available': isCpEnabled ? 'Yes' : 'No',
       'Main v1': voltageControllers[0].text,
       'Main v2': voltageControllers[1].text,
       'Main v3': voltageControllers[2].text,
@@ -348,14 +378,15 @@ class PmSheetPageState extends State<PmSheetPage> {
       '-----------------': '----------------',
 
       //step5
-      'ground earth': groundControllers[0].text,
+      'earth': _selectedSiteData?['earth'] ?? '',
+      'gen earth': groundControllers[0].text,
       'tel earth': groundControllers[1].text,
       'leg earth': groundControllers[2].text,
       'light earth': groundControllers[3].text,
       'owner load': externalLoadControllers[0].text,
       'neighbor load': externalLoadControllers[1].text,
       '3rd load': externalLoadControllers[2].text,
-      'battery switch': isBatteryTestEnabled,
+      'battery test': isBatteryTestEnabled,
       'start dc': batteryTestControllers[0].text,
       'end dc': batteryTestControllers[1].text,
       'fire': batteryTestControllers[2].text,
@@ -379,8 +410,14 @@ class PmSheetPageState extends State<PmSheetPage> {
   }
 
   void _updateComments() {
-    // Set the base text based on isCpEnabled
-    String baseText = isCpEnabled ? "Gen Load on CP" : "CP load on Gen";
+    String baseText;
+    if (_selectedSiteData?['cp'] == "Yes") {
+      baseText = isCpEnabled ? "Gen Load on CP" : "CP load on Gen";
+    } else if (_selectedSiteData?['cp'] == "No") {
+      baseText = "The Site without CP";
+    } else {
+      baseText = "CP status unknown";
+    }
 
     setState(() {
       commentsControllers[0].text = baseText;
@@ -405,10 +442,22 @@ class PmSheetPageState extends State<PmSheetPage> {
   }
 
   void _updateCPText() {
-    String baseText = isCpEnabled ? "Gen Load on CP" : "CP load on Gen";
+    String baseText;
+
+    // Check the value of _selectedSiteData['cp']
+    if (_selectedSiteData?['cp'] == "Yes") {
+      baseText = isCpEnabled ? "Gen Load on CP" : "CP load on Gen";
+    } else if (_selectedSiteData?['cp'] == "No") {
+      baseText = "The Site without CP";
+    } else {
+      baseText = "CP status unknown"; // Optional: handle unexpected cases
+    }
+
+    // Check for low voltage status and append if necessary
     if (isLowVoltage) {
       baseText += " / System low voltage";
     }
+
     setState(() {
       commentsControllers[0].text = baseText;
     });
@@ -430,36 +479,71 @@ class PmSheetPageState extends State<PmSheetPage> {
                 controlsBuilder:
                     (BuildContext context, ControlsDetails controls) {
                   return Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(
+                      ElevatedButton(
+                        onPressed: _currentStep == 0
+                            ? null
+                            : () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('Confirm Restart'),
+                                      content: Text(
+                                          'Are you sure you want to restart?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                          },
+                                          child: Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                            // Restart the page completely
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    PmSheetPage(
+                                                  themeMode: widget.themeMode,
+                                                  onThemeChanged:
+                                                      widget.onThemeChanged,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Text('Yes'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          backgroundColor: Colors.red,
+                        ),
+                        child: Text('Restart'),
+                      ),
+                      ElevatedButton(
                         onPressed: () {
-                          // Restart the page completely
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PmSheetPage(
-                                  themeMode: widget.themeMode,
-                                  onThemeChanged: widget.onThemeChanged),
-                            ),
-                          );
+                          if (_currentStep == 6) {
+                            // Handle submission logic here
+                            // _submitData();
+                          } else {
+                            controls.onStepContinue!();
+                          }
                         },
-                        icon: Icon(Icons.restart_alt_rounded),
-                        tooltip: 'Restart',
-                      ),
-                      ElevatedButton(
-                        onPressed: controls.onStepCancel,
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(horizontal: 20),
                         ),
-                        child: Text('Back'),
-                      ),
-                      ElevatedButton(
-                        onPressed: controls.onStepContinue,
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                        ),
-                        child: Text('Continue'),
+                        child: Text(_currentStep == 6 ? 'Submit' : 'Continue'),
                       ),
                     ],
                   );
@@ -684,20 +768,6 @@ class PmSheetPageState extends State<PmSheetPage> {
                               }),
                             ],
                           ),
-                        const SizedBox(height: 8.0),
-                        if (_selectedSiteData != null)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text(
-                                _selectedSiteData != null
-                                    ? '${_selectedSiteData!['sheet']}'
-                                    : 'Location',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
                       ],
                     ),
                     state: stepCompleted[0]
@@ -876,6 +946,21 @@ class PmSheetPageState extends State<PmSheetPage> {
                     content: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GoogleSheetHelper(
+                                    templateFileId:
+                                        '165kXvZcOPkYG6d9-5kdeGMTBDzNZjtyPrN1S9SINdmc',
+                                    targetSheetName: 'Gen',
+                                    data: _collectData(), // Pass collected data
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: Icon(Icons.local_airport_sharp)),
                         ..._collectData().entries.map((entry) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
