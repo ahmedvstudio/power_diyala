@@ -12,11 +12,13 @@ import 'package:permission_handler/permission_handler.dart';
 class GoogleSheetHelper extends StatefulWidget {
   final String templateFileId;
   final String targetSheetName;
+  final Map<String, dynamic> data;
 
   const GoogleSheetHelper({
     super.key,
     required this.templateFileId,
     required this.targetSheetName,
+    required this.data,
   });
 
   @override
@@ -194,6 +196,40 @@ class GoogleSheetHelperState extends State<GoogleSheetHelper> {
     }
   }
 
+  Future<void> _handleSheetOperations() async {
+    try {
+      // Step 1: Copy the sheet as a template
+      await _copySheetAsTemplate(context);
+      if (!mounted) return;
+
+      // Step 2: Modify cells
+      await _modifyCells(context);
+      if (!mounted) return;
+
+      // Step 3: Download the copied sheet
+      await _downloadCopiedSheet(context);
+      if (!mounted) return;
+
+      // Step 4: Delete the copied sheet
+      await _deleteCopiedSheet(context);
+      if (!mounted) return;
+
+      // Show a success message outside async gaps
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Operations completed successfully!')),
+        );
+      }
+    } catch (error) {
+      // Show error message outside async gaps
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $error')),
+        );
+      }
+    }
+  }
+
   void _showSnackbar(String message,
       {Duration duration = const Duration(seconds: 2)}) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -209,23 +245,6 @@ class GoogleSheetHelperState extends State<GoogleSheetHelper> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            ElevatedButton(
-              onPressed: () => _copySheetAsTemplate(context),
-              child: Text("Copy Sheet as Template"),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed:
-                  isFileCopied ? () => _downloadCopiedSheet(context) : null,
-              child: Text("Download Copied Sheet"),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed:
-                  isFileCopied ? () => _deleteCopiedSheet(context) : null,
-              child: Text("Delete Copied Sheet"),
-            ),
-            SizedBox(height: 20),
             TextField(
               decoration: InputDecoration(
                 labelText: "Enter cell-value pairs (e.g., A1=Value1,B2=Value2)",
@@ -245,8 +264,8 @@ class GoogleSheetHelperState extends State<GoogleSheetHelper> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: isFileCopied ? () => _modifyCells(context) : null,
-              child: Text("Update Cells"),
+              onPressed: _handleSheetOperations,
+              child: Text('Execute Sheet Operations'),
             ),
           ],
         ),
