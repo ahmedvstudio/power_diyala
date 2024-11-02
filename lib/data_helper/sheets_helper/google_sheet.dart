@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis/drive/v3.dart' as drive;
@@ -11,7 +12,9 @@ import 'package:permission_handler/permission_handler.dart';
 class GoogleSheetHelper {
   final String templateFileId;
   final String targetSheetName;
-  final Logger logger = Logger();
+  final String modifiedFileName;
+  final Logger logger =
+      kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   String copiedFileId = '';
   final Map<String, String> cellUpdates = {};
   int? sheetId;
@@ -19,6 +22,7 @@ class GoogleSheetHelper {
   GoogleSheetHelper({
     required this.templateFileId,
     required this.targetSheetName,
+    required this.modifiedFileName,
   });
 
   Future<AutoRefreshingAuthClient> _initializeClient(
@@ -165,7 +169,7 @@ class GoogleSheetHelper {
 
     try {
       final client = await _initializeClient([drive.DriveApi.driveScope]);
-      final accessToken = (client).credentials.accessToken.data;
+      final accessToken = client.credentials.accessToken.data;
 
       final response = await http.get(
         Uri.parse(
@@ -180,7 +184,7 @@ class GoogleSheetHelper {
               recursive: true); // Ensure directory exists
         }
 
-        final filePath = '${downloadsDirectory.path}/modified_gen.xlsx';
+        final filePath = '${downloadsDirectory.path}/$modifiedFileName.xlsx';
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
 

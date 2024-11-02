@@ -476,6 +476,7 @@ class PmSheetPageState extends State<PmSheetPage> {
       GoogleSheetHelper googleSheetHelper = GoogleSheetHelper(
         templateFileId: sheetMapper.getTemplateFileId(selectedSheetNumber),
         targetSheetName: sheetMapper.getSheetName(selectedSheetNumber),
+        modifiedFileName: _collectData()['siteName'],
       );
 
       // Collect data for the selected sheet
