@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:power_diyala/Widgets/widgets.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
+import 'package:power_diyala/data_helper/sheets_helper/google_sheet.dart';
 import 'package:power_diyala/data_helper/sheets_helper/ac_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
 import 'package:power_diyala/data_helper/sheets_helper/earth_load.dart';
 import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
-import 'package:power_diyala/data_helper/sheets_helper/google_sheet_helper.dart';
+import 'package:power_diyala/data_helper/sheets_helper/sheet_id_cells_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/toggles.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
 import 'package:power_diyala/settings/theme_control.dart';
@@ -40,13 +41,14 @@ class PmSheetPageState extends State<PmSheetPage> {
   final TextEditingController _dateController = TextEditingController();
   TextEditingController cpController = TextEditingController();
   TextEditingController kwhController = TextEditingController();
-
+  String? _selectedName;
   final List<TextEditingController> acVoltControllers =
       List.generate(6, (index) => TextEditingController());
   final List<TextEditingController> acLoadControllers =
       List.generate(6, (index) => TextEditingController());
   final List<TextEditingController> acOtherController =
       List.generate(3, (index) => TextEditingController());
+  bool _isLoading = false;
 
   final List<TextEditingController> groundControllers =
       List.generate(6, (index) => TextEditingController());
@@ -54,7 +56,7 @@ class PmSheetPageState extends State<PmSheetPage> {
       List.generate(6, (index) => TextEditingController());
   final List<TextEditingController> batteryTestControllers =
       List.generate(3, (index) => TextEditingController());
-
+  bool _isSiteSelected = false; // Add this to your state
   List<TextEditingController> voltageControllers = [];
   List<TextEditingController> loadControllers = [];
   final _random = Random();
@@ -80,6 +82,13 @@ class PmSheetPageState extends State<PmSheetPage> {
   TimeOfDay? fromTime;
   TimeOfDay? toTime;
   int _currentStep = 0;
+  final List<String> names = [
+    'Ahmed Adnan Abdulwahab',
+    'Ahmed Jassim Mohamed',
+    'Ahmed Noori Jassim',
+    'Mustafa Raad Nouman',
+    'Ali Mahmod Ali',
+  ];
 
   @override
   void initState() {
@@ -289,6 +298,7 @@ class PmSheetPageState extends State<PmSheetPage> {
       'siteName': '${siteController.text}-${_selectedSiteData?['code'] ?? ''}',
       'location': _selectedSiteData?['Location'] ?? '',
       'date': _dateController.text,
+      'engineer name': _selectedName,
       'timeIn': fromTime?.format(context) ?? '',
       'timeOut': toTime?.format(context) ?? '',
       'G1': genControllers[0].text,
@@ -307,6 +317,7 @@ class PmSheetPageState extends State<PmSheetPage> {
       //step2
       'g1 oil': toggleValues[0] ? 'Yes' : 'No',
       'g1 air': toggleValues[1] ? 'Yes' : 'No',
+
       'g1 coolant': toggleValues[2] ? 'Yes' : 'No',
       'g1 gen sep': _selectedSiteData?['gen sep'] == 'No'
           ? 'N/A'
@@ -318,6 +329,7 @@ class PmSheetPageState extends State<PmSheetPage> {
           : (_selectedSiteData?['gen sep'] == 'Yes'
               ? (toggleValues[8] ? 'Yes' : 'No')
               : 'N/A'),
+      'clean g1 air': toggleValues[1] ? 'No' : 'Yes',
       'g2 oil': toggleValues[3] ? 'Yes' : 'No',
       'g2 air': toggleValues[4] ? 'Yes' : 'No',
       'g2 coolant': toggleValues[5] ? 'Yes' : 'No',
@@ -331,9 +343,14 @@ class PmSheetPageState extends State<PmSheetPage> {
           : (_selectedSiteData?['gen sep'] == 'Yes'
               ? (toggleValues[8] ? 'Yes' : 'No')
               : 'N/A'),
+      'clean g2 air': toggleValues[4] ? 'No' : 'Yes',
       '-------------------': '----------------',
       //step3
-      'Main available': isCpEnabled ? 'Yes' : 'No',
+      'Main available': _selectedSiteData?['cp'] == 'No'
+          ? 'N/A'
+          : (_selectedSiteData?['cp'] == 'Yes'
+              ? (isCpEnabled ? 'Yes' : 'No')
+              : 'N/A'),
       'Main v1': voltageControllers[0].text,
       'Main v2': voltageControllers[1].text,
       'Main v3': voltageControllers[2].text,
@@ -376,19 +393,41 @@ class PmSheetPageState extends State<PmSheetPage> {
       'HP': acOtherController[1].text,
       'LP': acOtherController[2].text,
       '-----------------': '----------------',
-
       //step5
-      'earth': _selectedSiteData?['earth'] ?? '',
-      'gen earth': groundControllers[0].text,
-      'tel earth': groundControllers[1].text,
-      'leg earth': groundControllers[2].text,
-      'light earth': groundControllers[3].text,
+      'gen earth': (_selectedSiteData?['earth'] == 'Yes')
+          ? groundControllers[0].text
+          : '0',
+
+      'tel earth': _selectedSiteData?['earth'] == 'No'
+          ? '0'
+          : (_selectedSiteData?['earth'] == 'Yes'
+              ? (groundControllers[1].text)
+              : 'N/A'),
+      'leg earth': _selectedSiteData?['earth'] == 'No'
+          ? '0'
+          : (_selectedSiteData?['earth'] == 'Yes'
+              ? (groundControllers[2].text)
+              : 'N/A'),
+      'light earth': _selectedSiteData?['earth'] == 'No'
+          ? '0'
+          : (_selectedSiteData?['earth'] == 'Yes'
+              ? (groundControllers[3].text)
+              : 'N/A'),
       'owner load': externalLoadControllers[0].text,
       'neighbor load': externalLoadControllers[1].text,
       '3rd load': externalLoadControllers[2].text,
-      'battery test': isBatteryTestEnabled,
-      'start dc': batteryTestControllers[0].text,
-      'end dc': batteryTestControllers[1].text,
+      'battery test': isBatteryTestEnabled ? 'Yes' : 'No',
+      'start dc': isBatteryTestEnabled == false
+          ? '0'
+          : (isBatteryTestEnabled == true
+              ? (batteryTestControllers[0].text)
+              : '0'),
+      'end dc': isBatteryTestEnabled == false
+          ? '0'
+          : (isBatteryTestEnabled == true
+              ? (batteryTestControllers[1].text)
+              : '0'),
+
       'fire': batteryTestControllers[2].text,
       '----------------------': '----------------',
 
@@ -400,6 +439,80 @@ class PmSheetPageState extends State<PmSheetPage> {
       'electricComments': commentsControllers[4].text,
       // Add more fields as necessary
     };
+  }
+
+  Map<String, dynamic> collectDataForSheet(int sheetNumber) {
+    final data = _collectData();
+    logger.i('Raw Collected Data: $data'); // Log raw data
+
+    // Fetch mappings and proceed with your existing logic
+    final mapper = SheetMapper();
+    final cells = mapper.getSheetMapping(sheetNumber);
+
+    // Proceed with mapping logic
+    final mappedData = <String, dynamic>{};
+    cells.forEach((cell, key) {
+      if (data.containsKey(key)) {
+        mappedData[cell] = data[key];
+      } else {
+        logger.w(
+            'Key $key not found in collected data.'); // Warn if key not found
+      }
+    });
+
+    logger.i('Mapped Data for Sheet $sheetNumber: $mappedData');
+    return mappedData;
+  }
+
+  void submitData() async {
+    if (_selectedSiteData != null && _selectedSiteData!['sheet'] != null) {
+      int selectedSheetNumber =
+          int.tryParse(_selectedSiteData!['sheet'].toString()) ?? 1;
+
+      // Create an instance of SheetMapper
+      SheetMapper sheetMapper = SheetMapper();
+
+      // Create an instance of GoogleSheetHelper
+      GoogleSheetHelper googleSheetHelper = GoogleSheetHelper(
+        templateFileId: sheetMapper.getTemplateFileId(selectedSheetNumber),
+        targetSheetName: sheetMapper.getSheetName(selectedSheetNumber),
+      );
+
+      // Collect data for the selected sheet
+      Map<String, dynamic> collectedData =
+          collectDataForSheet(selectedSheetNumber);
+      logger.i('Collected Data for Sheet $selectedSheetNumber: $collectedData');
+      // Prepare cell updates based on collected data and sheet mappings
+      Map<String, dynamic> cellMappings =
+          sheetMapper.getSheetMapping(selectedSheetNumber);
+      logger.i('Cell Mappings for Sheet $selectedSheetNumber: $cellMappings');
+
+      Map<String, String> updates = {};
+      for (var entry in cellMappings.entries) {
+        String cell = entry.key;
+        String dataKey = entry.key;
+
+        // Check if collected data contains the key
+        if (collectedData.containsKey(dataKey) &&
+            collectedData[dataKey].toString().isNotEmpty) {
+          updates[cell] = collectedData[dataKey].toString();
+        } else {
+          updates[cell] = '';
+          logger.i(
+              'Key $dataKey not found in collected data. Setting cell $cell to blank.');
+        }
+      }
+
+      logger.i('Updates to apply: $updates');
+
+      // Set the updates before executing sheet operations
+      googleSheetHelper.setCellUpdates(updates);
+
+      // Now call executeSheetOperations
+      await googleSheetHelper.executeSheetOperations();
+    } else {
+      logger.e('Invalid site data or sheet selection.');
+    }
   }
 
   void _showSnackbar(String message,
@@ -581,22 +694,32 @@ class PmSheetPageState extends State<PmSheetPage> {
                       children: [
                         const SizedBox(height: 8.0),
                         TextField(
-                          onTap: () => showSearchableDropdown(
-                            context,
-                            _siteNames,
-                            (selected) {
-                              setState(() {
-                                _updateSelectedSiteData(selected);
-                              });
-                            },
-                            _searchController,
-                          ),
+                          onTap: _isSiteSelected
+                              ? null
+                              : () => showSearchableDropdown(
+                                    context,
+                                    _siteNames,
+                                    (selected) {
+                                      setState(() {
+                                        _updateSelectedSiteData(selected);
+                                        _isSiteSelected = true;
+                                      });
+                                    },
+                                    _searchController,
+                                  ),
                           controller: siteController,
                           decoration: InputDecoration(
                             prefixIcon: Icon(
                               Icons.cell_tower_rounded,
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
+                            suffixIcon: _isSiteSelected
+                                ? Icon(
+                                    Icons.check,
+                                    color: Colors.green, // Green check mark
+                                  )
+                                : null,
+                            // No icon if not selected
                             label: Text(
                               _selectedSiteData != null
                                   ? 'Site Name:'
@@ -633,6 +756,8 @@ class PmSheetPageState extends State<PmSheetPage> {
                           ),
                           keyboardType: TextInputType.number,
                           readOnly: true,
+                          enabled:
+                              !_isSiteSelected, // Disable the TextField if a site is selected
                         ),
                         const SizedBox(height: 12.0),
                         TextField(
@@ -946,27 +1071,82 @@ class PmSheetPageState extends State<PmSheetPage> {
                     content: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        IconButton(
+                        DropdownButton<String>(
+                          hint: Text(
+                            'Select a name...',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ), // Placeholder text
+                          value: _selectedName,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedName =
+                                  newValue; // Update the selected name
+                            });
+                          },
+                          items: names
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                value,
+                                style:
+                                    Theme.of(context).textTheme.headlineLarge,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        TextButton(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => GoogleSheetHelper(
-                                    templateFileId:
-                                        '165kXvZcOPkYG6d9-5kdeGMTBDzNZjtyPrN1S9SINdmc',
-                                    targetSheetName: 'Gen',
-                                    data: _collectData(), // Pass collected data
-                                  ),
-                                ),
-                              );
+                              if (_selectedSiteData != null &&
+                                  _selectedSiteData!['sheet'] != null) {
+                                int selectedSheetNumber = int.tryParse(
+                                        _selectedSiteData!['sheet']
+                                            .toString()) ??
+                                    1;
+                                Map<String, dynamic> data =
+                                    collectDataForSheet(selectedSheetNumber);
+
+                                displayData(data);
+                              } else {
+                                if (kDebugMode) {
+                                  print(
+                                      'Invalid site data or sheet selection.');
+                                }
+                              }
                             },
-                            icon: Icon(Icons.local_airport_sharp)),
-                        ..._collectData().entries.map((entry) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Text('${entry.key}: ${entry.value}'),
-                          );
-                        }),
+                            child: Text('Display')),
+                        ElevatedButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
+                                  setState(() {
+                                    _isLoading = true; // Start loading
+                                  });
+
+                                  try {
+                                    submitData();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Data submitted successfully!')),
+                                    );
+                                  } catch (error) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Error submitting data: $error')),
+                                    );
+                                  } finally {
+                                    setState(() {
+                                      _isLoading = false; // Stop loading
+                                    });
+                                  }
+                                },
+                          child: _isLoading
+                              ? CircularProgressIndicator(
+                                  color: Colors.white) // Show loading spinner
+                              : Text('Submit'),
+                        ),
                       ],
                     ),
                     state: stepCompleted[6]
@@ -978,41 +1158,76 @@ class PmSheetPageState extends State<PmSheetPage> {
       ),
     );
   }
-}
 
-Widget buildCommentField(
-    String labelText, TextEditingController controller, BuildContext context) {
-  return Column(
-    children: [
-      SizedBox(height: 8),
-      TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle:
-              TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide:
-                BorderSide(color: Theme.of(context).colorScheme.secondary),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.tertiary,
-              width: 2.0,
+  void displayData(Map<String, dynamic> data) {
+    // Option 1: Print to console (for debugging)
+    if (kDebugMode) {
+      print('Collected Data for Sheet:');
+    }
+    data.forEach((key, value) {
+      if (kDebugMode) {
+        print('$key: $value');
+      }
+    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Collected Data'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: data.entries.map((entry) {
+                return Text('${entry.key}: ${entry.value}');
+              }).toList(),
             ),
           ),
-          filled: true,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildCommentField(String labelText, TextEditingController controller,
+      BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: labelText,
+            labelStyle:
+                TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide:
+                  BorderSide(color: Theme.of(context).colorScheme.secondary),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.tertiary,
+                width: 2.0,
+              ),
+            ),
+            filled: true,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
           ),
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+          keyboardType: TextInputType.text,
         ),
-        keyboardType: TextInputType.text,
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }

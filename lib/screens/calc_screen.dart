@@ -471,11 +471,17 @@ class HomeScreenState extends State<CalculatorScreen> {
                             ],
                           ),
                           const SizedBox(height: 5.0),
-                          Center(
-                            child: ElevatedButton.icon(
-                              onPressed: () => _clearSelection(),
-                              label: const Text('Clear Selection'),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () => _clearSelection(),
+                                  label: const Text('Clear'),
+                                  icon: Icon(Icons.delete_sweep),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
