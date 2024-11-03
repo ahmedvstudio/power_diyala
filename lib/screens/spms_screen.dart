@@ -292,7 +292,7 @@ class HomeScreenState extends State<SpmsScreen> {
   }
 
   String _getStringSite(dynamic value,
-      [String defaultValue = 'Select Site Name']) {
+      [String defaultValue = 'Select Site ...']) {
     if (value == null) {
       return defaultValue;
     }
