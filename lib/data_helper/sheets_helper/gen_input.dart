@@ -162,7 +162,7 @@ class GenVLInputState extends State<GenVLInput> {
         inputFields.addAll(
             _generateInputs(context, controllers, 'PH-L', 13, 3, g2Enabled));
         inputFields.addAll(
-            _generateInputs(context, controllers, 'Load', 6, 3, g2Enabled));
+            _generateInputs(context, controllers, 'Load', 16, 3, g2Enabled));
         inputFields.add(_createTextField(
             context, controllers[19], 'Battery Voltage', g2Enabled));
         break;
@@ -216,7 +216,7 @@ class GenVLInputState extends State<GenVLInput> {
       TextEditingController controller, String labelText, bool enabled) {
     return TextField(
       controller: controller,
-      enabled: enabled, // Set enabled state
+      // enabled: enabled,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: TextStyle(
@@ -258,7 +258,7 @@ class GenVLInputState extends State<GenVLInput> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('G1', style: TextStyle(fontSize: 18)),
-              ..._buildG1Switch(),
+              ..._buildGeneratorButton(0), // G1 Button
             ],
           ),
           _groupInRows(inputFields.sublist(0,
@@ -279,77 +279,54 @@ class GenVLInputState extends State<GenVLInput> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('G2', style: TextStyle(fontSize: 18)),
-                ..._buildG2Switch(),
+                ..._buildGeneratorButton(1), // G2 Button
               ],
             ),
             _groupInRows(inputFields.sublist(10)), // G2 Inputs
           ],
 
-          // Add switches for gens
-          SizedBox(height: 16), // Space for switches
+          SizedBox(height: 16), // Space for buttons
         ],
       ),
     );
   }
 
-  List<Widget> _buildG1Switch() {
-    return [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Switch(
-            value: widget.gensSwitches[0], // Assuming first switch is for G1
-            onChanged: (value) {
-              setState(() {
-                widget.onSwitchChanged(
-                    0, value); // Notify parent on change for G1
-                if (!value) {
-                  // Generate random values when switch is off
-                  for (int i = 0; i < 3; i++) {
-                    widget.controllers[i].text = (220 + Random().nextInt(11))
-                        .toString(); // Random between 220-230 for PH-N
-                    for (int i = 3; i < 6; i++) {
-                      widget.controllers[i].text = (385 + Random().nextInt(16))
-                          .toString(); // Random between 385-400 for PH-L
-                    }
-                  }
-                  widget.controllers[9].text = generateRandomVoltage(13.4, 14.0)
-                      .toStringAsFixed(1); // Battery Voltage
-                }
-              });
-            },
-          ),
-        ],
-      ),
-    ];
-  }
+  List<Widget> _buildGeneratorButton(int generatorIndex) {
+    bool isActive = widget.gensSwitches[generatorIndex];
 
-  List<Widget> _buildG2Switch() {
     return [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Switch(
-            value: widget.gensSwitches[1],
-            onChanged: (value) {
-              setState(() {
-                widget.onSwitchChanged(1, value);
-                if (!value) {
-                  for (int i = 10; i < 13; i++) {
-                    widget.controllers[i].text =
-                        (220 + Random().nextInt(11)).toString();
-                    for (int i = 13; i < 16; i++) {
-                      widget.controllers[i].text =
-                          (385 + Random().nextInt(16)).toString();
-                    }
-                  }
-                  widget.controllers[19].text =
-                      generateRandomVoltage(13.4, 14.0).toStringAsFixed(1);
-                }
-              });
-            },
-          ),
-        ],
+      IconButton(
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+        ),
+        onPressed: () {
+          setState(() {
+            bool newValue = !isActive;
+            widget.onSwitchChanged(generatorIndex, newValue);
+            if (!newValue) {
+              // Generate random values when button is pressed to turn off
+              int startIndex = generatorIndex == 0 ? 0 : 10;
+              for (int i = startIndex; i < startIndex + 3; i++) {
+                widget.controllers[i].text =
+                    (220 + Random().nextInt(11)).toString(); // Random for PH-N
+              }
+              for (int i = startIndex + 3; i < startIndex + 6; i++) {
+                widget.controllers[i].text =
+                    (385 + Random().nextInt(16)).toString(); // Random for PH-L
+              }
+              if (generatorIndex == 0) {
+                widget.controllers[9].text = generateRandomVoltage(13.4, 14.0)
+                    .toStringAsFixed(1); // Battery Voltage for G1
+              } else {
+                widget.controllers[19].text = generateRandomVoltage(13.4, 14.0)
+                    .toStringAsFixed(1); // Battery Voltage for G2
+              }
+            }
+          });
+        },
+        icon: Icon(Icons.download_rounded), tooltip: 'Randomize',
+        // Button label
       ),
     ];
   }
