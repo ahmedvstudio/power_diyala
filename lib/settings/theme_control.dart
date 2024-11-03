@@ -33,11 +33,9 @@ class ThemeControl with ChangeNotifier {
     _loadColorPreferences();
   }
 
-  // Load colors from SharedPreferences
   Future<void> _loadColorPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Load and assign colors or use default values
-    // Load and assign colors or use default values
+
     _primaryColor =
         Color(prefs.getInt('primary_color') ?? _defaultPrimaryColor.value);
     _secondaryColor =

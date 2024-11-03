@@ -34,7 +34,6 @@ class PmSheetPageState extends State<PmSheetPage> {
   Map<String, dynamic>? _selectedSiteData;
   List<TextEditingController> genControllers = [];
   List<TextEditingController> genVLControllers = [];
-
   List<TextEditingController> tankControllers = [];
   List<TextEditingController> commentsControllers = [];
   TextEditingController siteController = TextEditingController();
@@ -49,14 +48,13 @@ class PmSheetPageState extends State<PmSheetPage> {
   final List<TextEditingController> acOtherController =
       List.generate(3, (index) => TextEditingController());
   bool _isLoading = false;
-
   final List<TextEditingController> groundControllers =
       List.generate(6, (index) => TextEditingController());
   final List<TextEditingController> externalLoadControllers =
       List.generate(6, (index) => TextEditingController());
   final List<TextEditingController> batteryTestControllers =
       List.generate(3, (index) => TextEditingController());
-  bool _isSiteSelected = false; // Add this to your state
+  bool _isSiteSelected = false;
   List<TextEditingController> voltageControllers = [];
   List<TextEditingController> loadControllers = [];
   final _random = Random();
@@ -106,6 +104,9 @@ class PmSheetPageState extends State<PmSheetPage> {
     });
   }
 
+  bool _isRandomGenerated = false;
+  bool _isSiteDataLoaded = false;
+
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
@@ -113,10 +114,12 @@ class PmSheetPageState extends State<PmSheetPage> {
     if (_currentStep == 1) {
       _calculateAndDisplayCycles();
     }
-    if (_currentStep == 4) {
+    if (_currentStep == 4 && !_isSiteDataLoaded) {
+      _isSiteDataLoaded = true;
       _loadSelectedSiteData();
     }
-    if (_currentStep == 3) {
+    if (_currentStep == 3 && !_isRandomGenerated) {
+      _isRandomGenerated = true;
       _generateRandomValues();
     }
   }
@@ -443,9 +446,8 @@ class PmSheetPageState extends State<PmSheetPage> {
 
   Map<String, dynamic> collectDataForSheet(int sheetNumber) {
     final data = _collectData();
-    logger.i('Raw Collected Data: $data'); // Log raw data
+    logger.i('Raw Collected Data: $data');
 
-    // Fetch mappings and proceed with your existing logic
     final mapper = SheetMapper();
     final cells = mapper.getSheetMapping(sheetNumber);
 
@@ -455,8 +457,7 @@ class PmSheetPageState extends State<PmSheetPage> {
       if (data.containsKey(key)) {
         mappedData[cell] = data[key];
       } else {
-        logger.w(
-            'Key $key not found in collected data.'); // Warn if key not found
+        logger.w('Key $key not found in collected data.');
       }
     });
 
@@ -464,26 +465,22 @@ class PmSheetPageState extends State<PmSheetPage> {
     return mappedData;
   }
 
-  void submitData() async {
+  Future<void> submitData() async {
     if (_selectedSiteData != null && _selectedSiteData!['sheet'] != null) {
       int selectedSheetNumber =
           int.tryParse(_selectedSiteData!['sheet'].toString()) ?? 1;
 
-      // Create an instance of SheetMapper
       SheetMapper sheetMapper = SheetMapper();
 
-      // Create an instance of GoogleSheetHelper
       GoogleSheetHelper googleSheetHelper = GoogleSheetHelper(
         templateFileId: sheetMapper.getTemplateFileId(selectedSheetNumber),
         targetSheetName: sheetMapper.getSheetName(selectedSheetNumber),
         modifiedFileName: _collectData()['siteName'],
       );
 
-      // Collect data for the selected sheet
       Map<String, dynamic> collectedData =
           collectDataForSheet(selectedSheetNumber);
       logger.i('Collected Data for Sheet $selectedSheetNumber: $collectedData');
-      // Prepare cell updates based on collected data and sheet mappings
       Map<String, dynamic> cellMappings =
           sheetMapper.getSheetMapping(selectedSheetNumber);
       logger.i('Cell Mappings for Sheet $selectedSheetNumber: $cellMappings');
@@ -493,7 +490,6 @@ class PmSheetPageState extends State<PmSheetPage> {
         String cell = entry.key;
         String dataKey = entry.key;
 
-        // Check if collected data contains the key
         if (collectedData.containsKey(dataKey) &&
             collectedData[dataKey].toString().isNotEmpty) {
           updates[cell] = collectedData[dataKey].toString();
@@ -506,10 +502,8 @@ class PmSheetPageState extends State<PmSheetPage> {
 
       logger.i('Updates to apply: $updates');
 
-      // Set the updates before executing sheet operations
       googleSheetHelper.setCellUpdates(updates);
 
-      // Now call executeSheetOperations
       await googleSheetHelper.executeSheetOperations();
     } else {
       logger.e('Invalid site data or sheet selection.');
@@ -581,8 +575,50 @@ class PmSheetPageState extends State<PmSheetPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title:
-              Text('PM Sheet', style: Theme.of(context).textTheme.titleLarge)),
+        title: Text('PM Sheet', style: Theme.of(context).textTheme.titleLarge),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Confirm Restart'),
+                    content: Text('Are you sure you want to restart?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                          // Restart the page completely
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PmSheetPage(
+                                themeMode: widget.themeMode,
+                                onThemeChanged: widget.onThemeChanged,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text('Yes'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            icon: Icon(Icons.restart_alt_rounded),
+            tooltip: 'Restart',
+            color: Colors.red,
+          )
+        ],
+      ),
       body: SafeArea(
         child: _data == null
             ? const Center(child: CircularProgressIndicator())
@@ -600,65 +636,18 @@ class PmSheetPageState extends State<PmSheetPage> {
                         onPressed: _currentStep == 0
                             ? null
                             : () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text('Confirm Restart'),
-                                      content: Text(
-                                          'Are you sure you want to restart?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
-                                          },
-                                          child: Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
-                                            // Restart the page completely
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    PmSheetPage(
-                                                  themeMode: widget.themeMode,
-                                                  onThemeChanged:
-                                                      widget.onThemeChanged,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          child: Text('Yes'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
+                                controls.onStepCancel!();
                               },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          backgroundColor: Colors.red,
-                        ),
-                        child: Text('Restart'),
+                        child: Text('Back'),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          if (_currentStep == 6) {
-                            // Handle submission logic here
-                            // _submitData();
-                          } else {
-                            controls.onStepContinue!();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                        ),
-                        child: Text(_currentStep == 6 ? 'Submit' : 'Continue'),
-                      ),
+                        onPressed: _currentStep != 6
+                            ? () {
+                                controls.onStepContinue!();
+                              }
+                            : null,
+                        child: Text('Continue'),
+                      )
                     ],
                   );
                 },
@@ -672,8 +661,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                 onStepContinue: () {
                   if (_currentStep < 6) {
                     setState(() {
-                      stepCompleted[_currentStep] =
-                          true; // Mark step as completed
+                      stepCompleted[_currentStep] = true;
                       _currentStep++;
                     });
                   }
@@ -681,8 +669,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                 onStepCancel: () {
                   if (_currentStep > 0) {
                     setState(() {
-                      stepCompleted[_currentStep] =
-                          false; // Reset current step on cancel
+                      stepCompleted[_currentStep] = false;
                       _currentStep--;
                     });
                   }
@@ -691,12 +678,19 @@ class PmSheetPageState extends State<PmSheetPage> {
                   Step(
                     isActive: _currentStep == 0,
                     title: Text('General'),
+                    subtitle: _currentStep == 0
+                        ? Text('All Fields Are Required.')
+                        : null,
                     content: Column(
                       children: [
                         const SizedBox(height: 8.0),
-                        TextField(
+                        GestureDetector(
                           onTap: _isSiteSelected
-                              ? null
+                              ? () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Reset the page')),
+                                  );
+                                }
                               : () => showSearchableDropdown(
                                     context,
                                     _siteNames,
@@ -708,57 +702,59 @@ class PmSheetPageState extends State<PmSheetPage> {
                                     },
                                     _searchController,
                                   ),
-                          controller: siteController,
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(
-                              Icons.cell_tower_rounded,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                            suffixIcon: _isSiteSelected
-                                ? Icon(
-                                    Icons.check,
-                                    color: Colors.green, // Green check mark
-                                  )
-                                : null,
-                            // No icon if not selected
-                            label: Text(
-                              _selectedSiteData != null
-                                  ? 'Site Name:'
-                                  : 'No site selected',
-                              overflow: TextOverflow
-                                  .ellipsis, // Handle long text with ellipsis
-                              style: TextStyle(
-                                fontSize: 16.0, // Adjust text size as needed
-                              ),
-                            ),
-                            filled: true,
-                            labelStyle: TextStyle(
-                                color:
-                                    ThemeControl.errorColor.withOpacity(0.8)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
+                          child: AbsorbPointer(
+                            child: TextField(
+                              controller: siteController,
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.cell_tower_rounded,
                                   color: Theme.of(context).colorScheme.tertiary,
-                                  width: 2.0),
+                                ),
+                                suffixIcon: _isSiteSelected
+                                    ? Icon(
+                                        Icons.check,
+                                        color: Colors.green,
+                                      )
+                                    : null,
+                                label: Text(
+                                  _selectedSiteData != null
+                                      ? 'Site Name:'
+                                      : 'No site selected',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 16.0),
+                                ),
+                                filled: true,
+                                labelStyle: TextStyle(
+                                    color: ThemeControl.errorColor
+                                        .withOpacity(0.8)),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                      width: 2.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: const BorderSide(
+                                      color: Colors.grey, width: 1.5),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16.0, horizontal: 12.0),
+                              ),
+                              keyboardType: TextInputType.number,
+                              readOnly: true,
+                              enabled: !_isSiteSelected,
                             ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.grey, width: 1.5),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 12.0),
                           ),
-                          keyboardType: TextInputType.number,
-                          readOnly: true,
-                          enabled:
-                              !_isSiteSelected, // Disable the TextField if a site is selected
                         ),
                         const SizedBox(height: 12.0),
                         TextField(
@@ -856,7 +852,6 @@ class PmSheetPageState extends State<PmSheetPage> {
                         if (_selectedSiteData != null)
                           Row(
                             children: [
-                              // Generate input fields based on sheet number
                               ...GenInput(_selectedSiteData!['sheet'])
                                   .genInputs(context, genControllers)
                                   .map((inputField) {
@@ -871,7 +866,6 @@ class PmSheetPageState extends State<PmSheetPage> {
                           ),
                         const SizedBox(height: 8.0),
                         if (_selectedSiteData != null)
-                          // Usage in some parent widget
                           CpInput(
                             cpValue: _selectedSiteData!['cp'],
                             cpController: cpController,
@@ -881,7 +875,6 @@ class PmSheetPageState extends State<PmSheetPage> {
                         if (_selectedSiteData != null)
                           Row(
                             children: [
-                              // Generate input fields based on sheet number
                               ...TankInput(_selectedSiteData!['sheet'])
                                   .tankInputs(context, tankControllers)
                                   .map((inputField) {
@@ -903,6 +896,8 @@ class PmSheetPageState extends State<PmSheetPage> {
                   Step(
                     isActive: _currentStep == 1,
                     title: Text('Generator'),
+                    subtitle:
+                        _currentStep == 1 ? Text('on => Yes, off => No') : null,
                     content: Column(
                       children: [
                         if (_selectedSiteData != null)
@@ -922,6 +917,8 @@ class PmSheetPageState extends State<PmSheetPage> {
                   Step(
                     isActive: _currentStep == 2,
                     title: Text('Load & Voltage'),
+                    subtitle:
+                        _currentStep == 2 ? Text('Randomize First') : null,
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -1068,10 +1065,14 @@ class PmSheetPageState extends State<PmSheetPage> {
                   ),
                   Step(
                     isActive: _currentStep == 6,
-                    title: Text('Review'),
+                    title: Text('Submit'),
                     content: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          'Engineer Name:',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
                         DropdownButton<String>(
                           hint: Text(
                             'Select a name...',
@@ -1096,26 +1097,6 @@ class PmSheetPageState extends State<PmSheetPage> {
                             );
                           }).toList(),
                         ),
-                        TextButton(
-                            onPressed: () {
-                              if (_selectedSiteData != null &&
-                                  _selectedSiteData!['sheet'] != null) {
-                                int selectedSheetNumber = int.tryParse(
-                                        _selectedSiteData!['sheet']
-                                            .toString()) ??
-                                    1;
-                                Map<String, dynamic> data =
-                                    collectDataForSheet(selectedSheetNumber);
-
-                                displayData(data);
-                              } else {
-                                if (kDebugMode) {
-                                  print(
-                                      'Invalid site data or sheet selection.');
-                                }
-                              }
-                            },
-                            child: Text('Display')),
                         ElevatedButton(
                           onPressed: _isLoading
                               ? null
@@ -1125,7 +1106,8 @@ class PmSheetPageState extends State<PmSheetPage> {
                                   });
 
                                   try {
-                                    submitData();
+                                    await submitData();
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                           content: Text(
@@ -1143,6 +1125,22 @@ class PmSheetPageState extends State<PmSheetPage> {
                                     });
                                   }
                                 },
+                          onLongPress: () {
+                            if (_selectedSiteData != null &&
+                                _selectedSiteData!['sheet'] != null) {
+                              int selectedSheetNumber = int.tryParse(
+                                      _selectedSiteData!['sheet'].toString()) ??
+                                  1;
+                              Map<String, dynamic> data =
+                                  collectDataForSheet(selectedSheetNumber);
+
+                              displayData(data);
+                            } else {
+                              if (kDebugMode) {
+                                print('Invalid site data or sheet selection.');
+                              }
+                            }
+                          },
                           child: _isLoading
                               ? CircularProgressIndicator(
                                   color: Colors.white) // Show loading spinner
