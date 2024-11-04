@@ -792,7 +792,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                   );
                 },
                 onStepTapped: (step) {
-                  if (step != _currentStep) {
+                  if (step == _currentStep) {
                     setState(() {
                       _currentStep = step;
                     });
