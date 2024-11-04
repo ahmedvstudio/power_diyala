@@ -305,22 +305,21 @@ class GenVLInputState extends State<GenVLInput> {
             bool newValue = !isActive;
             widget.onSwitchChanged(generatorIndex, newValue);
             if (!newValue) {
-              // Generate random values when button is pressed to turn off
               int startIndex = generatorIndex == 0 ? 0 : 10;
               for (int i = startIndex; i < startIndex + 3; i++) {
                 widget.controllers[i].text =
-                    (220 + Random().nextInt(11)).toString(); // Random for PH-N
+                    (220 + Random().nextInt(11)).toString();
               }
               for (int i = startIndex + 3; i < startIndex + 6; i++) {
                 widget.controllers[i].text =
-                    (385 + Random().nextInt(16)).toString(); // Random for PH-L
+                    (385 + Random().nextInt(16)).toString();
               }
               if (generatorIndex == 0) {
-                widget.controllers[9].text = generateRandomVoltage(13.4, 14.0)
-                    .toStringAsFixed(1); // Battery Voltage for G1
+                widget.controllers[9].text =
+                    generateRandomVoltage(13.4, 14.0).toStringAsFixed(1);
               } else {
-                widget.controllers[19].text = generateRandomVoltage(13.4, 14.0)
-                    .toStringAsFixed(1); // Battery Voltage for G2
+                widget.controllers[19].text =
+                    generateRandomVoltage(13.4, 14.0).toStringAsFixed(1);
               }
             }
           });

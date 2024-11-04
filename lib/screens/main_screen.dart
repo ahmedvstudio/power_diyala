@@ -149,36 +149,55 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       body: NotificationListener<ScrollNotification>(
         child: _screens[_selectedIndex],
       ),
-      floatingActionButton: SpeedDial(
-        animatedIcon: AnimatedIcons.menu_close,
-        overlayColor: Colors.black,
-        overlayOpacity: 0.5,
-        spacing: 10,
-        spaceBetweenChildren: 10,
-        children: [
-          SpeedDialChild(
-            shape: CircleBorder(),
-            child: Icon(Icons.add_chart, color: Colors.white),
-            backgroundColor: Colors.green,
-            label: 'CM',
-            onTap: () {},
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: Theme.of(context).secondaryHeaderColor,
+            width: 1,
           ),
-          SpeedDialChild(
-            shape: CircleBorder(),
-            child: Icon(Icons.assessment, color: Colors.white),
-            backgroundColor: Colors.red,
-            label: 'PM',
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
+          borderRadius: BorderRadius.circular(30), // Rounded corners
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5), // Shadow color
+              spreadRadius: 2, // Spread radius
+              blurRadius: 7, // Blur radius
+              offset: Offset(0, 3), // Changes the position of the shadow
+            ),
+          ],
+        ),
+        child: SpeedDial(
+          animatedIcon: AnimatedIcons.menu_close,
+          overlayColor: Colors.black,
+          overlayOpacity: 0.5,
+          spacing: 10,
+          spaceBetweenChildren: 10,
+          children: [
+            SpeedDialChild(
+              shape: CircleBorder(),
+              child: Icon(Icons.add_chart, color: Colors.white),
+              backgroundColor: Colors.green,
+              label: 'CM',
+              onTap: () {},
+            ),
+            SpeedDialChild(
+              shape: CircleBorder(),
+              child: Icon(Icons.assessment, color: Colors.white),
+              backgroundColor: Colors.red,
+              label: 'PM',
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => PmSheetPage(
-                        themeMode: themeControl.themeMode,
-                        onThemeChanged: (value) {
-                          themeControl.toggleTheme(value);
-                        },
-                      )));
-            },
-          ),
-        ],
+                    themeMode: themeControl.themeMode,
+                    onThemeChanged: (value) {
+                      themeControl.toggleTheme(value);
+                    },
+                  ),
+                ));
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: AnimatedBottomNavigationBar.builder(

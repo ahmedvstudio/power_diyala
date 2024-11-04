@@ -12,7 +12,10 @@ import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
 import 'package:power_diyala/data_helper/sheets_helper/sheet_id_cells_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/toggles.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
+import 'package:power_diyala/screens/main_screen.dart';
+import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/settings/theme_control.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PmSheetPage extends StatefulWidget {
   final ThemeMode themeMode;
@@ -558,10 +561,9 @@ class PmSheetPageState extends State<PmSheetPage> {
     } else if (_selectedSiteData?['cp'] == "No") {
       baseText = "The Site without CP";
     } else {
-      baseText = "CP status unknown"; // Optional: handle unexpected cases
+      baseText = "CP status unknown";
     }
 
-    // Check for low voltage status and append if necessary
     if (isLowVoltage) {
       baseText += " / System low voltage";
     }
@@ -571,12 +573,69 @@ class PmSheetPageState extends State<PmSheetPage> {
     });
   }
 
+  void _handleCpEnabledChange(bool value) {
+    setState(() {
+      isCpEnabled = value;
+      if (!isCpEnabled) {
+        final random = Random();
+        if (_selectedSiteData!['phase'].toLowerCase() == 'three phase') {
+          voltageControllers[0].text = (random.nextInt(21) + 210).toString();
+          voltageControllers[1].text = (random.nextInt(21) + 210).toString();
+          voltageControllers[2].text = (random.nextInt(21) + 210).toString();
+        } else if (_selectedSiteData!['phase'].toLowerCase() ==
+            'single phase') {
+          voltageControllers[0].text = (random.nextInt(21) + 210).toString();
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('PM Sheet', style: Theme.of(context).textTheme.titleLarge),
         actions: [
+          TextButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Beta Feature'),
+                    content: Text(
+                        'This is a beta feature.\nfeel free to report a problem.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          const url = reportIssue;
+                          if (await canLaunchUrl(Uri.parse(url))) {
+                            await launchUrl(Uri.parse(url),
+                                mode: LaunchMode.externalApplication);
+                          } else {}
+                        },
+                        child: Text(
+                          'Report',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('OK'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Text(
+              'Beta',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
+          ),
           IconButton(
             onPressed: () {
               showDialog(
@@ -588,14 +647,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
+                          Navigator.of(context).pop();
                         },
                         child: Text('Cancel'),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
-                          // Restart the page completely
+                          Navigator.of(context).pop();
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -614,9 +672,9 @@ class PmSheetPageState extends State<PmSheetPage> {
               );
             },
             icon: Icon(Icons.restart_alt_rounded),
-            tooltip: 'Restart',
+            tooltip: 'Reset',
             color: Colors.red,
-          )
+          ),
         ],
       ),
       body: SafeArea(
@@ -628,31 +686,95 @@ class PmSheetPageState extends State<PmSheetPage> {
                 physics: ScrollPhysics(),
                 controlsBuilder:
                     (BuildContext context, ControlsDetails controls) {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  return Column(
                     children: [
-                      ElevatedButton(
-                        onPressed: _currentStep == 0
-                            ? null
-                            : () {
-                                controls.onStepCancel!();
-                              },
-                        child: Text('Back'),
+                      SizedBox(height: 10),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: _currentStep == 0
+                                ? null
+                                : () {
+                                    controls.onStepCancel!();
+                                  },
+                            icon: Icon(Icons.arrow_back), // Back icon
+                            label: Text('Back'),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blue,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10), // Text color
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    30.0), // Rounded corners
+                              ),
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: (_isSiteSelected)
+                                ? () {
+                                    if (_currentStep != 6) {
+                                      controls.onStepContinue!();
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('All Done'),
+                                            content: Text(
+                                                'Are you sure you want to proceed?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('No'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .pushReplacement(
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          const MainScreen(),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Text('Yes'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    }
+                                  }
+                                : null,
+                            icon: Icon(_currentStep != 6
+                                ? Icons.arrow_forward
+                                : Icons.check),
+                            label:
+                                Text(_currentStep != 6 ? 'Continue' : 'Done'),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor:
+                                  _currentStep != 6 ? Colors.green : Colors.red,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10), // Text color
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    30.0), // Rounded corners
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      ElevatedButton(
-                        onPressed: _currentStep != 6
-                            ? () {
-                                controls.onStepContinue!();
-                              }
-                            : null,
-                        child: Text('Continue'),
-                      )
                     ],
                   );
                 },
                 onStepTapped: (step) {
-                  if (step != _currentStep) {
+                  if (step == _currentStep) {
                     setState(() {
                       _currentStep = step;
                     });
@@ -688,7 +810,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                           onTap: _isSiteSelected
                               ? () {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Reset the page')),
+                                    SnackBar(
+                                        content: Text(
+                                            'Reset the page to change the site')),
                                   );
                                 }
                               : () => showSearchableDropdown(
@@ -929,20 +1053,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                             voltageControllers: voltageControllers,
                             loadControllers: loadControllers,
                             isCpEnabled: isCpEnabled,
-                            onCpEnabledChanged: (bool value) {
-                              setState(() {
-                                isCpEnabled = value;
-                                if (!isCpEnabled) {
-                                  final random = Random();
-                                  voltageControllers[0].text =
-                                      (random.nextInt(21) + 210).toString();
-                                  voltageControllers[1].text =
-                                      (random.nextInt(21) + 210).toString();
-                                  voltageControllers[2].text =
-                                      (random.nextInt(21) + 210).toString();
-                                }
-                              });
-                            },
+                            onCpEnabledChanged: _handleCpEnabledChange,
                           ),
                         SizedBox(height: 8),
                         if (_selectedSiteData != null)
@@ -1014,7 +1125,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                         Expanded(child: Text('Comments')),
                         if (_currentStep == 5)
                           Text(
-                            'Press this first ->',
+                            'Add Comments ->',
                             style: TextStyle(fontSize: 8, color: Colors.red),
                           ),
                         if (_currentStep == 5)
@@ -1057,25 +1168,10 @@ class PmSheetPageState extends State<PmSheetPage> {
                             'AC', commentsControllers[3], context),
                         buildCommentField(
                             'Electric', commentsControllers[4], context),
-                      ],
-                    ),
-                    state: stepCompleted[5]
-                        ? StepState.complete
-                        : StepState.indexed,
-                  ),
-                  Step(
-                    isActive: _currentStep == 6,
-                    title: Text('Submit'),
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Engineer Name:',
-                          style: TextStyle(fontStyle: FontStyle.italic),
-                        ),
+                        SizedBox(height: 10),
                         DropdownButton<String>(
                           hint: Text(
-                            'Select a name...',
+                            'Engineer Name..',
                             style: Theme.of(context).textTheme.titleLarge,
                           ), // Placeholder text
                           value: _selectedName,
@@ -1097,54 +1193,103 @@ class PmSheetPageState extends State<PmSheetPage> {
                             );
                           }).toList(),
                         ),
-                        ElevatedButton(
-                          onPressed: _isLoading
-                              ? null
-                              : () async {
-                                  setState(() {
-                                    _isLoading = true; // Start loading
-                                  });
+                      ],
+                    ),
+                    state: stepCompleted[5]
+                        ? StepState.complete
+                        : StepState.indexed,
+                  ),
+                  Step(
+                    isActive: _currentStep == 6,
+                    title: Text('Submit'),
+                    content: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _isLoading
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          _isLoading = true; // Start loading
+                                        });
 
-                                  try {
-                                    await submitData();
-                                    if (!context.mounted) return;
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              'Data submitted successfully!')),
-                                    );
-                                  } catch (error) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              'Error submitting data: $error')),
-                                    );
-                                  } finally {
-                                    setState(() {
-                                      _isLoading = false; // Stop loading
-                                    });
+                                        try {
+                                          await submitData();
+                                          if (!context.mounted) return;
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  '/PowerDiyala/${_collectData()['siteName']}'),
+                                            ),
+                                          );
+                                        } catch (error) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  'Error submitting data: $error'),
+                                            ),
+                                          );
+                                        } finally {
+                                          setState(() {
+                                            _isLoading = false; // Stop loading
+                                          });
+                                        }
+                                      },
+                                onLongPress: () {
+                                  if (_selectedSiteData != null &&
+                                      _selectedSiteData!['sheet'] != null) {
+                                    int selectedSheetNumber = int.tryParse(
+                                            _selectedSiteData!['sheet']
+                                                .toString()) ??
+                                        1;
+                                    Map<String, dynamic> data =
+                                        collectDataForSheet(
+                                            selectedSheetNumber);
+
+                                    displayData(data);
+                                  } else {
+                                    if (kDebugMode) {
+                                      print(
+                                          'Invalid site data or sheet selection.');
+                                    }
                                   }
                                 },
-                          onLongPress: () {
-                            if (_selectedSiteData != null &&
-                                _selectedSiteData!['sheet'] != null) {
-                              int selectedSheetNumber = int.tryParse(
-                                      _selectedSiteData!['sheet'].toString()) ??
-                                  1;
-                              Map<String, dynamic> data =
-                                  collectDataForSheet(selectedSheetNumber);
-
-                              displayData(data);
-                            } else {
-                              if (kDebugMode) {
-                                print('Invalid site data or sheet selection.');
-                              }
-                            }
-                          },
-                          child: _isLoading
-                              ? CircularProgressIndicator(
-                                  color: Colors.white) // Show loading spinner
-                              : Text('Submit'),
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                  backgroundColor: Color(0xff69F0AE),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        30.0), // Rounded corners
+                                  ),
+                                ),
+                                child: _isLoading
+                                    ? Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.black,
+                                              strokeWidth: 2,
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Text('Submitting...'),
+                                        ],
+                                      )
+                                    : Text('Submit'),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

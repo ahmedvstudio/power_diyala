@@ -40,16 +40,13 @@ class GoogleSheetHelper {
           [drive.DriveApi.driveScope, sheets.SheetsApi.spreadsheetsScope]);
       final driveApi = drive.DriveApi(client);
 
-      // Copy the file
       final copiedFile =
           await driveApi.files.copy(drive.File(), templateFileId);
       copiedFileId = copiedFile.id!;
 
-      // Get the spreadsheet details to retrieve the sheet ID
       final sheetsApi = sheets.SheetsApi(client);
       final spreadsheet = await sheetsApi.spreadsheets.get(copiedFileId);
 
-      // Assuming you want to work with the first sheet
       sheetId = spreadsheet.sheets!.first.properties!.sheetId;
 
       logger.i('File copied as template: ${copiedFile.name}');
@@ -94,23 +91,19 @@ class GoogleSheetHelper {
           await _initializeClient([sheets.SheetsApi.spreadsheetsScope]);
       final sheetsApi = sheets.SheetsApi(client);
 
-      // Prepare the batch update request
       var requests = <sheets.Request>[];
 
       cellUpdates.forEach((cell, value) {
         logger.i('Preparing to update cell $cell with value $value');
 
-        // Extract column letters and row number
         String columnLetters =
             RegExp(r'^([A-Z]+)').firstMatch(cell)?.group(0) ?? '';
         String rowNumberString =
             RegExp(r'([0-9]+)$').firstMatch(cell)?.group(0) ?? '';
 
         if (rowNumberString.isNotEmpty) {
-          int rowIndex = int.parse(rowNumberString) - 1; // Extract row index
-          int colIndex = _columnLetterToIndex(
-              columnLetters); // Convert column letters to index
-
+          int rowIndex = int.parse(rowNumberString) - 1;
+          int colIndex = _columnLetterToIndex(columnLetters);
           requests.add(sheets.Request(
             updateCells: sheets.UpdateCellsRequest(
               rows: [
@@ -155,13 +148,12 @@ class GoogleSheetHelper {
     }
   }
 
-// Helper function to convert column letters to index
   int _columnLetterToIndex(String column) {
     int index = 0;
     for (int i = 0; i < column.length; i++) {
       index = index * 26 + (column.codeUnitAt(i) - 'A'.codeUnitAt(0) + 1);
     }
-    return index - 1; // Adjust for zero-based indexing
+    return index - 1;
   }
 
   Future<void> downloadCopiedSheet() async {
@@ -180,8 +172,7 @@ class GoogleSheetHelper {
       if (response.statusCode == 200) {
         final downloadsDirectory = Directory('/storage/emulated/0/PowerDiyala');
         if (!await downloadsDirectory.exists()) {
-          await downloadsDirectory.create(
-              recursive: true); // Ensure directory exists
+          await downloadsDirectory.create(recursive: true);
         }
 
         final filePath = '${downloadsDirectory.path}/$modifiedFileName.xlsx';
@@ -212,21 +203,17 @@ class GoogleSheetHelper {
   Future<void> executeSheetOperations() async {
     if (!await checkPermissions()) return;
 
-    // Step 1: Copy the sheet as a template
     await copySheetAsTemplate();
 
-    // Step 2: Modify cells
     await modifyCells();
 
-    // Step 3: Download the copied sheet
     await downloadCopiedSheet();
 
-    // Step 4: Delete the copied sheet
     await deleteCopiedSheet();
   }
 
   void setCellUpdates(Map<String, String> updates) {
-    cellUpdates.clear(); // Clear previous entries
-    cellUpdates.addAll(updates); // Store new cell-value pairs
+    cellUpdates.clear();
+    cellUpdates.addAll(updates);
   }
 }

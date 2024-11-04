@@ -98,9 +98,8 @@ class CpPhaseInput extends StatefulWidget {
   final String? phase;
   final List<TextEditingController> voltageControllers;
   final List<TextEditingController> loadControllers;
-  final bool isCpEnabled; // New: Add a parameter to control the toggle state
-  final ValueChanged<bool>
-      onCpEnabledChanged; // New: Callback function for toggle state changes
+  final bool isCpEnabled;
+  final ValueChanged<bool> onCpEnabledChanged;
 
   CpPhaseInput({
     super.key,
@@ -108,8 +107,8 @@ class CpPhaseInput extends StatefulWidget {
     required this.phase,
     List<TextEditingController>? voltageControllers,
     List<TextEditingController>? loadControllers,
-    required this.isCpEnabled, // Required to ensure it's passed from outside
-    required this.onCpEnabledChanged, // Required callback to manage state from outside
+    required this.isCpEnabled,
+    required this.onCpEnabledChanged,
   })  : voltageControllers = voltageControllers ?? [],
         loadControllers = loadControllers ?? [];
 
@@ -157,10 +156,9 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
                 style: TextStyle(fontSize: 18),
               ),
               Switch(
-                value: widget.isCpEnabled, // Use the external control variable
+                value: widget.isCpEnabled,
                 onChanged: (bool value) {
-                  widget
-                      .onCpEnabledChanged(value); // Use the callback to update
+                  widget.onCpEnabledChanged(value);
                 },
               ),
             ],
@@ -249,9 +247,9 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
     }
 
     return [
-      Row(children: vInputs), // Row for V inputs
-      SizedBox(height: 8), // Space between rows
-      Row(children: loadInputs), // Row for Load inputs
+      Row(children: vInputs),
+      SizedBox(height: 8),
+      Row(children: loadInputs),
     ];
   }
 
@@ -263,7 +261,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
             child: TextField(
                 controller: widget.voltageControllers.isNotEmpty
                     ? widget.voltageControllers[0]
-                    : TextEditingController(), // Use the first voltage controller if available
+                    : TextEditingController(),
                 decoration: InputDecoration(
                   labelText: 'V1',
                   labelStyle: TextStyle(
