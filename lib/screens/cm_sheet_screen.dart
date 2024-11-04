@@ -17,18 +17,18 @@ import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/settings/theme_control.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class PmSheetPage extends StatefulWidget {
+class CmSheetPage extends StatefulWidget {
   final ThemeMode themeMode;
   final Function(ThemeMode) onThemeChanged;
 
-  const PmSheetPage(
+  const CmSheetPage(
       {super.key, required this.themeMode, required this.onThemeChanged});
 
   @override
-  PmSheetPageState createState() => PmSheetPageState();
+  CmSheetPageState createState() => CmSheetPageState();
 }
 
-class PmSheetPageState extends State<PmSheetPage> {
+class CmSheetPageState extends State<CmSheetPage> {
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   List<Map<String, dynamic>>? _data;
@@ -412,12 +412,12 @@ class PmSheetPageState extends State<PmSheetPage> {
       'leg earth': _selectedSiteData?['earth'] == 'No'
           ? '0'
           : (_selectedSiteData?['earth'] == 'Yes'
-              ? (groundControllers[3].text)
+              ? (groundControllers[2].text)
               : 'N/A'),
       'light earth': _selectedSiteData?['earth'] == 'No'
           ? '0'
           : (_selectedSiteData?['earth'] == 'Yes'
-              ? (groundControllers[2].text)
+              ? (groundControllers[3].text)
               : 'N/A'),
       'owner load': externalLoadControllers[0].text,
       'neighbor load': externalLoadControllers[1].text,
@@ -554,8 +554,6 @@ class PmSheetPageState extends State<PmSheetPage> {
 
   void _updateCPText() {
     String baseText;
-
-    // Check the value of _selectedSiteData['cp']
     if (_selectedSiteData?['cp'] == "Yes") {
       baseText = isCpEnabled ? "Gen Load on CP" : "CP load on Gen";
     } else if (_selectedSiteData?['cp'] == "No") {
@@ -594,7 +592,7 @@ class PmSheetPageState extends State<PmSheetPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('PM Sheet', style: Theme.of(context).textTheme.titleLarge),
+        title: Text('CM Sheet', style: Theme.of(context).textTheme.titleLarge),
         actions: [
           TextButton(
             onPressed: () {
@@ -657,7 +655,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PmSheetPage(
+                              builder: (context) => CmSheetPage(
                                 themeMode: widget.themeMode,
                                 onThemeChanged: widget.onThemeChanged,
                               ),
