@@ -162,7 +162,7 @@ class GenVLInputState extends State<GenVLInput> {
         inputFields.addAll(
             _generateInputs(context, controllers, 'PH-L', 13, 3, g2Enabled));
         inputFields.addAll(
-            _generateInputs(context, controllers, 'Load', 16, 3, g2Enabled));
+            _generateInputs(context, controllers, 'Load', 6, 3, g2Enabled));
         inputFields.add(_createTextField(
             context, controllers[19], 'Battery Voltage', g2Enabled));
         break;
