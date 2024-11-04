@@ -604,7 +604,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                   return AlertDialog(
                     title: Text('Beta Feature'),
                     content: Text(
-                        'This is a beta feature.\nfeel free to report a problem.'),
+                        'This feature is under testing.\nfeel free to report a problem.'),
                     actions: [
                       TextButton(
                         onPressed: () async {
