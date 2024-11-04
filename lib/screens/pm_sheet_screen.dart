@@ -74,6 +74,18 @@ class PmSheetPageState extends State<PmSheetPage> {
     false,
     false
   ];
+  List<bool> sepToggleValues = [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ];
   bool isCpEnabled = true;
   bool isLowVoltage = false;
   bool isEarthEnabled = false;
@@ -222,6 +234,12 @@ class PmSheetPageState extends State<PmSheetPage> {
     });
   }
 
+  void handleSepToggleChange(int index, bool value) {
+    setState(() {
+      sepToggleValues[index] = value;
+    });
+  }
+
   double _calculateCycle(double inputValue) {
     int completedCycles = (inputValue / 3000).floor();
     double accountedAmount = completedCycles * 3000;
@@ -325,29 +343,29 @@ class PmSheetPageState extends State<PmSheetPage> {
       'g1 air': toggleValues[1] ? 'Yes' : 'No',
 
       'g1 coolant': toggleValues[2] ? 'Yes' : 'No',
-      'g1 gen sep': _selectedSiteData?['gen sep'] == 'No'
+      'g1 gen sep': _selectedSiteData?['gen1 sep'] == 'No'
           ? 'N/A'
-          : (_selectedSiteData?['gen sep'] == 'Yes'
-              ? (toggleValues[8] ? 'Yes' : 'No')
+          : (_selectedSiteData?['gen1 sep'] == 'Yes'
+              ? (sepToggleValues[0] ? 'Yes' : 'No')
               : 'N/A'),
       'g1 tank sep': _selectedSiteData?['tank sep'] == 'No'
           ? 'N/A'
-          : (_selectedSiteData?['gen sep'] == 'Yes'
-              ? (toggleValues[8] ? 'Yes' : 'No')
+          : (_selectedSiteData?['tank sep'] == 'Yes'
+              ? (sepToggleValues[1] ? 'Yes' : 'No')
               : 'N/A'),
       'clean g1 air': toggleValues[1] ? 'No' : 'Yes',
       'g2 oil': toggleValues[3] ? 'Yes' : 'No',
       'g2 air': toggleValues[4] ? 'Yes' : 'No',
       'g2 coolant': toggleValues[5] ? 'Yes' : 'No',
-      'g2 gen sep': _selectedSiteData?['gen sep'] == 'No'
+      'g2 gen sep': _selectedSiteData?['gen2 sep'] == 'No'
           ? 'N/A'
-          : (_selectedSiteData?['gen sep'] == 'Yes'
-              ? (toggleValues[8] ? 'Yes' : 'No')
+          : (_selectedSiteData?['gen2 sep'] == 'Yes'
+              ? (sepToggleValues[2] ? 'Yes' : 'No')
               : 'N/A'),
       'g2 tank sep': _selectedSiteData?['tank sep'] == 'No'
           ? 'N/A'
-          : (_selectedSiteData?['gen sep'] == 'Yes'
-              ? (toggleValues[8] ? 'Yes' : 'No')
+          : (_selectedSiteData?['tank sep'] == 'Yes'
+              ? (sepToggleValues[3] ? 'Yes' : 'No')
               : 'N/A'),
       'clean g2 air': toggleValues[4] ? 'No' : 'Yes',
       '-------------------': '----------------',
@@ -622,7 +640,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
+                          Navigator.of(context).pop();
                         },
                         child: Text('OK'),
                       ),
@@ -774,7 +792,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                   );
                 },
                 onStepTapped: (step) {
-                  if (step == _currentStep) {
+                  if (step != _currentStep) {
                     setState(() {
                       _currentStep = step;
                     });
@@ -1030,7 +1048,8 @@ class PmSheetPageState extends State<PmSheetPage> {
                         if (_selectedSiteData != null) ...[
                           ...SeparatorSwitch(_selectedSiteData!['sheet'],
                                   _selectedSiteData!.cast<String, String?>())
-                              .sepSwitches(toggleValues, handleToggleChange),
+                              .sepSwitches(
+                                  sepToggleValues, handleSepToggleChange),
                         ],
                       ],
                     ),

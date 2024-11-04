@@ -28,7 +28,7 @@ class ReplacementSwitch {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Expanded(child: Container()), // Empty spacer for alignment
+                  Expanded(child: Container()),
                   Text('G1',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -122,7 +122,8 @@ class SeparatorSwitch {
 
     if (sheetNumber == null) return sepFields;
 
-    bool isGenSepYes = selectedSiteData?['gen sep'] == "Yes";
+    bool isGen1SepYes = selectedSiteData?['gen1 sep'] == "Yes";
+    bool isGen2SepYes = selectedSiteData?['gen2 sep'] == "Yes";
     bool isTankSepYes = selectedSiteData?['tank sep'] == "Yes";
 
     switch (sheetNumber) {
@@ -139,10 +140,10 @@ class SeparatorSwitch {
         sepFields.add(
           Column(
             children: [
-              _buildSeparatorSwitchRow(
-                  'Gen Sep.', 6, 8, switchValues, onChanged, isGenSepYes),
-              _buildSeparatorSwitchRow(
-                  'Tank Sep.', 7, 9, switchValues, onChanged, isTankSepYes),
+              _buildSeparatorSwitchRow('Gen Sep.', 0, 2, switchValues,
+                  onChanged, isGen1SepYes, isGen2SepYes),
+              _buildSeparatorSwitchRow('Tank Sep.', 1, 3, switchValues,
+                  onChanged, isTankSepYes, isTankSepYes),
             ],
           ),
         );
@@ -156,10 +157,10 @@ class SeparatorSwitch {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSeparatorSwitchRow(
-                  'Gen Sep.', 6, null, switchValues, onChanged, isGenSepYes),
-              _buildSeparatorSwitchRow(
-                  'Tank Sep.', 7, null, switchValues, onChanged, isTankSepYes),
+              _buildSeparatorSwitchRow('Gen Sep.', 0, null, switchValues,
+                  onChanged, isGen1SepYes, isGen2SepYes),
+              _buildSeparatorSwitchRow('Tank Sep.', 1, null, switchValues,
+                  onChanged, isTankSepYes, isTankSepYes),
             ],
           ),
         );
@@ -173,8 +174,14 @@ class SeparatorSwitch {
     return sepFields;
   }
 
-  Widget _buildSeparatorSwitchRow(String label, int g1Index, int? g2Index,
-      List<bool> switchValues, Function(int, bool) onChanged, bool isEnabled) {
+  Widget _buildSeparatorSwitchRow(
+      String label,
+      int g1Index,
+      int? g2Index,
+      List<bool> switchValues,
+      Function(int, bool) onChanged,
+      bool isGen1Enabled,
+      bool? isGen2Enabled) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -184,10 +191,10 @@ class SeparatorSwitch {
             child: Text(label, style: TextStyle(fontSize: 16)),
           ),
           _buildSwitchWithLabel(
-              g1Index, switchValues[g1Index], onChanged, isEnabled),
+              g1Index, switchValues[g1Index], onChanged, isGen1Enabled),
           if (g2Index != null)
             _buildSwitchWithLabel(
-                g2Index, switchValues[g2Index], onChanged, isEnabled),
+                g2Index, switchValues[g2Index], onChanged, isGen2Enabled!),
         ],
       ),
     );
