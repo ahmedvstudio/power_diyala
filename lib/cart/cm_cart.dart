@@ -201,7 +201,12 @@ class CartScreenState extends State<CartScreen> {
           : SafeArea(
               child: Column(
                 children: [
-                  Card(
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(12.0)),
+                    ),
                     child: Column(
                       children: [
                         ListTile(
