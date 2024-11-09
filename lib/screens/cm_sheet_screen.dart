@@ -1,16 +1,13 @@
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:power_diyala/Widgets/widgets.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
+import 'package:power_diyala/data_helper/sheets_helper/cm_type_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/google_sheet.dart';
-import 'package:power_diyala/data_helper/sheets_helper/ac_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
-import 'package:power_diyala/data_helper/sheets_helper/earth_load.dart';
 import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
 import 'package:power_diyala/data_helper/sheets_helper/sheet_id_cells_helper.dart';
-import 'package:power_diyala/data_helper/sheets_helper/toggles.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
 import 'package:power_diyala/screens/main_screen.dart';
 import 'package:power_diyala/settings/constants.dart';
@@ -32,99 +29,75 @@ class CmSheetPageState extends State<CmSheetPage> {
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   List<Map<String, dynamic>>? _data;
+  List<Map<String, dynamic>>? _spareData;
   List<String> _siteNames = [];
+  List<String> _spareNames = [];
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchSpareController = TextEditingController();
   Map<String, dynamic>? _selectedSiteData;
+  Map<String, dynamic>? _selectedSpareData;
   List<TextEditingController> genControllers = [];
-  List<TextEditingController> genVLControllers = [];
   List<TextEditingController> tankControllers = [];
   List<TextEditingController> commentsControllers = [];
   TextEditingController siteController = TextEditingController();
+  TextEditingController spareController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   TextEditingController cpController = TextEditingController();
   TextEditingController kwhController = TextEditingController();
-  String? _selectedName;
-  final List<TextEditingController> acVoltControllers =
-      List.generate(6, (index) => TextEditingController());
-  final List<TextEditingController> acLoadControllers =
-      List.generate(6, (index) => TextEditingController());
-  final List<TextEditingController> acOtherController =
-      List.generate(3, (index) => TextEditingController());
-  bool _isLoading = false;
-  final List<TextEditingController> groundControllers =
-      List.generate(6, (index) => TextEditingController());
-  final List<TextEditingController> externalLoadControllers =
-      List.generate(6, (index) => TextEditingController());
-  final List<TextEditingController> batteryTestControllers =
-      List.generate(3, (index) => TextEditingController());
-  bool _isSiteSelected = false;
-  List<TextEditingController> voltageControllers = [];
-  List<TextEditingController> loadControllers = [];
-  final _random = Random();
-  List<bool> toggleValues = [
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false
+  String? _selectedEngineerName;
+  String? _selectedTechName;
+  String? _selectedCmType;
+  String? selectedOption1;
+  String? selectedOption2;
+  String? selectedOption3;
+  final List<TextEditingController> typeControllers = [
+    TextEditingController(),
+    TextEditingController()
   ];
-  bool isCpEnabled = true;
-  bool isLowVoltage = false;
-  bool isEarthEnabled = false;
-  bool isBatteryTestEnabled = false;
-  List<bool> stepCompleted = List.filled(7, false);
-  List<bool> gensSwitches = [true, true];
+  final List<SpareItem> _selectedSpareItems = [];
+  bool _isLoading = false;
+  bool _isTypeSelected = false;
+  List<bool> stepCompleted = List.filled(5, false);
   TimeOfDay? fromTime;
   TimeOfDay? toTime;
   int _currentStep = 0;
-  final List<String> names = [
-    'Ahmed Adnan Abdulwahab',
-    'Ahmed Jassim Mohamed',
-    'Ahmed Noori Jassim',
-    'Mustafa Raad Nouman',
-    'Ali Mahmod Ali',
+  final List<String> cmType = [
+    'Generator',
+    'Electric',
+    'AC',
+    'Civil',
+  ];
+  final List<String> engineerNames = [
+    'Ahmed Adnan',
+    'Ahmed Jassim',
+    'Ahmed Noori',
+    'Mustafa Raad',
+    'Ali Mahmod',
+    'Yahya Falih',
+  ];
+
+  final List<String> techNames = [
+    'Shams Ahmed',
+    'Raed Ahmed',
+    'Ali Adnan',
+    'Abdulwahab Ahmed',
+    'Bashar Shuker',
+    'Mahmod Hashim',
+    'Haider Ahmed',
+    'Mustafa Hussein',
+    'Hussein Mahmod',
   ];
 
   @override
   void initState() {
     super.initState();
-
     genControllers = List.generate(5, (index) => TextEditingController());
     tankControllers = List.generate(5, (index) => TextEditingController());
-    genVLControllers = List.generate(20, (index) => TextEditingController());
     commentsControllers = List.generate(9, (index) => TextEditingController());
-    voltageControllers = List.generate(3, (index) => TextEditingController());
-    loadControllers = List.generate(3, (index) => TextEditingController());
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
+      _loadSpareData();
     });
-  }
-
-  bool _isRandomGenerated = false;
-  bool _isSiteDataLoaded = false;
-
-  @override
-  void setState(VoidCallback fn) {
-    super.setState(fn);
-
-    if (_currentStep == 1) {
-      _calculateAndDisplayCycles();
-    }
-    if (_currentStep == 4 && !_isSiteDataLoaded) {
-      _isSiteDataLoaded = true;
-      _loadSelectedSiteData();
-    }
-    if (_currentStep == 3 && !_isRandomGenerated) {
-      _isRandomGenerated = true;
-      _generateRandomValues();
-    }
   }
 
   @override
@@ -132,17 +105,9 @@ class CmSheetPageState extends State<CmSheetPage> {
     for (var controller in [
       ...genControllers,
       ...tankControllers,
-      ...genVLControllers,
       ...commentsControllers,
-      ...voltageControllers,
-      ...loadControllers,
-      ...acVoltControllers,
-      ...acLoadControllers,
-      ...acOtherController,
-      ...groundControllers,
-      ...externalLoadControllers,
-      ...batteryTestControllers,
       siteController,
+      spareController,
     ]) {
       controller.dispose();
     }
@@ -168,12 +133,42 @@ class CmSheetPageState extends State<CmSheetPage> {
     }
   }
 
+  Future<void> _loadSpareData() async {
+    try {
+      List<Map<String, dynamic>> spareData =
+          await DatabaseHelper.loadSpareData();
+      logger.i(spareData);
+
+      if (mounted) {
+        setState(() {
+          _spareData = spareData;
+          _spareNames =
+              spareData.map((item) => item['Item name'] as String).toList();
+
+          // Initialize the filtered lists
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        _showSnackbar('Error loading data: ${e.toString()}');
+      }
+    }
+  }
+
   void _updateSelectedSiteData(String siteName) {
     final selectedSite = _data?.firstWhere((item) => item['site'] == siteName);
     setState(() {
       _selectedSiteData = selectedSite;
-      siteController.text =
-          siteName; // Update the site controller with the selected site name
+      siteController.text = siteName;
+    });
+  }
+
+  void _updateSelectedSpareData(String spareName) {
+    final selectedSpare =
+        _spareData?.firstWhere((item) => item['Item name'] == spareName);
+    setState(() {
+      _selectedSpareData = selectedSpare;
+      spareController.text = spareName;
     });
   }
 
@@ -216,234 +211,38 @@ class CmSheetPageState extends State<CmSheetPage> {
     }
   }
 
-  void handleToggleChange(int index, bool value) {
-    setState(() {
-      toggleValues[index] = value;
-    });
-  }
-
-  double _calculateCycle(double inputValue) {
-    int completedCycles = (inputValue / 3000).floor();
-    double accountedAmount = completedCycles * 3000;
-    double remainingAmount = inputValue - accountedAmount;
-
-    if (remainingAmount > 2750) {
-      return 3000;
-    } else if (remainingAmount > 2500) {
-      return 2750;
-    } else if (remainingAmount > 2250) {
-      return 2500;
-    } else if (remainingAmount > 2000) {
-      return 2250;
-    } else if (remainingAmount > 1750) {
-      return 2000;
-    } else if (remainingAmount > 1500) {
-      return 1750;
-    } else if (remainingAmount > 1250) {
-      return 1500;
-    } else if (remainingAmount > 1000) {
-      return 1250;
-    } else if (remainingAmount > 750) {
-      return 1000;
-    } else if (remainingAmount > 500) {
-      return 750;
-    } else if (remainingAmount > 250) {
-      return 500;
-    } else if (remainingAmount > 0) {
-      return 250;
-    }
-    return 0;
-  }
-
-  void _calculateAndDisplayCycles() {
-    double valueFromController0 =
-        double.tryParse(genControllers[0].text) ?? 0.0;
-    double cycleForController0 = _calculateCycle(valueFromController0);
-
-    double valueFromController1 =
-        double.tryParse(genControllers[1].text) ?? 0.0;
-    double cycleForController1 = _calculateCycle(valueFromController1);
-    logger.i("Cycle for G1: $cycleForController0");
-    logger.i("Cycle for G2: $cycleForController1");
-  }
-
-  void _generateRandomValues() {
-    setState(() {
-      acVoltControllers[0].text = (_random.nextInt(13) + 218).toString();
-      acVoltControllers[1].text = (_random.nextInt(13) + 218).toString();
-      acVoltControllers[2].text = (_random.nextInt(13) + 218).toString();
-      acVoltControllers[3].text = (_random.nextInt(2) + 53).toString();
-      acOtherController[0].text = (_random.nextInt(6) + 20).toString();
-      acOtherController[1].text = '55';
-      acOtherController[2].text = '45';
-    });
-  }
-
-  void _loadSelectedSiteData() {
-    if (_selectedSiteData != null) {
-      setState(() {
-        externalLoadControllers[0].text = _selectedSiteData!['owner'] ?? '';
-        externalLoadControllers[1].text = _selectedSiteData!['neighbour'] ?? '';
-        externalLoadControllers[2].text = _selectedSiteData!['3rdparty'] ?? '';
-        isEarthEnabled = (_selectedSiteData!['earth'] == 'Yes');
-      });
-    }
-  }
-
   Map<String, dynamic> _collectData() {
-    double valueFromController0 =
-        double.tryParse(genControllers[0].text) ?? 0.0;
-    double cycleForController0 = _calculateCycle(valueFromController0);
-
-    double valueFromController1 =
-        double.tryParse(genControllers[1].text) ?? 0.0;
-    double cycleForController1 = _calculateCycle(valueFromController1);
     return {
       //step1
-      'sheet': _selectedSiteData?['sheet'] ?? '',
-      'siteName': '${siteController.text}-${_selectedSiteData?['code'] ?? ''}',
+      'Corrective': _selectedCmType ?? '',
+      'CM type': selectedOption1 ?? '',
+      'Extra type': selectedOption1 == 'Extra' ? (selectedOption2 ?? '') : '',
+      'CM when': selectedOption3 ?? '',
+      '-----------------': '---------------',
+      //Step2
+      'siteName': siteController.text,
+      'siteCode': _selectedSiteData?['code'] ?? '',
       'location': _selectedSiteData?['Location'] ?? '',
       'date': _dateController.text,
-      'engineer name': _selectedName,
-      'timeIn': fromTime?.format(context) ?? '',
-      'timeOut': toTime?.format(context) ?? '',
+      'time':
+          'Time in: ${fromTime?.format(context) ?? ''} & Time out: ${toTime?.format(context) ?? ''}',
       'G1': genControllers[0].text,
-      'cycleForG1': cycleForController0,
       'G2': genControllers[1].text,
-      'cycleForG2': cycleForController1,
       'CP': cpController.text,
       'Kwh': kwhController.text,
       'T1': tankControllers[0].text,
-      'T1 shape': _selectedSiteData?['T1_shape'] ?? '',
       'T2': tankControllers[1].text,
-      'T2 shape': _selectedSiteData?['T2_Shape'] ?? '',
       'T3': tankControllers[2].text,
-      'T3 shape': _selectedSiteData?['T3_shape'] ?? '',
       '--------------------': '----------------',
-      //step2
-      'g1 oil': toggleValues[0] ? 'Yes' : 'No',
-      'g1 air': toggleValues[1] ? 'Yes' : 'No',
-
-      'g1 coolant': toggleValues[2] ? 'Yes' : 'No',
-      'g1 gen sep': _selectedSiteData?['gen sep'] == 'No'
-          ? 'N/A'
-          : (_selectedSiteData?['gen sep'] == 'Yes'
-              ? (toggleValues[8] ? 'Yes' : 'No')
-              : 'N/A'),
-      'g1 tank sep': _selectedSiteData?['tank sep'] == 'No'
-          ? 'N/A'
-          : (_selectedSiteData?['gen sep'] == 'Yes'
-              ? (toggleValues[8] ? 'Yes' : 'No')
-              : 'N/A'),
-      'clean g1 air': toggleValues[1] ? 'No' : 'Yes',
-      'g2 oil': toggleValues[3] ? 'Yes' : 'No',
-      'g2 air': toggleValues[4] ? 'Yes' : 'No',
-      'g2 coolant': toggleValues[5] ? 'Yes' : 'No',
-      'g2 gen sep': _selectedSiteData?['gen sep'] == 'No'
-          ? 'N/A'
-          : (_selectedSiteData?['gen sep'] == 'Yes'
-              ? (toggleValues[8] ? 'Yes' : 'No')
-              : 'N/A'),
-      'g2 tank sep': _selectedSiteData?['tank sep'] == 'No'
-          ? 'N/A'
-          : (_selectedSiteData?['gen sep'] == 'Yes'
-              ? (toggleValues[8] ? 'Yes' : 'No')
-              : 'N/A'),
-      'clean g2 air': toggleValues[4] ? 'No' : 'Yes',
-      '-------------------': '----------------',
       //step3
-      'Main available': _selectedSiteData?['cp'] == 'No'
-          ? 'N/A'
-          : (_selectedSiteData?['cp'] == 'Yes'
-              ? (isCpEnabled ? 'Yes' : 'No')
-              : 'N/A'),
-      'Main v1': voltageControllers[0].text,
-      'Main v2': voltageControllers[1].text,
-      'Main v3': voltageControllers[2].text,
-      'Main l1': loadControllers[0].text,
-      'Main l2': loadControllers[1].text,
-      'Main l3': loadControllers[2].text,
-      'g1 switch': gensSwitches[0],
-      'gen1 voltage ph-n1': genVLControllers[0].text,
-      'gen1 voltage ph-n2': genVLControllers[1].text,
-      'gen1 voltage ph-n3': genVLControllers[2].text,
-      'gen1 voltage ph-l1': genVLControllers[3].text,
-      'gen1 voltage ph-l2': genVLControllers[4].text,
-      'gen1 voltage ph-l3': genVLControllers[5].text,
-      'gen1 load 1': genVLControllers[6].text,
-      'gen1 load 2': genVLControllers[7].text,
-      'gen1 load 3': genVLControllers[8].text,
-      'gen1 battery': genVLControllers[9].text,
-      'g2 switch': gensSwitches[1],
-      'gen2 voltage ph-n1': genVLControllers[10].text,
-      'gen2 voltage ph-n2': genVLControllers[11].text,
-      'gen2 voltage ph-n3': genVLControllers[12].text,
-      'gen2 voltage ph-l1': genVLControllers[13].text,
-      'gen2 voltage ph-l2': genVLControllers[14].text,
-      'gen2 voltage ph-l3': genVLControllers[15].text,
-      'gen2 load 1': genVLControllers[16].text,
-      'gen2 load 2': genVLControllers[17].text,
-      'gen2 load 3': genVLControllers[18].text,
-      'gen2 battery': genVLControllers[19].text,
-      '------------------': '----------------',
-      //step4
-      'ac1 volt': acVoltControllers[0].text,
-      'ac2 volt': acVoltControllers[1].text,
-      'ac3 volt': acVoltControllers[2].text,
-      'outdoor volt': acVoltControllers[3].text,
-      'ac1 load': acLoadControllers[0].text,
-      'ac2 load': acLoadControllers[1].text,
-      'ac3 load': acLoadControllers[2].text,
-      'outdoor load': acLoadControllers[3].text,
-      'room temp': acOtherController[0].text,
-      'HP': acOtherController[1].text,
-      'LP': acOtherController[2].text,
-      '-----------------': '----------------',
-      //step5
-      'gen earth': (_selectedSiteData?['earth'] == 'Yes')
-          ? groundControllers[0].text
-          : '0',
-
-      'tel earth': _selectedSiteData?['earth'] == 'No'
-          ? '0'
-          : (_selectedSiteData?['earth'] == 'Yes'
-              ? (groundControllers[1].text)
-              : 'N/A'),
-      'leg earth': _selectedSiteData?['earth'] == 'No'
-          ? '0'
-          : (_selectedSiteData?['earth'] == 'Yes'
-              ? (groundControllers[2].text)
-              : 'N/A'),
-      'light earth': _selectedSiteData?['earth'] == 'No'
-          ? '0'
-          : (_selectedSiteData?['earth'] == 'Yes'
-              ? (groundControllers[3].text)
-              : 'N/A'),
-      'owner load': externalLoadControllers[0].text,
-      'neighbor load': externalLoadControllers[1].text,
-      '3rd load': externalLoadControllers[2].text,
-      'battery test': isBatteryTestEnabled ? 'Yes' : 'No',
-      'start dc': isBatteryTestEnabled == false
-          ? '0'
-          : (isBatteryTestEnabled == true
-              ? (batteryTestControllers[0].text)
-              : '0'),
-      'end dc': isBatteryTestEnabled == false
-          ? '0'
-          : (isBatteryTestEnabled == true
-              ? (batteryTestControllers[1].text)
-              : '0'),
-
-      'fire': batteryTestControllers[2].text,
-      '----------------------': '----------------',
-
+      'spareName': _selectedSpareData?['Item name'] ?? '',
+      'spare': _selectedSpareData?['Code'] ?? '',
+      'cod': _selectedSpareData?['Cost \$'] ?? '',
       //step6
-      'generalComments': commentsControllers[0].text,
-      'g1Comments': commentsControllers[1].text,
-      'g2Comments': commentsControllers[2].text,
-      'acComments': commentsControllers[3].text,
-      'electricComments': commentsControllers[4].text,
-      // Add more fields as necessary
+      'Comments1': commentsControllers[0].text,
+      'Comments2': commentsControllers[1].text,
+      'engineer name': _selectedEngineerName ?? '',
+      'tech name': _selectedTechName ?? '',
     };
   }
 
@@ -468,7 +267,7 @@ class CmSheetPageState extends State<CmSheetPage> {
     return mappedData;
   }
 
-  Future<void> submitData() async {
+  Future<void> _submitData() async {
     if (_selectedSiteData != null && _selectedSiteData!['sheet'] != null) {
       int selectedSheetNumber =
           int.tryParse(_selectedSiteData!['sheet'].toString()) ?? 1;
@@ -513,79 +312,96 @@ class CmSheetPageState extends State<CmSheetPage> {
     }
   }
 
+  void _showAddToCartDialog(String spareName) {
+    final TextEditingController quantityController = TextEditingController();
+    final TextEditingController usageController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Item to Cart'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Item: $spareName'),
+              SizedBox(height: 10),
+              TextField(
+                controller: quantityController,
+                decoration: InputDecoration(labelText: 'Quantity'),
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: usageController,
+                decoration: InputDecoration(labelText: 'Usage'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Add item to cart with entered details
+                int quantity = int.tryParse(quantityController.text) ??
+                    1; // Default to 1 if parsing fails
+                String usage = usageController.text;
+
+                if (quantity > 0 && usage.isNotEmpty) {
+                  _addSpareToCart(
+                      spareName, quantity, usage); // Add to cart with details
+                  Navigator.of(context).pop(); // Close dialog
+                } else {
+                  _showSnackbar(
+                      'Please enter valid quantity and usage.'); // Show error message
+                }
+              },
+              child: Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addSpareToCart(String spareName, int quantity, String usage) {
+    final selectedSpare = _spareData?.firstWhere(
+      (item) => item['Item name'] == spareName,
+      orElse: () => {
+        'Item name': spareName,
+        'Code': '',
+        'Cost \$': 0
+      }, // Provide a default value
+    );
+
+    if (selectedSpare != null) {
+      setState(() {
+        // Check if item is already added
+        if (!_selectedSpareItems
+            .any((item) => item.name == selectedSpare['Item name'])) {
+          _selectedSpareItems.add(SpareItem(
+            name: selectedSpare['Item name'],
+            quantity: quantity,
+            usage: usage,
+          ));
+        }
+      });
+    } else {
+      // Handle the case where the selected spare part was not found
+      _showSnackbar('Selected spare part not found.'); // Show error message
+    }
+  }
+
   void _showSnackbar(String message,
       {Duration duration = const Duration(seconds: 3)}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), duration: duration),
     );
-  }
-
-  void _updateComments() {
-    String baseText;
-    if (_selectedSiteData?['cp'] == "Yes") {
-      baseText = isCpEnabled ? "Gen Load on CP" : "CP load on Gen";
-    } else if (_selectedSiteData?['cp'] == "No") {
-      baseText = "The Site without CP";
-    } else {
-      baseText = "CP status unknown";
-    }
-
-    setState(() {
-      commentsControllers[0].text = baseText;
-
-      // Initialize a variable to build the comment text
-      String commentText = "";
-      if (_selectedSiteData!['earth'] == 'No') {
-        logger.i("Earth is No");
-        commentText += "The Site without a point of ground measurement /";
-      } else {
-        logger.i("Earth is Yes");
-      }
-      if (!isBatteryTestEnabled) {
-        logger.i("Battery test is not enabled");
-        commentText +=
-            " The Batteries were tested at (${_selectedSiteData!['batterytest']})";
-      }
-
-      // Set the final comment text to commentsControllers[4]
-      commentsControllers[4].text = commentText; // Combine A and B
-    });
-  }
-
-  void _updateCPText() {
-    String baseText;
-    if (_selectedSiteData?['cp'] == "Yes") {
-      baseText = isCpEnabled ? "Gen Load on CP" : "CP load on Gen";
-    } else if (_selectedSiteData?['cp'] == "No") {
-      baseText = "The Site without CP";
-    } else {
-      baseText = "CP status unknown";
-    }
-
-    if (isLowVoltage) {
-      baseText += " / System low voltage";
-    }
-
-    setState(() {
-      commentsControllers[0].text = baseText;
-    });
-  }
-
-  void _handleCpEnabledChange(bool value) {
-    setState(() {
-      isCpEnabled = value;
-      if (!isCpEnabled) {
-        final random = Random();
-        if (_selectedSiteData!['phase'].toLowerCase() == 'three phase') {
-          voltageControllers[0].text = (random.nextInt(21) + 210).toString();
-          voltageControllers[1].text = (random.nextInt(21) + 210).toString();
-          voltageControllers[2].text = (random.nextInt(21) + 210).toString();
-        } else if (_selectedSiteData!['phase'].toLowerCase() ==
-            'single phase') {
-          voltageControllers[0].text = (random.nextInt(21) + 210).toString();
-        }
-      }
-    });
   }
 
   @override
@@ -711,9 +527,9 @@ class CmSheetPageState extends State<CmSheetPage> {
                             ),
                           ),
                           ElevatedButton.icon(
-                            onPressed: (_isSiteSelected)
+                            onPressed: (_isTypeSelected)
                                 ? () {
-                                    if (_currentStep != 6) {
+                                    if (_currentStep != 4) {
                                       controls.onStepContinue!();
                                     } else {
                                       showDialog(
@@ -749,15 +565,15 @@ class CmSheetPageState extends State<CmSheetPage> {
                                     }
                                   }
                                 : null,
-                            icon: Icon(_currentStep != 6
+                            icon: Icon(_currentStep != 4
                                 ? Icons.arrow_forward
                                 : Icons.check),
                             label:
-                                Text(_currentStep != 6 ? 'Continue' : 'Done'),
+                                Text(_currentStep != 4 ? 'Continue' : 'Done'),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
                               backgroundColor:
-                                  _currentStep != 6 ? Colors.green : Colors.red,
+                                  _currentStep != 4 ? Colors.green : Colors.red,
                               padding: EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10), // Text color
                               shape: RoundedRectangleBorder(
@@ -772,14 +588,14 @@ class CmSheetPageState extends State<CmSheetPage> {
                   );
                 },
                 onStepTapped: (step) {
-                  if (step == _currentStep) {
+                  if (step != _currentStep) {
                     setState(() {
                       _currentStep = step;
                     });
                   }
                 },
                 onStepContinue: () {
-                  if (_currentStep < 6) {
+                  if (_currentStep < 4) {
                     setState(() {
                       stepCompleted[_currentStep] = true;
                       _currentStep++;
@@ -797,33 +613,128 @@ class CmSheetPageState extends State<CmSheetPage> {
                 steps: [
                   Step(
                     isActive: _currentStep == 0,
+                    title: Text('Corrective Type'),
+                    content: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(context).shadowColor,
+                                blurRadius: 5,
+                                offset: Offset(1, 2),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.5),
+                              width: 2,
+                            ),
+                          ),
+                          child: DropdownButton<String>(
+                            hint: Text('Select a CM ...',
+                                style: TextStyle(
+                                    color: Colors.grey[700], fontSize: 17)),
+                            value: _selectedCmType,
+                            isExpanded: true,
+                            underline: SizedBox(),
+                            icon: AnimatedSwitcher(
+                              duration: Duration(milliseconds: 300),
+                              transitionBuilder:
+                                  (Widget child, Animation<double> animation) {
+                                return ScaleTransition(
+                                    scale: animation, child: child);
+                              },
+                              child: _selectedCmType == null
+                                  ? Icon(Icons.arrow_drop_down,
+                                      key: ValueKey('arrow'),
+                                      color: Colors.grey[600])
+                                  : Icon(Icons.check,
+                                      key: ValueKey('check'),
+                                      color: Colors.green),
+                            ),
+                            dropdownColor: Theme.of(context).cardColor,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedCmType = newValue;
+                                selectedOption1 = null;
+                                selectedOption2 = null;
+                                selectedOption3 = null;
+                                _isTypeSelected = true;
+                              });
+                            },
+                            items: cmType
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                alignment: AlignmentDirectional.center,
+                                child: Text(
+                                  value,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.normal,
+                                      letterSpacing: 1),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        SizedBox(height: 20.0),
+                        ...CMType(_selectedCmType).cmTypeDrop(
+                          context,
+                          typeControllers,
+                          selectedOption1,
+                          selectedOption2,
+                          selectedOption3,
+                          (value) {
+                            setState(() {
+                              selectedOption1 = value;
+                            });
+                          },
+                          (value) {
+                            setState(() {
+                              selectedOption2 = value;
+                            });
+                          },
+                          (value) {
+                            setState(() {
+                              selectedOption3 = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    state: stepCompleted[0]
+                        ? StepState.complete
+                        : StepState.indexed,
+                  ),
+                  Step(
+                    isActive: _currentStep == 1,
                     title: Text('General'),
-                    subtitle: _currentStep == 0
+                    subtitle: _currentStep == 1
                         ? Text('All Fields Are Required.')
                         : null,
                     content: Column(
                       children: [
                         const SizedBox(height: 8.0),
                         GestureDetector(
-                          onTap: _isSiteSelected
-                              ? () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Reset the page to change the site')),
-                                  );
-                                }
-                              : () => showSearchableDropdown(
-                                    context,
-                                    _siteNames,
-                                    (selected) {
-                                      setState(() {
-                                        _updateSelectedSiteData(selected);
-                                        _isSiteSelected = true;
-                                      });
-                                    },
-                                    _searchController,
-                                  ),
+                          onTap: () => showSearchableDropdown(
+                            context,
+                            _siteNames,
+                            (selected) {
+                              setState(() {
+                                _updateSelectedSiteData(selected);
+                                _isTypeSelected = true;
+                              });
+                            },
+                            _searchController,
+                          ),
                           child: AbsorbPointer(
                             child: TextField(
                               controller: siteController,
@@ -832,12 +743,6 @@ class CmSheetPageState extends State<CmSheetPage> {
                                   Icons.cell_tower_rounded,
                                   color: Theme.of(context).colorScheme.tertiary,
                                 ),
-                                suffixIcon: _isSiteSelected
-                                    ? Icon(
-                                        Icons.check,
-                                        color: Colors.green,
-                                      )
-                                    : null,
                                 label: Text(
                                   _selectedSiteData != null
                                       ? 'Site Name:'
@@ -874,7 +779,6 @@ class CmSheetPageState extends State<CmSheetPage> {
                               ),
                               keyboardType: TextInputType.number,
                               readOnly: true,
-                              enabled: !_isSiteSelected,
                             ),
                           ),
                         ),
@@ -1011,61 +915,100 @@ class CmSheetPageState extends State<CmSheetPage> {
                           ),
                       ],
                     ),
-                    state: stepCompleted[0]
-                        ? StepState.complete
-                        : StepState.indexed,
-                  ),
-                  Step(
-                    isActive: _currentStep == 1,
-                    title: Text('Generator'),
-                    subtitle:
-                        _currentStep == 1 ? Text('on => Yes, off => No') : null,
-                    content: Column(
-                      children: [
-                        if (_selectedSiteData != null)
-                          ...ReplacementSwitch(_selectedSiteData!['sheet'])
-                              .genSwitches(toggleValues, handleToggleChange),
-                        if (_selectedSiteData != null) ...[
-                          ...SeparatorSwitch(_selectedSiteData!['sheet'],
-                                  _selectedSiteData!.cast<String, String?>())
-                              .sepSwitches(toggleValues, handleToggleChange),
-                        ],
-                      ],
-                    ),
                     state: stepCompleted[1]
                         ? StepState.complete
                         : StepState.indexed,
                   ),
                   Step(
                     isActive: _currentStep == 2,
-                    title: Text('Load & Voltage'),
-                    subtitle:
-                        _currentStep == 2 ? Text('Randomize First') : null,
+                    title: Text('Items'),
                     content: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        if (_selectedSiteData != null)
-                          CpPhaseInput(
-                            cpValue: _selectedSiteData!['cp'],
-                            phase: _selectedSiteData!['phase'],
-                            voltageControllers: voltageControllers,
-                            loadControllers: loadControllers,
-                            isCpEnabled: isCpEnabled,
-                            onCpEnabledChanged: _handleCpEnabledChange,
+                        SizedBox(height: 10),
+                        IconButton(
+                          onPressed: () => showSearchableDropdown(
+                            context,
+                            _spareNames,
+                            (selected) {
+                              _showAddToCartDialog(
+                                  selected); // Show dialog for quantity and usage
+                            },
+                            _searchSpareController,
                           ),
-                        SizedBox(height: 8),
-                        if (_selectedSiteData != null)
-                          GenVLInput(
-                            sheetNumber: _selectedSiteData![
-                                'sheet'], // Pass the sheet number here
-                            controllers: genVLControllers,
-                            gensSwitches: gensSwitches,
-                            onSwitchChanged: (index, value) {
+                          icon: Icon(Icons.add),
+                        ),
+                        // IconButton(
+                        //     onPressed: () {
+                        //       Navigator.of(context).push(MaterialPageRoute(
+                        //         builder: (context) => CartScreen(
+                        //           themeMode: themeControl.themeMode,
+                        //           onThemeChanged: (value) {
+                        //             themeControl.toggleTheme(value);
+                        //           },
+                        //         ),
+                        //       ));
+                        //     },
+                        //     icon: Icon(Icons.roundabout_left)),
+                        GestureDetector(
+                          onTap: () => showSearchableDropdown(
+                            context,
+                            _spareNames,
+                            (selected) {
                               setState(() {
-                                gensSwitches[index] = value;
+                                _updateSelectedSpareData(selected);
+                                _isTypeSelected = true;
                               });
                             },
+                            _searchSpareController,
                           ),
+                          child: AbsorbPointer(
+                            child: TextField(
+                              controller: spareController,
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.cell_tower_rounded,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                ),
+                                label: Text(
+                                  _selectedSpareData != null
+                                      ? 'Spare Name:'
+                                      : 'No spare selected',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 16.0),
+                                ),
+                                filled: true,
+                                labelStyle: TextStyle(
+                                    color: ThemeControl.errorColor
+                                        .withOpacity(0.8)),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                      width: 2.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: const BorderSide(
+                                      color: Colors.grey, width: 1.5),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16.0, horizontal: 12.0),
+                              ),
+                              keyboardType: TextInputType.number,
+                              readOnly: true,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10), // Spacing between widgets
                       ],
                     ),
                     state: stepCompleted[2]
@@ -1074,112 +1017,55 @@ class CmSheetPageState extends State<CmSheetPage> {
                   ),
                   Step(
                     isActive: _currentStep == 3,
-                    title: Text('AC'),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        if (_selectedSiteData != null)
-                          AcInput(
-                            _selectedSiteData!['sheet'],
-                            acVoltControllers: acVoltControllers,
-                            acLoadControllers: acLoadControllers,
-                            acOtherController: acOtherController,
-                          ),
-                      ],
-                    ),
-                    state: stepCompleted[3]
-                        ? StepState.complete
-                        : StepState.indexed,
-                  ),
-                  Step(
-                    isActive: _currentStep == 4,
-                    title: Text('Earth & External load'),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        EarthInputFields(
-                            selectedSiteData: _selectedSiteData,
-                            groundControllers: groundControllers,
-                            externalLoadControllers: externalLoadControllers,
-                            batteryTestControllers: batteryTestControllers,
-                            isBatteryTestEnabled: isBatteryTestEnabled,
-                            isEarthEnabled: isEarthEnabled,
-                            onBatteryTestEnabledChanged: (bool value) {
-                              setState(() {
-                                isBatteryTestEnabled = value;
-                              });
-                            }),
-                      ],
-                    ),
-                    state: stepCompleted[4]
-                        ? StepState.complete
-                        : StepState.indexed,
-                  ),
-                  Step(
-                    isActive: _currentStep == 5,
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(child: Text('Comments')),
-                        if (_currentStep == 5)
-                          Text(
-                            'Add Comments ->',
-                            style: TextStyle(fontSize: 8, color: Colors.red),
-                          ),
-                        if (_currentStep == 5)
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                isCpEnabled = isCpEnabled;
-                                isBatteryTestEnabled = isBatteryTestEnabled;
-                              });
-                              _updateComments();
-                            },
-                            icon: Icon(Icons.add),
-                          ),
                       ],
                     ),
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         buildCommentField(
-                            'General', commentsControllers[0], context),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: isLowVoltage,
-                              onChanged: (value) {
-                                setState(() {
-                                  isLowVoltage = value ?? false;
-                                });
-                                _updateCPText();
-                              },
-                            ),
-                            Text("System low voltage"),
-                          ],
-                        ),
+                            'Comment 1', commentsControllers[0], context),
                         buildCommentField(
-                            'G1', commentsControllers[1], context),
-                        buildCommentField(
-                            'G2', commentsControllers[2], context),
-                        buildCommentField(
-                            'AC', commentsControllers[3], context),
-                        buildCommentField(
-                            'Electric', commentsControllers[4], context),
+                            'Comment 2', commentsControllers[1], context),
                         SizedBox(height: 10),
                         DropdownButton<String>(
                           hint: Text(
                             'Engineer Name..',
                             style: Theme.of(context).textTheme.titleLarge,
                           ), // Placeholder text
-                          value: _selectedName,
+                          value: _selectedEngineerName,
                           onChanged: (String? newValue) {
                             setState(() {
-                              _selectedName =
-                                  newValue; // Update the selected name
+                              _selectedEngineerName = newValue;
                             });
                           },
-                          items: names
+                          items: engineerNames
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                value,
+                                style:
+                                    Theme.of(context).textTheme.headlineLarge,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        DropdownButton<String>(
+                          hint: Text(
+                            'Tech Name..',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ), // Placeholder text
+                          value: _selectedTechName,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedTechName = newValue;
+                            });
+                          },
+                          items: techNames
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
@@ -1193,12 +1079,12 @@ class CmSheetPageState extends State<CmSheetPage> {
                         ),
                       ],
                     ),
-                    state: stepCompleted[5]
+                    state: stepCompleted[3]
                         ? StepState.complete
                         : StepState.indexed,
                   ),
                   Step(
-                    isActive: _currentStep == 6,
+                    isActive: _currentStep == 4,
                     title: Text('Submit'),
                     content: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1216,7 +1102,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                         });
 
                                         try {
-                                          await submitData();
+                                          await _submitData();
                                           if (!context.mounted) return;
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
@@ -1289,9 +1175,15 @@ class CmSheetPageState extends State<CmSheetPage> {
                             ),
                           ],
                         ),
+                        ..._collectData().entries.map((entry) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Text('${entry.key}: ${entry.value}'),
+                          );
+                        }),
                       ],
                     ),
-                    state: stepCompleted[6]
+                    state: stepCompleted[4]
                         ? StepState.complete
                         : StepState.indexed,
                   ),
@@ -1372,4 +1264,12 @@ class CmSheetPageState extends State<CmSheetPage> {
       ],
     );
   }
+}
+
+class SpareItem {
+  final String name;
+  int quantity;
+  String usage;
+
+  SpareItem({required this.name, required this.quantity, required this.usage});
 }

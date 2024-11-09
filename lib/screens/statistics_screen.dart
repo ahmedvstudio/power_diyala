@@ -474,11 +474,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           }
 
                           displayWidgets.add(
-                            ExpansionTile(
-                              title: Text(
-                                '$year',
+                            Card(
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 15.0),
+                              child: ExpansionTile(
+                                title: Text(
+                                  '$year',
+                                ),
+                                children: monthWidgets,
                               ),
-                              children: monthWidgets,
                             ),
                           );
                         }

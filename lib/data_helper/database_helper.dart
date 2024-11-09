@@ -24,6 +24,7 @@ class DatabaseHelper {
   static const String teamsTable = 'Teams';
   static const String infoTable = 'info';
   static const String pmHelperTable = 'PM_helper';
+  static const String spareHelperTable = 'SpareParts';
 
   static Future<Database> getDatabase() async {
     if (_database != null) return _database!;
@@ -78,6 +79,10 @@ class DatabaseHelper {
 
   static Future<List<Map<String, dynamic>>> loadPMData() async {
     return loadData(pmHelperTable);
+  }
+
+  static Future<List<Map<String, dynamic>>> loadSpareData() async {
+    return loadData(spareHelperTable);
   }
 
   static Future<void> deleteDatabase() async {
@@ -157,6 +162,7 @@ class DBHelper {
         await DatabaseHelper.loadTeamData();
         await DatabaseHelper.loadInfoData();
         await DatabaseHelper.loadPMData();
+        await DatabaseHelper.loadSpareData();
       } catch (e) {
         logger.e("Error replacing database: $e");
         // Check if the widget is still mounted before showing the dialog
@@ -177,6 +183,7 @@ class DBHelper {
       await DatabaseHelper.loadTeamData();
       await DatabaseHelper.loadInfoData();
       await DatabaseHelper.loadPMData();
+      await DatabaseHelper.loadSpareData();
 
       if (result.isNotEmpty) {
         // Perform additional checks as needed
