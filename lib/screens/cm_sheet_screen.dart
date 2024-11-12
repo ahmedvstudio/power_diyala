@@ -40,40 +40,21 @@ class CmSheetPageState extends State<CmSheetPage> {
   final List<SpareItem> _selectedSpareItems = [];
   List<String> _spareNames = [];
   List<String> _spareCode = [];
-  TextEditingController spareController = TextEditingController();
-  List<TextEditingController> genControllers = [];
-  List<TextEditingController> genVLControllers = [];
-  List<TextEditingController> tankControllers = [];
-  List<TextEditingController> commentsControllers = [];
+  final TextEditingController _spareController = TextEditingController();
+  List<TextEditingController> _genControllers = [];
+  List<TextEditingController> _tankControllers = [];
+  List<TextEditingController> _commentsControllers = [];
   TextEditingController siteController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   TextEditingController cpController = TextEditingController();
   TextEditingController kwhController = TextEditingController();
   String? _selectedEngName;
   String? _selectedTechName;
-  final List<TextEditingController> acVoltControllers =
-      List.generate(6, (index) => TextEditingController());
-  final List<TextEditingController> acLoadControllers =
-      List.generate(6, (index) => TextEditingController());
-  final List<TextEditingController> acOtherController =
-      List.generate(3, (index) => TextEditingController());
   bool _isLoading = false;
-  final List<TextEditingController> groundControllers =
-      List.generate(6, (index) => TextEditingController());
-  final List<TextEditingController> externalLoadControllers =
-      List.generate(6, (index) => TextEditingController());
-  final List<TextEditingController> batteryTestControllers =
-      List.generate(3, (index) => TextEditingController());
   bool _isSiteSelected = false;
-  List<TextEditingController> voltageControllers = [];
-  List<TextEditingController> loadControllers = [];
   bool _isCMTypeSelected = false;
-  bool isCpEnabled = true;
   bool isDuringPM = false;
-  bool isEarthEnabled = false;
-  bool isBatteryTestEnabled = false;
-  List<bool> stepCompleted = List.filled(7, false);
-  List<bool> gensSwitches = [true, true];
+  List<bool> stepCompleted = List.filled(3, false);
   TimeOfDay? fromTime;
   TimeOfDay? toTime;
   TimeOfDay? escalatedTime;
@@ -106,14 +87,9 @@ class CmSheetPageState extends State<CmSheetPage> {
   @override
   void initState() {
     super.initState();
-
-    genControllers = List.generate(5, (index) => TextEditingController());
-    tankControllers = List.generate(5, (index) => TextEditingController());
-    genVLControllers = List.generate(20, (index) => TextEditingController());
-    commentsControllers = List.generate(3, (index) => TextEditingController());
-    voltageControllers = List.generate(3, (index) => TextEditingController());
-    loadControllers = List.generate(3, (index) => TextEditingController());
-
+    _genControllers = List.generate(5, (index) => TextEditingController());
+    _tankControllers = List.generate(5, (index) => TextEditingController());
+    _commentsControllers = List.generate(3, (index) => TextEditingController());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
       _loadSpareData();
@@ -123,18 +99,9 @@ class CmSheetPageState extends State<CmSheetPage> {
   @override
   void dispose() {
     for (var controller in [
-      ...genControllers,
-      ...tankControllers,
-      ...genVLControllers,
-      ...commentsControllers,
-      ...voltageControllers,
-      ...loadControllers,
-      ...acVoltControllers,
-      ...acLoadControllers,
-      ...acOtherController,
-      ...groundControllers,
-      ...externalLoadControllers,
-      ...batteryTestControllers,
+      ..._genControllers,
+      ..._tankControllers,
+      ..._commentsControllers,
       siteController,
     ]) {
       controller.dispose();
@@ -195,14 +162,14 @@ class CmSheetPageState extends State<CmSheetPage> {
   void _updateSelectedSpareName(String spareName) {
     _spareData?.firstWhere((item) => item['Item name'] == spareName);
     setState(() {
-      spareController.text = spareName;
+      _spareController.text = spareName;
     });
   }
 
   void _updateSelectedSpareCode(String spareCode) {
     _spareData?.firstWhere((item) => item['Code'] == spareCode);
     setState(() {
-      spareController.text = spareCode;
+      _spareController.text = spareCode;
     });
   }
 
@@ -238,7 +205,7 @@ class CmSheetPageState extends State<CmSheetPage> {
             });
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('That A Lot Of Items')),
+              SnackBar(content: Text('Too Much Items')),
             );
           }
         }
@@ -297,7 +264,7 @@ class CmSheetPageState extends State<CmSheetPage> {
       setState(() {
         String formattedTime =
             '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-        commentsControllers[0].text = formattedTime;
+        _commentsControllers[0].text = formattedTime;
       });
     }
   }
@@ -325,7 +292,7 @@ class CmSheetPageState extends State<CmSheetPage> {
       baseText += "PM";
     }
     setState(() {
-      commentsControllers[0].text = baseText;
+      _commentsControllers[0].text = baseText;
     });
   }
 
@@ -342,14 +309,14 @@ class CmSheetPageState extends State<CmSheetPage> {
       'date': _dateController.text,
       'time':
           'Time in: ${fromTime?.format(context) ?? ''} & Time out: ${fromTime?.format(context) ?? ''}',
-      'escalated': commentsControllers[0].text,
-      'G1': genControllers[0].text,
-      'G2': genControllers[1].text,
+      'escalated': _commentsControllers[0].text,
+      'G1': _genControllers[0].text,
+      'G2': _genControllers[1].text,
       'CP': cpController.text,
       'Kwh': kwhController.text,
-      'T1': tankControllers[0].text,
-      'T2': tankControllers[1].text,
-      'T3': tankControllers[2].text,
+      'T1': _tankControllers[0].text,
+      'T2': _tankControllers[1].text,
+      'T3': _tankControllers[2].text,
       '--------------------': '----------------',
       //item1
       'item1Code':
@@ -493,8 +460,8 @@ class CmSheetPageState extends State<CmSheetPage> {
           _selectedSpareItems.length > 14 ? _selectedSpareItems[14].where : '',
       '------------------': '----------------',
       //step3
-      'Comments1': commentsControllers[1].text,
-      'Comments2': commentsControllers[2].text,
+      'Comments1': _commentsControllers[1].text,
+      'Comments2': _commentsControllers[2].text,
       'engineer name': _selectedEngName ?? '',
       'tech name': _selectedTechName ?? '',
     };
@@ -784,7 +751,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                         );
                       },
                       onStepTapped: (step) {
-                        if (step != _currentStep) {
+                        if (step == _currentStep) {
                           setState(() {
                             _currentStep = step;
                           });
@@ -989,7 +956,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                     child: TextField(
                                       onTap: () =>
                                           _selectEscalatedTime(context),
-                                      controller: commentsControllers[0],
+                                      controller: _commentsControllers[0],
                                       decoration: InputDecoration(
                                         prefixIcon: Icon(
                                           Icons.trending_up_rounded,
@@ -1051,7 +1018,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                 Row(
                                   children: [
                                     ...GenInput(_selectedSiteData!['sheet'])
-                                        .genInputs(context, genControllers)
+                                        .genInputs(context, _genControllers)
                                         .map((inputField) {
                                       return Expanded(
                                         child: Padding(
@@ -1074,7 +1041,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                 Row(
                                   children: [
                                     ...TankInput(_selectedSiteData!['sheet'])
-                                        .tankInputs(context, tankControllers)
+                                        .tankInputs(context, _tankControllers)
                                         .map((inputField) {
                                       return Expanded(
                                         child: Padding(
@@ -1170,10 +1137,10 @@ class CmSheetPageState extends State<CmSheetPage> {
                           content: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              buildCommentField(
-                                  'Comment 1', commentsControllers[1], context),
-                              buildCommentField(
-                                  'Comment 2', commentsControllers[2], context),
+                              buildCommentField('Comment 1',
+                                  _commentsControllers[1], context),
+                              buildCommentField('Comment 2',
+                                  _commentsControllers[2], context),
                               SizedBox(height: 10),
                               DropdownButton<String>(
                                 isExpanded: true,
@@ -1237,12 +1204,12 @@ class CmSheetPageState extends State<CmSheetPage> {
                                           ? null
                                           : () async {
                                               setState(() {
-                                                _isLoading =
-                                                    true; // Start loading
+                                                _isLoading = true;
                                               });
 
                                               try {
                                                 await _submitData();
+
                                                 if (!context.mounted) return;
                                                 _showSnackbar(
                                                   '/PowerDiyala/${_generateModifiedFileName(_selectedCMType ?? 'Generator')}',
