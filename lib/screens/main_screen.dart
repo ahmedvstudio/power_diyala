@@ -3,7 +3,7 @@ import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.da
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:power_diyala/cart/cm_cart.dart';
+import 'package:power_diyala/screens/cm_sheet_screen.dart';
 import 'package:power_diyala/screens/calc_screen.dart';
 import 'package:power_diyala/screens/network_screen.dart';
 import 'package:power_diyala/screens/pm_sheet_screen.dart';
@@ -157,13 +157,13 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             color: Theme.of(context).secondaryHeaderColor,
             width: 1,
           ),
-          borderRadius: BorderRadius.circular(30), // Rounded corners
+          borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.5), // Shadow color
+              color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2, // Spread radius
               blurRadius: 7, // Blur radius
-              offset: Offset(0, 3), // Changes the position of the shadow
+              offset: Offset(0, 3),
             ),
           ],
         ),
@@ -176,12 +176,12 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           children: [
             SpeedDialChild(
               shape: CircleBorder(),
-              child: Icon(Icons.add_chart, color: Colors.white),
+              child: Icon(Icons.assignment, color: Colors.white),
               backgroundColor: Colors.green,
               label: 'CM',
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => CartScreen(
+                  builder: (context) => CmSheetPage(
                     themeMode: themeControl.themeMode,
                     onThemeChanged: (value) {
                       themeControl.toggleTheme(value);

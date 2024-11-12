@@ -14,6 +14,7 @@ class UsedForHelper extends StatefulWidget {
 class UsedForHelperState extends State<UsedForHelper> {
   String usedForValue = '';
   String onWhatValue = '';
+
   List<String> usedForItems = [
     'Replacement',
     'Adding',
@@ -21,8 +22,18 @@ class UsedForHelperState extends State<UsedForHelper> {
     'Voucher',
     'Clean UP'
   ];
+
   List<String> onWhatGenItems = ['G1', 'G2', 'Fuel Tank'];
   List<String> onWhatAcItems = ['AC1', 'AC2', 'AC3', 'AC4'];
+
+  @override
+  void initState() {
+    super.initState();
+    usedForValue = usedForItems[0];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onSelected(usedForValue, null, null);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +57,13 @@ class UsedForHelperState extends State<UsedForHelper> {
 
   Widget _generateGeneratorInputs() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         GestureDetector(
           onTap: () {
             _showDropdownMenu(context, usedForItems, (value) {
               setState(() {
                 usedForValue = value;
-                widget.onSelected(usedForValue, null, null);
+                widget.onSelected(usedForValue, onWhatValue, null);
               });
             });
           },
@@ -62,13 +72,13 @@ class UsedForHelperState extends State<UsedForHelper> {
             style: TextStyle(fontSize: 14, color: Colors.teal),
           ),
         ),
-        SizedBox(width: 50),
+        SizedBox(width: 20),
         GestureDetector(
           onTap: () {
             _showDropdownMenu(context, onWhatGenItems, (value) {
               setState(() {
                 onWhatValue = value;
-                widget.onSelected(onWhatValue, null, null);
+                widget.onSelected(usedForValue, onWhatValue, null);
               });
             });
           },
@@ -121,13 +131,13 @@ class UsedForHelperState extends State<UsedForHelper> {
             style: TextStyle(fontSize: 14, color: Colors.teal),
           ),
         ),
-        SizedBox(width: 50),
+        SizedBox(width: 20),
         GestureDetector(
           onTap: () {
             _showDropdownMenu(context, onWhatAcItems, (value) {
               setState(() {
                 onWhatValue = value;
-                widget.onSelected(onWhatValue, null, null);
+                widget.onSelected(usedForValue, onWhatValue, null);
               });
             });
           },

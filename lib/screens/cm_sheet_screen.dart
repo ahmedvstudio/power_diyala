@@ -1,13 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:logger/logger.dart';
 import 'package:power_diyala/Widgets/widgets.dart';
-import 'package:power_diyala/data_helper/database_helper.dart';
+import 'package:power_diyala/data_helper/sheets_helper/cm_cells_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cm_type_helper.dart';
+import 'package:power_diyala/data_helper/sheets_helper/quantity_helper.dart';
+import 'package:power_diyala/data_helper/sheets_helper/spare_item_class.dart';
+import 'package:power_diyala/data_helper/sheets_helper/used_for_helper.dart';
+import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/google_sheet.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
 import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
-import 'package:power_diyala/data_helper/sheets_helper/sheet_id_cells_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
 import 'package:power_diyala/screens/main_screen.dart';
 import 'package:power_diyala/settings/constants.dart';
@@ -28,46 +32,57 @@ class CmSheetPage extends StatefulWidget {
 class CmSheetPageState extends State<CmSheetPage> {
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
-  List<Map<String, dynamic>>? _data;
+  List<Map<String, dynamic>>? _siteData;
   List<Map<String, dynamic>>? _spareData;
   List<String> _siteNames = [];
-  List<String> _spareNames = [];
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _searchSpareController = TextEditingController();
   Map<String, dynamic>? _selectedSiteData;
-  Map<String, dynamic>? _selectedSpareData;
+  final List<SpareItem> _selectedSpareItems = [];
+  List<String> _spareNames = [];
+  List<String> _spareCode = [];
+  TextEditingController spareController = TextEditingController();
   List<TextEditingController> genControllers = [];
+  List<TextEditingController> genVLControllers = [];
   List<TextEditingController> tankControllers = [];
   List<TextEditingController> commentsControllers = [];
   TextEditingController siteController = TextEditingController();
-  TextEditingController spareController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   TextEditingController cpController = TextEditingController();
   TextEditingController kwhController = TextEditingController();
-  String? _selectedEngineerName;
+  String? _selectedEngName;
   String? _selectedTechName;
-  String? _selectedCmType;
-  String? selectedOption1;
-  String? selectedOption2;
-  String? selectedOption3;
-  final List<TextEditingController> typeControllers = [
-    TextEditingController(),
-    TextEditingController()
-  ];
-  final List<SpareItem> _selectedSpareItems = [];
+  final List<TextEditingController> acVoltControllers =
+      List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> acLoadControllers =
+      List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> acOtherController =
+      List.generate(3, (index) => TextEditingController());
   bool _isLoading = false;
-  bool _isTypeSelected = false;
-  List<bool> stepCompleted = List.filled(5, false);
+  final List<TextEditingController> groundControllers =
+      List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> externalLoadControllers =
+      List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> batteryTestControllers =
+      List.generate(3, (index) => TextEditingController());
+  bool _isSiteSelected = false;
+  List<TextEditingController> voltageControllers = [];
+  List<TextEditingController> loadControllers = [];
+  bool _isCMTypeSelected = false;
+  bool isCpEnabled = true;
+  bool isDuringPM = false;
+  bool isEarthEnabled = false;
+  bool isBatteryTestEnabled = false;
+  List<bool> stepCompleted = List.filled(7, false);
+  List<bool> gensSwitches = [true, true];
   TimeOfDay? fromTime;
   TimeOfDay? toTime;
+  TimeOfDay? escalatedTime;
   int _currentStep = 0;
-  final List<String> cmType = [
-    'Generator',
-    'Electric',
-    'AC',
-    'Civil',
-  ];
-  final List<String> engineerNames = [
+  String? _selectedCMType;
+  String? _selectedCategory;
+  String? _selectedExtraType;
+  String? _selectedType;
+  final List<String> engNames = [
     'Ahmed Adnan',
     'Ahmed Jassim',
     'Ahmed Noori',
@@ -75,25 +90,30 @@ class CmSheetPageState extends State<CmSheetPage> {
     'Ali Mahmod',
     'Yahya Falih',
   ];
-
   final List<String> techNames = [
+    'Ali Adnan',
     'Shams Ahmed',
     'Raed Ahmed',
-    'Ali Adnan',
     'Abdulwahab Ahmed',
+    'Amer Shalal',
     'Bashar Shuker',
     'Mahmod Hashim',
     'Haider Ahmed',
     'Mustafa Hussein',
-    'Hussein Mahmod',
+    'Hussein Mahmod'
   ];
 
   @override
   void initState() {
     super.initState();
+
     genControllers = List.generate(5, (index) => TextEditingController());
     tankControllers = List.generate(5, (index) => TextEditingController());
-    commentsControllers = List.generate(9, (index) => TextEditingController());
+    genVLControllers = List.generate(20, (index) => TextEditingController());
+    commentsControllers = List.generate(3, (index) => TextEditingController());
+    voltageControllers = List.generate(3, (index) => TextEditingController());
+    loadControllers = List.generate(3, (index) => TextEditingController());
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
       _loadSpareData();
@@ -105,9 +125,17 @@ class CmSheetPageState extends State<CmSheetPage> {
     for (var controller in [
       ...genControllers,
       ...tankControllers,
+      ...genVLControllers,
       ...commentsControllers,
+      ...voltageControllers,
+      ...loadControllers,
+      ...acVoltControllers,
+      ...acLoadControllers,
+      ...acOtherController,
+      ...groundControllers,
+      ...externalLoadControllers,
+      ...batteryTestControllers,
       siteController,
-      spareController,
     ]) {
       controller.dispose();
     }
@@ -122,7 +150,7 @@ class CmSheetPageState extends State<CmSheetPage> {
 
       if (mounted) {
         setState(() {
-          _data = data;
+          _siteData = data;
           _siteNames = data.map((item) => item['site'] as String).toList();
         });
       }
@@ -131,6 +159,16 @@ class CmSheetPageState extends State<CmSheetPage> {
         _showSnackbar('Error loading data: ${e.toString()}');
       }
     }
+  }
+
+  void _updateSelectedSiteData(String siteName) {
+    final selectedSite =
+        _siteData?.firstWhere((item) => item['site'] == siteName);
+    setState(() {
+      _selectedSiteData = selectedSite;
+      siteController.text =
+          siteName; // Update the site controller with the selected site name
+    });
   }
 
   Future<void> _loadSpareData() async {
@@ -144,8 +182,7 @@ class CmSheetPageState extends State<CmSheetPage> {
           _spareData = spareData;
           _spareNames =
               spareData.map((item) => item['Item name'] as String).toList();
-
-          // Initialize the filtered lists
+          _spareCode = spareData.map((item) => item['Code'] as String).toList();
         });
       }
     } catch (e) {
@@ -155,21 +192,59 @@ class CmSheetPageState extends State<CmSheetPage> {
     }
   }
 
-  void _updateSelectedSiteData(String siteName) {
-    final selectedSite = _data?.firstWhere((item) => item['site'] == siteName);
+  void _updateSelectedSpareName(String spareName) {
+    _spareData?.firstWhere((item) => item['Item name'] == spareName);
     setState(() {
-      _selectedSiteData = selectedSite;
-      siteController.text = siteName;
+      spareController.text = spareName;
     });
   }
 
-  void _updateSelectedSpareData(String spareName) {
-    final selectedSpare =
-        _spareData?.firstWhere((item) => item['Item name'] == spareName);
+  void _updateSelectedSpareCode(String spareCode) {
+    _spareData?.firstWhere((item) => item['Code'] == spareCode);
     setState(() {
-      _selectedSpareData = selectedSpare;
-      spareController.text = spareName;
+      spareController.text = spareCode;
     });
+  }
+
+  void showCombinedSearchableDropdown(
+    BuildContext context,
+    List<Map<String, dynamic>> spareData,
+    TextEditingController searchController,
+    Function(String) onItemSelected,
+  ) {
+    final List<String> combinedList = spareData.map((item) {
+      String itemName = item['Item name'] as String;
+      String itemCode = item['Code'] as String;
+      return '$itemCode - $itemName';
+    }).toList();
+
+    showSearchableDropdown(
+      context,
+      combinedList,
+      (selected) {
+        String itemName = selected.split(' - ')[1];
+        String itemCode = selected.split(' - ')[0];
+
+        if (itemName.isNotEmpty) {
+          if (_selectedSpareItems.length < 15) {
+            setState(() {
+              _selectedSpareItems.add(SpareItem(
+                name: itemName,
+                code: itemCode,
+                quantity: 1,
+                usage: '',
+                where: '',
+              ));
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('That A Lot Of Items')),
+            );
+          }
+        }
+      },
+      searchController,
+    );
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -211,21 +286,63 @@ class CmSheetPageState extends State<CmSheetPage> {
     }
   }
 
+  Future<void> _selectEscalatedTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: escalatedTime ?? TimeOfDay.now(),
+      helpText: 'Select Time',
+    );
+
+    if (picked != null) {
+      setState(() {
+        String formattedTime =
+            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+        commentsControllers[0].text = formattedTime;
+      });
+    }
+  }
+
+  void _showCMTypeDialog(String label) {
+    CMTypeDialog(
+      context,
+      label,
+      (String? category, String? extraType, String? type) {
+        setState(() {
+          _isCMTypeSelected = true;
+          _selectedCMType = label;
+          _selectedCategory = category;
+          _selectedExtraType = extraType;
+          _selectedType = type;
+        });
+      },
+    ).show();
+  }
+
+  void _updateEscalatedText() {
+    String baseText;
+    baseText = "";
+    if (isDuringPM) {
+      baseText += "PM";
+    }
+    setState(() {
+      commentsControllers[0].text = baseText;
+    });
+  }
+
   Map<String, dynamic> _collectData() {
     return {
       //step1
-      'Corrective': _selectedCmType ?? '',
-      'CM type': selectedOption1 ?? '',
-      'Extra type': selectedOption1 == 'Extra' ? (selectedOption2 ?? '') : '',
-      'CM when': selectedOption3 ?? '',
-      '-----------------': '---------------',
-      //Step2
+      'cm': _selectedCMType ?? '',
+      'cmCategory': _selectedCategory ?? '',
+      'cmType': _selectedType ?? '',
+      'extraType': _selectedExtraType ?? '',
       'siteName': siteController.text,
       'siteCode': _selectedSiteData?['code'] ?? '',
       'location': _selectedSiteData?['Location'] ?? '',
       'date': _dateController.text,
       'time':
-          'Time in: ${fromTime?.format(context) ?? ''} & Time out: ${toTime?.format(context) ?? ''}',
+          'Time in: ${fromTime?.format(context) ?? ''} & Time out: ${fromTime?.format(context) ?? ''}',
+      'escalated': commentsControllers[0].text,
       'G1': genControllers[0].text,
       'G2': genControllers[1].text,
       'CP': cpController.text,
@@ -234,24 +351,161 @@ class CmSheetPageState extends State<CmSheetPage> {
       'T2': tankControllers[1].text,
       'T3': tankControllers[2].text,
       '--------------------': '----------------',
+      //item1
+      'item1Code':
+          _selectedSpareItems.isNotEmpty ? _selectedSpareItems[0].code : '',
+      'item1Quantity':
+          _selectedSpareItems.isNotEmpty ? _selectedSpareItems[0].quantity : '',
+      'item1UsedFor':
+          _selectedSpareItems.isNotEmpty ? _selectedSpareItems[0].usage : '',
+      'item1Where':
+          _selectedSpareItems.isNotEmpty ? _selectedSpareItems[0].where : '',
+      //item2
+      'item2Code':
+          _selectedSpareItems.length > 1 ? _selectedSpareItems[1].code : '',
+      'item2Quantity':
+          _selectedSpareItems.length > 1 ? _selectedSpareItems[1].quantity : '',
+      'item2UsedFor':
+          _selectedSpareItems.length > 1 ? _selectedSpareItems[1].usage : '',
+      'item2Where':
+          _selectedSpareItems.length > 1 ? _selectedSpareItems[1].where : '',
+      //item3
+      'item3Code':
+          _selectedSpareItems.length > 2 ? _selectedSpareItems[2].code : '',
+      'item3Quantity':
+          _selectedSpareItems.length > 2 ? _selectedSpareItems[2].quantity : '',
+      'item3UsedFor':
+          _selectedSpareItems.length > 2 ? _selectedSpareItems[2].usage : '',
+      'item3Where':
+          _selectedSpareItems.length > 2 ? _selectedSpareItems[2].where : '',
+      //item4
+      'item4Code':
+          _selectedSpareItems.length > 3 ? _selectedSpareItems[3].code : '',
+      'item4Quantity':
+          _selectedSpareItems.length > 3 ? _selectedSpareItems[3].quantity : '',
+      'item4UsedFor':
+          _selectedSpareItems.length > 3 ? _selectedSpareItems[3].usage : '',
+      'item4Where':
+          _selectedSpareItems.length > 3 ? _selectedSpareItems[3].where : '',
+      //item5
+      'item5Code':
+          _selectedSpareItems.length > 4 ? _selectedSpareItems[4].code : '',
+      'item5Quantity':
+          _selectedSpareItems.length > 4 ? _selectedSpareItems[4].quantity : '',
+      'item5UsedFor':
+          _selectedSpareItems.length > 4 ? _selectedSpareItems[4].usage : '',
+      'item5Where':
+          _selectedSpareItems.length > 4 ? _selectedSpareItems[4].where : '',
+      //item6
+      'item6Code':
+          _selectedSpareItems.length > 5 ? _selectedSpareItems[5].code : '',
+      'item6Quantity':
+          _selectedSpareItems.length > 5 ? _selectedSpareItems[5].quantity : '',
+      'item6UsedFor':
+          _selectedSpareItems.length > 5 ? _selectedSpareItems[5].usage : '',
+      'item6Where':
+          _selectedSpareItems.length > 5 ? _selectedSpareItems[5].where : '',
+      //item7
+      'item7Code':
+          _selectedSpareItems.length > 6 ? _selectedSpareItems[6].code : '',
+      'item7Quantity':
+          _selectedSpareItems.length > 6 ? _selectedSpareItems[6].quantity : '',
+      'item7UsedFor':
+          _selectedSpareItems.length > 6 ? _selectedSpareItems[6].usage : '',
+      'item7Where':
+          _selectedSpareItems.length > 6 ? _selectedSpareItems[6].where : '',
+      //item8
+      'item8Code':
+          _selectedSpareItems.length > 7 ? _selectedSpareItems[7].code : '',
+      'item8Quantity':
+          _selectedSpareItems.length > 7 ? _selectedSpareItems[7].quantity : '',
+      'item8UsedFor':
+          _selectedSpareItems.length > 7 ? _selectedSpareItems[7].usage : '',
+      'item8Where':
+          _selectedSpareItems.length > 7 ? _selectedSpareItems[7].where : '',
+      //item9
+      'item9Code':
+          _selectedSpareItems.length > 8 ? _selectedSpareItems[8].code : '',
+      'item9Quantity':
+          _selectedSpareItems.length > 8 ? _selectedSpareItems[8].quantity : '',
+      'item9UsedFor':
+          _selectedSpareItems.length > 8 ? _selectedSpareItems[8].usage : '',
+      'item9Where':
+          _selectedSpareItems.length > 8 ? _selectedSpareItems[8].where : '',
+      //item10
+      'item10Code':
+          _selectedSpareItems.length > 9 ? _selectedSpareItems[9].code : '',
+      'item10Quantity':
+          _selectedSpareItems.length > 9 ? _selectedSpareItems[9].quantity : '',
+      'item10UsedFor':
+          _selectedSpareItems.length > 9 ? _selectedSpareItems[9].usage : '',
+      'item10Where':
+          _selectedSpareItems.length > 9 ? _selectedSpareItems[9].where : '',
+      //item11
+      'item11Code':
+          _selectedSpareItems.length > 10 ? _selectedSpareItems[10].code : '',
+      'item11Quantity': _selectedSpareItems.length > 10
+          ? _selectedSpareItems[10].quantity
+          : '',
+      'item11UsedFor':
+          _selectedSpareItems.length > 10 ? _selectedSpareItems[10].usage : '',
+      'item11Where':
+          _selectedSpareItems.length > 10 ? _selectedSpareItems[10].where : '',
+      //item12
+      'item12Code':
+          _selectedSpareItems.length > 11 ? _selectedSpareItems[11].code : '',
+      'item12Quantity': _selectedSpareItems.length > 11
+          ? _selectedSpareItems[11].quantity
+          : '',
+      'item12UsedFor':
+          _selectedSpareItems.length > 11 ? _selectedSpareItems[11].usage : '',
+      'item12Where':
+          _selectedSpareItems.length > 11 ? _selectedSpareItems[11].where : '',
+      //item13
+      'item13Code':
+          _selectedSpareItems.length > 12 ? _selectedSpareItems[12].code : '',
+      'item13Quantity': _selectedSpareItems.length > 12
+          ? _selectedSpareItems[12].quantity
+          : '',
+      'item13UsedFor':
+          _selectedSpareItems.length > 12 ? _selectedSpareItems[12].usage : '',
+      'item13Where':
+          _selectedSpareItems.length > 12 ? _selectedSpareItems[12].where : '',
+      //item14
+      'item14Code':
+          _selectedSpareItems.length > 13 ? _selectedSpareItems[13].code : '',
+      'item14Quantity': _selectedSpareItems.length > 13
+          ? _selectedSpareItems[13].quantity
+          : '',
+      'item14UsedFor':
+          _selectedSpareItems.length > 13 ? _selectedSpareItems[13].usage : '',
+      'item14Where':
+          _selectedSpareItems.length > 13 ? _selectedSpareItems[13].where : '',
+      //item15
+      'item15Code':
+          _selectedSpareItems.length > 14 ? _selectedSpareItems[14].code : '',
+      'item15Quantity': _selectedSpareItems.length > 14
+          ? _selectedSpareItems[14].quantity
+          : '',
+      'item15UsedFor':
+          _selectedSpareItems.length > 14 ? _selectedSpareItems[14].usage : '',
+      'item15Where':
+          _selectedSpareItems.length > 14 ? _selectedSpareItems[14].where : '',
+      '------------------': '----------------',
       //step3
-      'spareName': _selectedSpareData?['Item name'] ?? '',
-      'spare': _selectedSpareData?['Code'] ?? '',
-      'cod': _selectedSpareData?['Cost \$'] ?? '',
-      //step6
-      'Comments1': commentsControllers[0].text,
-      'Comments2': commentsControllers[1].text,
-      'engineer name': _selectedEngineerName ?? '',
+      'Comments1': commentsControllers[1].text,
+      'Comments2': commentsControllers[2].text,
+      'engineer name': _selectedEngName ?? '',
       'tech name': _selectedTechName ?? '',
     };
   }
 
-  Map<String, dynamic> collectDataForSheet(int sheetNumber) {
+  Map<String, dynamic> _collectDataForCm(String sheetType) {
     final data = _collectData();
     logger.i('Raw Collected Data: $data');
 
-    final mapper = SheetMapper();
-    final cells = mapper.getSheetMapping(sheetNumber);
+    final mapper = CMMapper();
+    final cells = mapper.getCMMapping(sheetType);
 
     // Proceed with mapping logic
     final mappedData = <String, dynamic>{};
@@ -263,29 +517,44 @@ class CmSheetPageState extends State<CmSheetPage> {
       }
     });
 
-    logger.i('Mapped Data for Sheet $sheetNumber: $mappedData');
+    logger.i('Mapped Data for Sheet $sheetType: $mappedData');
     return mappedData;
+  }
+
+  String _generateModifiedFileName(String selectedSheetType) {
+    String siteName = _collectData()['siteName'];
+
+    switch (selectedSheetType) {
+      case 'Generator':
+        return '$siteName G';
+      case 'Electric':
+        return '$siteName Ele';
+      case 'AC':
+        return '$siteName AC';
+      case 'Civil':
+        return '$siteName Civil';
+      default:
+        return siteName;
+    }
   }
 
   Future<void> _submitData() async {
     if (_selectedSiteData != null && _selectedSiteData!['sheet'] != null) {
-      int selectedSheetNumber =
-          int.tryParse(_selectedSiteData!['sheet'].toString()) ?? 1;
+      String selectedSheetType = _selectedCMType!;
 
-      SheetMapper sheetMapper = SheetMapper();
+      CMMapper sheetMapper = CMMapper();
 
       GoogleSheetHelper googleSheetHelper = GoogleSheetHelper(
-        templateFileId: sheetMapper.getTemplateFileId(selectedSheetNumber),
-        targetSheetName: sheetMapper.getSheetName(selectedSheetNumber),
-        modifiedFileName: _collectData()['siteName'],
+        templateFileId: sheetMapper.getCMTemplateFileId(selectedSheetType),
+        targetSheetName: sheetMapper.getCMSheetName(selectedSheetType),
+        modifiedFileName: _generateModifiedFileName(selectedSheetType),
       );
 
-      Map<String, dynamic> collectedData =
-          collectDataForSheet(selectedSheetNumber);
-      logger.i('Collected Data for Sheet $selectedSheetNumber: $collectedData');
+      Map<String, dynamic> collectedData = _collectDataForCm(selectedSheetType);
+      logger.i('Collected Data for Sheet $selectedSheetType: $collectedData');
       Map<String, dynamic> cellMappings =
-          sheetMapper.getSheetMapping(selectedSheetNumber);
-      logger.i('Cell Mappings for Sheet $selectedSheetNumber: $cellMappings');
+          sheetMapper.getCMMapping(selectedSheetType);
+      logger.i('Cell Mappings for Sheet $selectedSheetType: $cellMappings');
 
       Map<String, String> updates = {};
       for (var entry in cellMappings.entries) {
@@ -312,91 +581,6 @@ class CmSheetPageState extends State<CmSheetPage> {
     }
   }
 
-  void _showAddToCartDialog(String spareName) {
-    final TextEditingController quantityController = TextEditingController();
-    final TextEditingController usageController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add Item to Cart'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Item: $spareName'),
-              SizedBox(height: 10),
-              TextField(
-                controller: quantityController,
-                decoration: InputDecoration(labelText: 'Quantity'),
-                keyboardType: TextInputType.number,
-              ),
-              SizedBox(height: 10),
-              TextField(
-                controller: usageController,
-                decoration: InputDecoration(labelText: 'Usage'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Add item to cart with entered details
-                int quantity = int.tryParse(quantityController.text) ??
-                    1; // Default to 1 if parsing fails
-                String usage = usageController.text;
-
-                if (quantity > 0 && usage.isNotEmpty) {
-                  _addSpareToCart(
-                      spareName, quantity, usage); // Add to cart with details
-                  Navigator.of(context).pop(); // Close dialog
-                } else {
-                  _showSnackbar(
-                      'Please enter valid quantity and usage.'); // Show error message
-                }
-              },
-              child: Text('Add'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _addSpareToCart(String spareName, int quantity, String usage) {
-    final selectedSpare = _spareData?.firstWhere(
-      (item) => item['Item name'] == spareName,
-      orElse: () => {
-        'Item name': spareName,
-        'Code': '',
-        'Cost \$': 0
-      }, // Provide a default value
-    );
-
-    if (selectedSpare != null) {
-      setState(() {
-        // Check if item is already added
-        if (!_selectedSpareItems
-            .any((item) => item.name == selectedSpare['Item name'])) {
-          _selectedSpareItems.add(SpareItem(
-            name: selectedSpare['Item name'],
-            quantity: quantity,
-            usage: usage,
-          ));
-        }
-      });
-    } else {
-      // Handle the case where the selected spare part was not found
-      _showSnackbar('Selected spare part not found.'); // Show error message
-    }
-  }
-
   void _showSnackbar(String message,
       {Duration duration = const Duration(seconds: 3)}) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -408,7 +592,10 @@ class CmSheetPageState extends State<CmSheetPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('CM Sheet', style: Theme.of(context).textTheme.titleLarge),
+        title: _isCMTypeSelected
+            ? Text(_selectedCMType ?? '',
+                style: Theme.of(context).textTheme.titleLarge)
+            : Text('CM Sheet', style: Theme.of(context).textTheme.titleLarge),
         actions: [
           TextButton(
             onPressed: () {
@@ -436,7 +623,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
+                          Navigator.of(context).pop();
                         },
                         child: Text('OK'),
                       ),
@@ -491,705 +678,703 @@ class CmSheetPageState extends State<CmSheetPage> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: _data == null
-            ? const Center(child: CircularProgressIndicator())
-            : Stepper(
-                currentStep: _currentStep,
-                type: StepperType.vertical,
-                physics: ScrollPhysics(),
-                controlsBuilder:
-                    (BuildContext context, ControlsDetails controls) {
-                  return Column(
-                    children: [
-                      SizedBox(height: 10),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: _currentStep == 0
-                                ? null
-                                : () {
-                                    controls.onStepCancel!();
-                                  },
-                            icon: Icon(Icons.arrow_back), // Back icon
-                            label: Text('Back'),
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.blue,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10), // Text color
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    30.0), // Rounded corners
-                              ),
-                            ),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: (_isTypeSelected)
-                                ? () {
-                                    if (_currentStep != 4) {
-                                      controls.onStepContinue!();
-                                    } else {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text('All Done'),
-                                            content: Text(
-                                                'Are you sure you want to proceed?'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('No'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context)
-                                                      .pushReplacement(
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          const MainScreen(),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Text('Yes'),
-                                              ),
-                                            ],
-                                          );
+      body: !_isCMTypeSelected
+          ? Center(
+              child: Text(
+              'Create New CM ...',
+              style: Theme.of(context).textTheme.titleLarge,
+            ))
+          : SafeArea(
+              child: _siteData == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : Stepper(
+                      currentStep: _currentStep,
+                      type: StepperType.horizontal,
+                      controlsBuilder:
+                          (BuildContext context, ControlsDetails controls) {
+                        return Column(
+                          children: [
+                            SizedBox(height: 10),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: _currentStep == 0
+                                      ? null
+                                      : () {
+                                          controls.onStepCancel!();
                                         },
-                                      );
-                                    }
-                                  }
-                                : null,
-                            icon: Icon(_currentStep != 4
-                                ? Icons.arrow_forward
-                                : Icons.check),
-                            label:
-                                Text(_currentStep != 4 ? 'Continue' : 'Done'),
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor:
-                                  _currentStep != 4 ? Colors.green : Colors.red,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10), // Text color
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    30.0), // Rounded corners
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-                onStepTapped: (step) {
-                  if (step != _currentStep) {
-                    setState(() {
-                      _currentStep = step;
-                    });
-                  }
-                },
-                onStepContinue: () {
-                  if (_currentStep < 4) {
-                    setState(() {
-                      stepCompleted[_currentStep] = true;
-                      _currentStep++;
-                    });
-                  }
-                },
-                onStepCancel: () {
-                  if (_currentStep > 0) {
-                    setState(() {
-                      stepCompleted[_currentStep] = false;
-                      _currentStep--;
-                    });
-                  }
-                },
-                steps: [
-                  Step(
-                    isActive: _currentStep == 0,
-                    title: Text('Corrective Type'),
-                    content: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            borderRadius: BorderRadius.circular(15),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Theme.of(context).shadowColor,
-                                blurRadius: 5,
-                                offset: Offset(1, 2),
-                              ),
-                            ],
-                            border: Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .tertiary
-                                  .withOpacity(0.5),
-                              width: 2,
-                            ),
-                          ),
-                          child: DropdownButton<String>(
-                            hint: Text('Select a CM ...',
-                                style: TextStyle(
-                                    color: Colors.grey[700], fontSize: 17)),
-                            value: _selectedCmType,
-                            isExpanded: true,
-                            underline: SizedBox(),
-                            icon: AnimatedSwitcher(
-                              duration: Duration(milliseconds: 300),
-                              transitionBuilder:
-                                  (Widget child, Animation<double> animation) {
-                                return ScaleTransition(
-                                    scale: animation, child: child);
-                              },
-                              child: _selectedCmType == null
-                                  ? Icon(Icons.arrow_drop_down,
-                                      key: ValueKey('arrow'),
-                                      color: Colors.grey[600])
-                                  : Icon(Icons.check,
-                                      key: ValueKey('check'),
-                                      color: Colors.green),
-                            ),
-                            dropdownColor: Theme.of(context).cardColor,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedCmType = newValue;
-                                selectedOption1 = null;
-                                selectedOption2 = null;
-                                selectedOption3 = null;
-                                _isTypeSelected = true;
-                              });
-                            },
-                            items: cmType
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                alignment: AlignmentDirectional.center,
-                                child: Text(
-                                  value,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.normal,
-                                      letterSpacing: 1),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        SizedBox(height: 20.0),
-                        ...CMType(_selectedCmType).cmTypeDrop(
-                          context,
-                          typeControllers,
-                          selectedOption1,
-                          selectedOption2,
-                          selectedOption3,
-                          (value) {
-                            setState(() {
-                              selectedOption1 = value;
-                            });
-                          },
-                          (value) {
-                            setState(() {
-                              selectedOption2 = value;
-                            });
-                          },
-                          (value) {
-                            setState(() {
-                              selectedOption3 = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    state: stepCompleted[0]
-                        ? StepState.complete
-                        : StepState.indexed,
-                  ),
-                  Step(
-                    isActive: _currentStep == 1,
-                    title: Text('General'),
-                    subtitle: _currentStep == 1
-                        ? Text('All Fields Are Required.')
-                        : null,
-                    content: Column(
-                      children: [
-                        const SizedBox(height: 8.0),
-                        GestureDetector(
-                          onTap: () => showSearchableDropdown(
-                            context,
-                            _siteNames,
-                            (selected) {
-                              setState(() {
-                                _updateSelectedSiteData(selected);
-                                _isTypeSelected = true;
-                              });
-                            },
-                            _searchController,
-                          ),
-                          child: AbsorbPointer(
-                            child: TextField(
-                              controller: siteController,
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.cell_tower_rounded,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                ),
-                                label: Text(
-                                  _selectedSiteData != null
-                                      ? 'Site Name:'
-                                      : 'No site selected',
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontSize: 16.0),
-                                ),
-                                filled: true,
-                                labelStyle: TextStyle(
-                                    color: ThemeControl.errorColor
-                                        .withOpacity(0.8)),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                      width: 2.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.grey, width: 1.5),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16.0, horizontal: 12.0),
-                              ),
-                              keyboardType: TextInputType.number,
-                              readOnly: true,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12.0),
-                        TextField(
-                          onTap: () => _selectDate(context),
-                          controller: _dateController,
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(
-                              Icons.calendar_month_rounded,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                            label: Text('Select Date'),
-                            filled: true,
-                            labelStyle: TextStyle(
-                                color:
-                                    ThemeControl.errorColor.withOpacity(0.8)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  width: 2.0),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.grey, width: 1.5),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 12.0),
-                          ),
-                          keyboardType: TextInputType.number,
-                          readOnly: true,
-                        ),
-                        const SizedBox(height: 12.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => _selectFromTime(context),
-                                style: OutlinedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 15.0, horizontal: 10.0),
-                                  side: BorderSide(
-                                      color: Colors.grey, width: 2.0),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
+                                  icon: Icon(Icons.arrow_back), // Back icon
+                                  label: Text('Back'),
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.blue,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 10), // Text color
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30.0), // Rounded corners
+                                    ),
                                   ),
                                 ),
-                                label: Text(
-                                  fromTime != null
-                                      ? fromTime!.format(context)
-                                      : 'Time in',
-                                ),
-                                icon: Icon(Icons.access_time_rounded,
-                                    color: fromTime != null
-                                        ? Theme.of(context).colorScheme.tertiary
-                                        : Colors.grey),
-                              ),
-                            ),
-                            SizedBox(width: 15),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => _selectToTime(context),
-                                style: OutlinedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 15.0, horizontal: 10.0),
-                                  side: BorderSide(
-                                      color: Colors.grey, width: 2.0),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
+                                ElevatedButton.icon(
+                                  onPressed: (_isSiteSelected)
+                                      ? () {
+                                          if (_currentStep != 2) {
+                                            controls.onStepContinue!();
+                                          } else {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text('All Done'),
+                                                  content: Text(
+                                                      'Are you sure you want to proceed?'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: Text('No'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pushReplacement(
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                const MainScreen(),
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: Text('Yes'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          }
+                                        }
+                                      : null,
+                                  icon: Icon(_currentStep != 2
+                                      ? Icons.arrow_forward
+                                      : Icons.check),
+                                  label: Text(
+                                      _currentStep != 2 ? 'Continue' : 'Done'),
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: _currentStep != 2
+                                        ? Colors.green
+                                        : Colors.red,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 10), // Text color
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30.0), // Rounded corners
+                                    ),
                                   ),
                                 ),
-                                label: Text(
-                                  toTime != null
-                                      ? toTime!.format(context)
-                                      : 'Time out',
-                                ),
-                                icon: Icon(
-                                  Icons.access_time_rounded,
-                                  color: toTime != null
-                                      ? Theme.of(context).colorScheme.tertiary
-                                      : Colors.grey,
-                                ),
-                              ),
-                            )
+                              ],
+                            ),
                           ],
-                        ),
-                        const SizedBox(height: 8.0),
-                        if (_selectedSiteData != null)
-                          Row(
+                        );
+                      },
+                      onStepTapped: (step) {
+                        if (step != _currentStep) {
+                          setState(() {
+                            _currentStep = step;
+                          });
+                        }
+                      },
+                      onStepContinue: () {
+                        if (_currentStep < 2) {
+                          setState(() {
+                            stepCompleted[_currentStep] = true;
+                            _currentStep++;
+                          });
+                        }
+                      },
+                      onStepCancel: () {
+                        if (_currentStep > 0) {
+                          setState(() {
+                            stepCompleted[_currentStep] = false;
+                            _currentStep--;
+                          });
+                        }
+                      },
+                      steps: [
+                        Step(
+                          isActive: _currentStep == 0,
+                          title: Text(''),
+                          content: Column(
                             children: [
-                              ...GenInput(_selectedSiteData!['sheet'])
-                                  .genInputs(context, genControllers)
-                                  .map((inputField) {
-                                return Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: inputField,
+                              GestureDetector(
+                                onTap: () => showSearchableDropdown(
+                                  context,
+                                  _siteNames,
+                                  (selected) {
+                                    setState(() {
+                                      _updateSelectedSiteData(selected);
+                                      _isSiteSelected = true;
+                                    });
+                                  },
+                                  _searchController,
+                                ),
+                                child: AbsorbPointer(
+                                  child: TextField(
+                                    controller: siteController,
+                                    decoration: InputDecoration(
+                                      prefixIcon: Icon(
+                                        Icons.cell_tower_rounded,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary,
+                                      ),
+                                      label: Text(
+                                        _selectedSiteData != null
+                                            ? 'Site Name:'
+                                            : 'No site selected',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: 16.0),
+                                      ),
+                                      filled: true,
+                                      labelStyle: TextStyle(
+                                          color: ThemeControl.errorColor
+                                              .withOpacity(0.8)),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                        borderSide: BorderSide(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                        borderSide: BorderSide(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .tertiary,
+                                            width: 2.0),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                        borderSide: const BorderSide(
+                                            color: Colors.grey, width: 1.5),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 16.0, horizontal: 12.0),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    readOnly: true,
                                   ),
-                                );
-                              }),
+                                ),
+                              ),
+                              const SizedBox(height: 12.0),
+                              TextField(
+                                onTap: () => _selectDate(context),
+                                controller: _dateController,
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.calendar_month_rounded,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                  ),
+                                  label: Text('Select Date'),
+                                  filled: true,
+                                  labelStyle: TextStyle(
+                                      color: ThemeControl.errorColor
+                                          .withOpacity(0.8)),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary,
+                                        width: 2.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.grey, width: 1.5),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 16.0, horizontal: 12.0),
+                                ),
+                                keyboardType: TextInputType.number,
+                                readOnly: true,
+                              ),
+                              const SizedBox(height: 12.0),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: () => _selectFromTime(context),
+                                      style: OutlinedButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 15.0, horizontal: 10.0),
+                                        side: BorderSide(
+                                            color: Colors.grey, width: 2.0),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                      ),
+                                      label: Text(
+                                        fromTime != null
+                                            ? fromTime!.format(context)
+                                            : 'Time in',
+                                      ),
+                                      icon: Icon(Icons.access_time_rounded,
+                                          color: fromTime != null
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .tertiary
+                                              : Colors.grey),
+                                    ),
+                                  ),
+                                  SizedBox(width: 15),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: () => _selectToTime(context),
+                                      style: OutlinedButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 15.0, horizontal: 10.0),
+                                        side: BorderSide(
+                                            color: Colors.grey, width: 2.0),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                      ),
+                                      label: Text(
+                                        toTime != null
+                                            ? toTime!.format(context)
+                                            : 'Time out',
+                                      ),
+                                      icon: Icon(
+                                        Icons.access_time_rounded,
+                                        color: toTime != null
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .tertiary
+                                            : Colors.grey,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 12.0),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      onTap: () =>
+                                          _selectEscalatedTime(context),
+                                      controller: commentsControllers[0],
+                                      decoration: InputDecoration(
+                                        prefixIcon: Icon(
+                                          Icons.trending_up_rounded,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary,
+                                        ),
+                                        label: Text('Escalated'),
+                                        filled: true,
+                                        labelStyle: TextStyle(
+                                            color: ThemeControl.errorColor
+                                                .withOpacity(0.8)),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                          borderSide: BorderSide(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                          borderSide: BorderSide(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .tertiary,
+                                              width: 2.0),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                          borderSide: const BorderSide(
+                                              color: Colors.grey, width: 1.5),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 16.0,
+                                                horizontal: 12.0),
+                                      ),
+                                      readOnly: true,
+                                    ),
+                                  ),
+                                  SizedBox(width: 45),
+                                  Checkbox(
+                                    value: isDuringPM,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        isDuringPM = value ?? false;
+                                      });
+                                      _updateEscalatedText();
+                                    },
+                                  ),
+                                  Text("During PM"),
+                                ],
+                              ),
+                              const SizedBox(height: 8.0),
+                              if (_selectedSiteData != null)
+                                Row(
+                                  children: [
+                                    ...GenInput(_selectedSiteData!['sheet'])
+                                        .genInputs(context, genControllers)
+                                        .map((inputField) {
+                                      return Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(2.0),
+                                          child: inputField,
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                ),
+                              const SizedBox(height: 8.0),
+                              if (_selectedSiteData != null)
+                                CpInput(
+                                  cpValue: _selectedSiteData!['cp'],
+                                  cpController: cpController,
+                                  kwhController: kwhController,
+                                ),
+                              const SizedBox(height: 8.0),
+                              if (_selectedSiteData != null)
+                                Row(
+                                  children: [
+                                    ...TankInput(_selectedSiteData!['sheet'])
+                                        .tankInputs(context, tankControllers)
+                                        .map((inputField) {
+                                      return Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(2.0),
+                                          child: inputField,
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                ),
                             ],
                           ),
-                        const SizedBox(height: 8.0),
-                        if (_selectedSiteData != null)
-                          CpInput(
-                            cpValue: _selectedSiteData!['cp'],
-                            cpController: cpController,
-                            kwhController: kwhController,
-                          ),
-                        const SizedBox(height: 8.0),
-                        if (_selectedSiteData != null)
-                          Row(
+                          state: stepCompleted[0]
+                              ? StepState.complete
+                              : StepState.indexed,
+                        ),
+                        Step(
+                          isActive: _currentStep == 1,
+                          title: Text(''),
+                          content: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              ...TankInput(_selectedSiteData!['sheet'])
-                                  .tankInputs(context, tankControllers)
-                                  .map((inputField) {
-                                return Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: inputField,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  OutlinedButton.icon(
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedSpareItems.clear();
+                                      });
+                                    },
+                                    icon: Icon(Icons.clear, size: 16),
+                                    label: Text('Clear'),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .secondary, // Use theme color
+                                    ),
                                   ),
-                                );
-                              }),
-                            ],
-                          ),
-                      ],
-                    ),
-                    state: stepCompleted[1]
-                        ? StepState.complete
-                        : StepState.indexed,
-                  ),
-                  Step(
-                    isActive: _currentStep == 2,
-                    title: Text('Items'),
-                    content: Column(
-                      children: [
-                        SizedBox(height: 10),
-                        IconButton(
-                          onPressed: () => showSearchableDropdown(
-                            context,
-                            _spareNames,
-                            (selected) {
-                              _showAddToCartDialog(
-                                  selected); // Show dialog for quantity and usage
-                            },
-                            _searchSpareController,
-                          ),
-                          icon: Icon(Icons.add),
-                        ),
-                        // IconButton(
-                        //     onPressed: () {
-                        //       Navigator.of(context).push(MaterialPageRoute(
-                        //         builder: (context) => CartScreen(
-                        //           themeMode: themeControl.themeMode,
-                        //           onThemeChanged: (value) {
-                        //             themeControl.toggleTheme(value);
-                        //           },
-                        //         ),
-                        //       ));
-                        //     },
-                        //     icon: Icon(Icons.roundabout_left)),
-                        GestureDetector(
-                          onTap: () => showSearchableDropdown(
-                            context,
-                            _spareNames,
-                            (selected) {
-                              setState(() {
-                                _updateSelectedSpareData(selected);
-                                _isTypeSelected = true;
-                              });
-                            },
-                            _searchSpareController,
-                          ),
-                          child: AbsorbPointer(
-                            child: TextField(
-                              controller: spareController,
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.cell_tower_rounded,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                ),
-                                label: Text(
-                                  _selectedSpareData != null
-                                      ? 'Spare Name:'
-                                      : 'No spare selected',
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontSize: 16.0),
-                                ),
-                                filled: true,
-                                labelStyle: TextStyle(
-                                    color: ThemeControl.errorColor
-                                        .withOpacity(0.8)),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                      width: 2.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.grey, width: 1.5),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16.0, horizontal: 12.0),
-                              ),
-                              keyboardType: TextInputType.number,
-                              readOnly: true,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10), // Spacing between widgets
-                      ],
-                    ),
-                    state: stepCompleted[2]
-                        ? StepState.complete
-                        : StepState.indexed,
-                  ),
-                  Step(
-                    isActive: _currentStep == 3,
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(child: Text('Comments')),
-                      ],
-                    ),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        buildCommentField(
-                            'Comment 1', commentsControllers[0], context),
-                        buildCommentField(
-                            'Comment 2', commentsControllers[1], context),
-                        SizedBox(height: 10),
-                        DropdownButton<String>(
-                          hint: Text(
-                            'Engineer Name..',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ), // Placeholder text
-                          value: _selectedEngineerName,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedEngineerName = newValue;
-                            });
-                          },
-                          items: engineerNames
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                value,
-                                style:
-                                    Theme.of(context).textTheme.headlineLarge,
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        DropdownButton<String>(
-                          hint: Text(
-                            'Tech Name..',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ), // Placeholder text
-                          value: _selectedTechName,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedTechName = newValue;
-                            });
-                          },
-                          items: techNames
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                value,
-                                style:
-                                    Theme.of(context).textTheme.headlineLarge,
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                    state: stepCompleted[3]
-                        ? StepState.complete
-                        : StepState.indexed,
-                  ),
-                  Step(
-                    isActive: _currentStep == 4,
-                    title: Text('Submit'),
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: _isLoading
-                                    ? null
-                                    : () async {
+                                  SizedBox(width: 8),
+                                  ElevatedButton.icon(
+                                    onPressed: () =>
+                                        showCombinedSearchableDropdown(
+                                      context,
+                                      _spareData ?? [],
+                                      _searchController,
+                                      (selected) {
                                         setState(() {
-                                          _isLoading = true; // Start loading
+                                          if (_spareNames.contains(selected)) {
+                                            _updateSelectedSpareName(selected);
+                                          } else if (_spareCode
+                                              .contains(selected)) {
+                                            _updateSelectedSpareCode(selected);
+                                          }
                                         });
+                                      },
+                                    ),
+                                    icon: Icon(Icons.add, size: 16),
+                                    label: Text('Add Item'),
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor:
+                                          Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.55,
+                                child: _selectedSpareItems.isNotEmpty
+                                    ? ListView.builder(
+                                        itemCount: _selectedSpareItems.length,
+                                        itemBuilder: (context, index) {
+                                          final item =
+                                              _selectedSpareItems[index];
+                                          return _buildItemCard(item, index);
+                                        },
+                                      )
+                                    : Center(child: Text('No items selected')),
+                              ),
+                            ],
+                          ),
+                          state: stepCompleted[1]
+                              ? StepState.complete
+                              : StepState.indexed,
+                        ),
+                        Step(
+                          isActive: _currentStep == 2,
+                          title: Text(''),
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildCommentField(
+                                  'Comment 1', commentsControllers[1], context),
+                              buildCommentField(
+                                  'Comment 2', commentsControllers[2], context),
+                              SizedBox(height: 10),
+                              DropdownButton<String>(
+                                isExpanded: true,
+                                hint: Text(
+                                  'Engineer Name..',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ), // Placeholder text
+                                value: _selectedEngName,
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _selectedEngName = newValue;
+                                  });
+                                },
+                                items: engNames.map<DropdownMenuItem<String>>(
+                                    (String value) {
+                                  return DropdownMenuItem<String>(
+                                    alignment: Alignment.center,
+                                    value: value,
+                                    child: Text(
+                                      value,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineLarge,
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                              DropdownButton<String>(
+                                isExpanded: true,
+                                hint: Text(
+                                  'Tech Name..',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ), // Placeholder text
+                                value: _selectedTechName,
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _selectedTechName = newValue;
+                                  });
+                                },
+                                items: techNames.map<DropdownMenuItem<String>>(
+                                    (String value) {
+                                  return DropdownMenuItem<String>(
+                                    alignment: Alignment.center,
+                                    value: value,
+                                    child: Text(
+                                      value,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineLarge,
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: _isLoading
+                                          ? null
+                                          : () async {
+                                              setState(() {
+                                                _isLoading =
+                                                    true; // Start loading
+                                              });
 
-                                        try {
-                                          await _submitData();
-                                          if (!context.mounted) return;
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  '/PowerDiyala/${_collectData()['siteName']}'),
-                                            ),
-                                          );
-                                        } catch (error) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  'Error submitting data: $error'),
-                                            ),
-                                          );
-                                        } finally {
-                                          setState(() {
-                                            _isLoading = false; // Stop loading
-                                          });
+                                              try {
+                                                await _submitData();
+                                                if (!context.mounted) return;
+                                                _showSnackbar(
+                                                  '/PowerDiyala/${_generateModifiedFileName(_selectedCMType ?? 'Generator')}',
+                                                );
+                                              } catch (error) {
+                                                _showSnackbar(
+                                                    'Error submitting data: $error');
+                                              } finally {
+                                                setState(() {
+                                                  _isLoading =
+                                                      false; // Stop loading
+                                                });
+                                              }
+                                            },
+                                      onLongPress: () {
+                                        if (_selectedSiteData != null &&
+                                            _selectedSiteData!['sheet'] !=
+                                                null) {
+                                          String selectedSheetType =
+                                              _selectedCMType!;
+                                          Map<String, dynamic> data =
+                                              _collectDataForCm(
+                                                  selectedSheetType);
+
+                                          displayData(data);
+                                        } else {
+                                          if (kDebugMode) {
+                                            print(
+                                                'Invalid site data or sheet selection.');
+                                          }
                                         }
                                       },
-                                onLongPress: () {
-                                  if (_selectedSiteData != null &&
-                                      _selectedSiteData!['sheet'] != null) {
-                                    int selectedSheetNumber = int.tryParse(
-                                            _selectedSiteData!['sheet']
-                                                .toString()) ??
-                                        1;
-                                    Map<String, dynamic> data =
-                                        collectDataForSheet(
-                                            selectedSheetNumber);
-
-                                    displayData(data);
-                                  } else {
-                                    if (kDebugMode) {
-                                      print(
-                                          'Invalid site data or sheet selection.');
-                                    }
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.black,
-                                  backgroundColor: Color(0xff69F0AE),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        30.0), // Rounded corners
+                                      style: ElevatedButton.styleFrom(
+                                        foregroundColor: Colors.black,
+                                        backgroundColor: Color(0xff69F0AE),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 20, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30.0),
+                                        ),
+                                      ),
+                                      child: _isLoading
+                                          ? Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    color: Colors.black,
+                                                    strokeWidth: 2,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 10),
+                                                Text('Submitting...'),
+                                              ],
+                                            )
+                                          : Text('Submit'),
+                                    ),
                                   ),
-                                ),
-                                child: _isLoading
-                                    ? Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.black,
-                                              strokeWidth: 2,
-                                            ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          Text('Submitting...'),
-                                        ],
-                                      )
-                                    : Text('Submit'),
+                                ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                          state: stepCompleted[2]
+                              ? StepState.complete
+                              : StepState.indexed,
                         ),
-                        ..._collectData().entries.map((entry) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Text('${entry.key}: ${entry.value}'),
-                          );
-                        }),
                       ],
                     ),
-                    state: stepCompleted[4]
-                        ? StepState.complete
-                        : StepState.indexed,
+            ),
+      floatingActionButton: _isCMTypeSelected
+          ? null
+          : Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: Theme.of(context).secondaryHeaderColor,
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 7,
+                    offset: Offset(0, 3),
                   ),
                 ],
               ),
-      ),
+              child: SpeedDial(
+                animatedIcon: AnimatedIcons.add_event,
+                overlayColor: Colors.black,
+                overlayOpacity: 0.5,
+                spacing: 10,
+                spaceBetweenChildren: 10,
+                children: [
+                  SpeedDialChild(
+                    shape: CircleBorder(),
+                    child:
+                        Icon(Icons.g_mobiledata_rounded, color: Colors.white),
+                    backgroundColor: Colors.green,
+                    label: 'Generator',
+                    onTap: () => _showCMTypeDialog("Generator"),
+                  ),
+                  SpeedDialChild(
+                    shape: CircleBorder(),
+                    child:
+                        Icon(Icons.electric_bolt_rounded, color: Colors.white),
+                    backgroundColor: Colors.red,
+                    label: 'Electric',
+                    onTap: () => _showCMTypeDialog("Electric"),
+                  ),
+                  SpeedDialChild(
+                    shape: CircleBorder(),
+                    child: Icon(Icons.ac_unit, color: Colors.white),
+                    backgroundColor: Colors.green,
+                    label: 'AC',
+                    onTap: () => _showCMTypeDialog("AC"),
+                  ),
+                  SpeedDialChild(
+                    shape: CircleBorder(),
+                    child: Icon(Icons.construction, color: Colors.white),
+                    backgroundColor: Colors.red,
+                    label: 'Civil',
+                    onTap: () => _showCMTypeDialog("Civil"),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
@@ -1264,12 +1449,74 @@ class CmSheetPageState extends State<CmSheetPage> {
       ],
     );
   }
-}
 
-class SpareItem {
-  final String name;
-  int quantity;
-  String usage;
+  Widget _buildItemCard(SpareItem item, int index) {
+    return Card(
+      elevation: 4.0,
+      margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: ListTile(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              item.name,
+              style: TextStyle(fontSize: 18),
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              item.code,
+              style:
+                  Theme.of(context).listTileTheme.leadingAndTrailingTextStyle,
+            ),
+          ],
+        ),
+        subtitle: _buildItemSubtitle(item, index),
+      ),
+    );
+  }
 
-  SpareItem({required this.name, required this.quantity, required this.usage});
+  Widget _buildItemSubtitle(SpareItem item, int index) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        UsedForHelper(
+          cmType: _selectedCMType!,
+          onSelected: (usage, where, _) {
+            if (kDebugMode) {
+              print('Updating usage: $usage');
+              print('Updating where: $where');
+            }
+
+            setState(() {
+              _selectedSpareItems[index] = _selectedSpareItems[index].copyWith(
+                  usage: usage ?? _selectedSpareItems[index].usage,
+                  where: where ?? _selectedSpareItems[index].where);
+            });
+          },
+        ),
+        SizedBox(width: 30),
+        SizedBox(
+          width: 60,
+          child: QuantitySelector(
+            initialQuantity: item.quantity,
+            onQuantityChanged: (newQuantity) {
+              setState(() {
+                _selectedSpareItems[index] =
+                    item.copyWith(quantity: newQuantity);
+              });
+            },
+            onDelete: () {
+              setState(() {
+                _selectedSpareItems.removeAt(index);
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
 }
