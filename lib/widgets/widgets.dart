@@ -23,7 +23,7 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
                 TextField(
                   controller: searchController,
                   decoration: InputDecoration(
-                    labelText: 'Search Site Name',
+                    labelText: 'Search',
                     labelStyle: TextStyle(
                         color: Theme.of(context).colorScheme.onSecondary),
                     floatingLabelStyle:

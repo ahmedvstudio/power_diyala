@@ -308,7 +308,7 @@ class CmSheetPageState extends State<CmSheetPage> {
       'location': _selectedSiteData?['Location'] ?? '',
       'date': _dateController.text,
       'time':
-          'Time in: ${fromTime?.format(context) ?? ''} & Time out: ${fromTime?.format(context) ?? ''}',
+          'Time in: ${fromTime?.format(context) ?? ''} & Time out: ${toTime?.format(context) ?? ''}',
       'escalated': _commentsControllers[0].text,
       'G1': _genControllers[0].text,
       'G2': _genControllers[1].text,
