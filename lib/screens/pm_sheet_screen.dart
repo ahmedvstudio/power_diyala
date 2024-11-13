@@ -419,25 +419,10 @@ class PmSheetPageState extends State<PmSheetPage> {
       'LP': acOtherController[2].text,
       '-----------------': '----------------',
       //step5
-      'gen earth': (_selectedSiteData?['earth'] == 'Yes')
-          ? groundControllers[0].text
-          : '0',
-
-      'tel earth': _selectedSiteData?['earth'] == 'No'
-          ? '0'
-          : (_selectedSiteData?['earth'] == 'Yes'
-              ? (groundControllers[1].text)
-              : 'N/A'),
-      'leg earth': _selectedSiteData?['earth'] == 'No'
-          ? '0'
-          : (_selectedSiteData?['earth'] == 'Yes'
-              ? (groundControllers[3].text)
-              : 'N/A'),
-      'light earth': _selectedSiteData?['earth'] == 'No'
-          ? '0'
-          : (_selectedSiteData?['earth'] == 'Yes'
-              ? (groundControllers[2].text)
-              : 'N/A'),
+      'gen earth': isEarthEnabled ? groundControllers[0].text : '0',
+      'tel earth': isEarthEnabled ? groundControllers[1].text : '0',
+      'leg earth': isEarthEnabled ? groundControllers[3].text : '0',
+      'light earth': isEarthEnabled ? groundControllers[2].text : '0',
       'owner load': externalLoadControllers[0].text,
       'neighbor load': externalLoadControllers[1].text,
       '3rd load': externalLoadControllers[2].text,
@@ -552,9 +537,8 @@ class PmSheetPageState extends State<PmSheetPage> {
     setState(() {
       commentsControllers[0].text = baseText;
 
-      // Initialize a variable to build the comment text
       String commentText = "";
-      if (_selectedSiteData!['earth'] == 'No') {
+      if (!isEarthEnabled) {
         logger.i("Earth is No");
         commentText += "The Site without a point of ground measurement /";
       } else {
@@ -567,7 +551,7 @@ class PmSheetPageState extends State<PmSheetPage> {
       }
 
       // Set the final comment text to commentsControllers[4]
-      commentsControllers[4].text = commentText; // Combine A and B
+      commentsControllers[4].text = commentText;
     });
   }
 
@@ -793,7 +777,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                   );
                 },
                 onStepTapped: (step) {
-                  if (step == _currentStep) {
+                  if (step != _currentStep) {
                     setState(() {
                       _currentStep = step;
                     });
@@ -1126,6 +1110,11 @@ class PmSheetPageState extends State<PmSheetPage> {
                             batteryTestControllers: batteryTestControllers,
                             isBatteryTestEnabled: isBatteryTestEnabled,
                             isEarthEnabled: isEarthEnabled,
+                            onEarthEnabledChanged: (value) {
+                              setState(() {
+                                isEarthEnabled = value;
+                              });
+                            },
                             onBatteryTestEnabledChanged: (bool value) {
                               setState(() {
                                 isBatteryTestEnabled = value;

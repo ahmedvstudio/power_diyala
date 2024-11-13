@@ -10,6 +10,7 @@ class EarthInputFields extends StatefulWidget {
   final bool isBatteryTestEnabled;
   final ValueChanged<bool> onBatteryTestEnabledChanged;
   final bool isEarthEnabled;
+  final ValueChanged<bool> onEarthEnabledChanged;
 
   const EarthInputFields({
     super.key,
@@ -20,6 +21,7 @@ class EarthInputFields extends StatefulWidget {
     required this.isBatteryTestEnabled,
     required this.onBatteryTestEnabledChanged,
     required this.isEarthEnabled,
+    required this.onEarthEnabledChanged,
   });
 
   @override
@@ -29,7 +31,6 @@ class EarthInputFields extends StatefulWidget {
 class EarthInputFieldsState extends State<EarthInputFields> {
   final Logger logger = Logger(printer: PrettyPrinter());
 
-  // Text controllers for different sections
   final TextEditingController _genfController = TextEditingController();
   final TextEditingController _telController = TextEditingController();
   final TextEditingController _legsController = TextEditingController();
@@ -41,7 +42,6 @@ class EarthInputFieldsState extends State<EarthInputFields> {
   final TextEditingController _endDCController = TextEditingController();
   final TextEditingController _fireController = TextEditingController();
 
-  // Toggles for enabling/disabling sections
   bool isBatteryTestEnabled = false;
   bool isExternalLoadEnabled = false;
   bool isEarthEnabled = false;
@@ -83,9 +83,20 @@ class EarthInputFieldsState extends State<EarthInputFields> {
       ),
       child: Column(
         children: [
-          Text(
-            'Earth Readings',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Earth Readings',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Switch(
+                value: widget.isEarthEnabled,
+                onChanged: (bool value) {
+                  widget.onEarthEnabledChanged(value); // Use the callback
+                },
+              ),
+            ],
           ),
           SizedBox(height: 5),
           Row(
@@ -118,7 +129,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                           const BorderSide(color: Colors.grey, width: 1.5),
                     ),
                   ),
-                  enabled: widget.isEarthEnabled, // Control enabled state
+                  enabled: widget.isEarthEnabled,
                 ),
               ),
               SizedBox(width: 8),
@@ -186,10 +197,10 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                           const BorderSide(color: Colors.grey, width: 1.5),
                     ),
                   ),
-                  enabled: widget.isEarthEnabled, // Control enabled state
+                  enabled: widget.isEarthEnabled,
                 ),
               ),
-              SizedBox(width: 8), // Add some space between the two text fields
+              SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: widget.groundControllers[3],
@@ -218,7 +229,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                           const BorderSide(color: Colors.grey, width: 1.5),
                     ),
                   ),
-                  enabled: widget.isEarthEnabled, // Control enabled state
+                  enabled: widget.isEarthEnabled,
                 ),
               ),
             ],
@@ -285,7 +296,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                           const BorderSide(color: Colors.grey, width: 1.5),
                     ),
                   ),
-                  enabled: isExternalLoadEnabled, // Control enabled state
+                  enabled: isExternalLoadEnabled,
                 ),
               ),
               SizedBox(width: 3),
@@ -313,7 +324,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         borderSide:
                             const BorderSide(color: Colors.grey, width: 1.5)),
                   ),
-                  enabled: isExternalLoadEnabled, // Control enabled state
+                  enabled: isExternalLoadEnabled,
                 ),
               ),
               SizedBox(width: 3),
@@ -340,7 +351,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                         borderSide:
                             const BorderSide(color: Colors.grey, width: 1.5)),
                   ),
-                  enabled: isExternalLoadEnabled, // Control enabled state
+                  enabled: isExternalLoadEnabled,
                 ),
               ),
             ],
@@ -405,7 +416,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                           const BorderSide(color: Colors.grey, width: 1.5),
                     ),
                   ),
-                  enabled: widget.isBatteryTestEnabled, // Control enabled state
+                  enabled: widget.isBatteryTestEnabled,
                 ),
               ),
               SizedBox(width: 8),
@@ -437,7 +448,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                           const BorderSide(color: Colors.grey, width: 1.5),
                     ),
                   ),
-                  enabled: widget.isBatteryTestEnabled, // Control enabled state
+                  enabled: widget.isBatteryTestEnabled,
                 ),
               ),
             ],
@@ -485,7 +496,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
   @override
   Widget build(BuildContext context) {
     if (widget.selectedSiteData == null) {
-      return Container(); // Return empty if null
+      return Container();
     }
 
     return Column(
