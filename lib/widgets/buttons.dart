@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:power_diyala/settings/download_data.dart';
 import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
@@ -65,8 +66,17 @@ class ResetTextButton extends StatelessWidget {
           SystemNavigator.pop(); // This will exit the app
         }
       },
-      onLongPress: () {
-        updateDatabase();
+      onLongPress: () async {
+        // Show password dialog before updating the database
+        bool passwordCorrect = await _showPasswordDialog(context);
+        if (passwordCorrect) {
+          await updateDatabase(); // Call the updateDatabase method
+          _showToast("Database updated successfully.");
+          await Future.delayed(const Duration(seconds: 3));
+          SystemNavigator.pop(); // Close the app
+        } else {
+          _showToast("Incorrect password. Update canceled.");
+        }
       },
       child: const Text(
         'Reset',
@@ -159,4 +169,92 @@ void _showUpdateDialog(BuildContext context, String latestVersion) {
       );
     },
   );
+}
+
+Future<bool> _showPasswordDialog(BuildContext context) async {
+  String password = dotenv.env['DRIVE_PASSWORD'] ?? "";
+  return await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          final TextEditingController controller = TextEditingController();
+          bool isObscured = true;
+          return AlertDialog(
+            title: const Text('Enter Password'),
+            content: StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: controller,
+                      obscureText: isObscured,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .error
+                                .withOpacity(0.8)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.secondary),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.tertiary,
+                            width: 2.0,
+                          ),
+                        ),
+                        filled: true,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide:
+                              const BorderSide(color: Colors.grey, width: 1.5),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16.0, horizontal: 12.0),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            isObscured
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Theme.of(context).colorScheme.secondary,
+                            size: 18,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isObscured = !isObscured;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text('Confirm'),
+                onPressed: () {
+                  if (controller.text == password) {
+                    Navigator.of(context).pop(true);
+                  } else {
+                    Navigator.of(context).pop(false);
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      ) ??
+      false;
 }

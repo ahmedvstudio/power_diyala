@@ -23,6 +23,7 @@ Future<Map<String, dynamic>> fetchAndActivate() async {
     'isBannerON': false,
     'bannerText': "",
     'bannerTitle': "",
+    'database_download_id': 'default_id',
   });
 
   try {
@@ -38,6 +39,7 @@ Future<Map<String, dynamic>> fetchAndActivate() async {
       print('Banner==> ${remoteConfig.getBool('isBannerON')}');
       print('Banner Title==> ${remoteConfig.getString('bannerTitle')}');
       print('Banner Text==> ${remoteConfig.getString('bannerText')}');
+      print('ID==> ${remoteConfig.getString('database_download_id')}');
     }
     // Get the fetched values in a map
     final configValues = {
@@ -50,6 +52,7 @@ Future<Map<String, dynamic>> fetchAndActivate() async {
       'isBannerON': remoteConfig.getBool('isBannerON'),
       'bannerText': remoteConfig.getString('bannerText'),
       'bannerTitle': remoteConfig.getString('bannerTitle'),
+      'database_download_id': remoteConfig.getString('database_download_id'),
     };
 
     // Save the fetched values locally
@@ -77,7 +80,8 @@ Future<void> _saveToLocal(Map<String, dynamic> configValues) async {
   await prefs.setBool('isCMsheetON', configValues['isCMsheetON']);
   await prefs.setBool('isBannerON', configValues['isBannerON']);
   await prefs.setString('bannerText', configValues['bannerText']);
-  await prefs.setString('bannerTitle', configValues['bannerTitle']);
+  await prefs.setString(
+      'database_download_id', configValues['database_download_id']);
 }
 
 // Method to load config values from SharedPreferences
@@ -93,5 +97,7 @@ Future<Map<String, dynamic>> _loadFromLocal() async {
     'isBannerON': prefs.getBool('isBannerON') ?? false,
     'bannerText': prefs.getString('bannerText') ?? "",
     'bannerTitle': prefs.getString('bannerTitle') ?? "",
+    'database_download_id':
+        prefs.getString('database_download_id') ?? "default_id",
   };
 }

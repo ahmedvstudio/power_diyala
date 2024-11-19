@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 
 final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 
@@ -12,24 +13,18 @@ Future<bool> _checkPermissions() async {
   PermissionStatus storageStatus;
 
   if (Platform.isAndroid) {
-    // Use DeviceInfoPlugin to get Android version
     final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     final AndroidDeviceInfo info = await deviceInfoPlugin.androidInfo;
 
-    // Request appropriate permissions based on SDK version
     if (info.version.sdkInt >= 33) {
-      // Request manage external storage permission for Android 13+
       storageStatus = await Permission.manageExternalStorage.request();
     } else {
-      // Request storage permission for older Android versions
       storageStatus = await Permission.storage.request();
     }
   } else {
-    // For non-Android platforms, request storage permission
     storageStatus = await Permission.storage.request();
   }
 
-  // Handle the result of the permission request
   if (storageStatus.isGranted) {
     return true;
   } else if (storageStatus.isDenied) {
@@ -43,6 +38,20 @@ Future<bool> _checkPermissions() async {
   return false;
 }
 
+Future<String> _fetchDownloadId() async {
+  final remoteConfig = FirebaseRemoteConfig.instance;
+
+  // Set default values for remote config
+  await remoteConfig.setDefaults({
+    'database_download_id': 'default_id', // Default value
+  });
+
+  // Fetch and activate remote config values
+  await remoteConfig.fetchAndActivate();
+
+  return remoteConfig.getString('database_download_id');
+}
+
 Future<void> updateDatabase() async {
   // Check permissions before proceeding
   if (!await _checkPermissions()) {
@@ -50,9 +59,11 @@ Future<void> updateDatabase() async {
   }
 
   try {
-    // Direct download link from Google Drive
-    final url =
-        'https://drive.google.com/uc?export=download&id=1rXhw07eodsbvK9iUvBFsgbwXLKCvzcBj';
+    // Fetch the dynamic download ID from Remote Config
+    String downloadId = await _fetchDownloadId();
+
+    // Direct download link from Google Drive using the fetched ID
+    final url = 'https://drive.google.com/uc?export=download&id=$downloadId';
 
     // Download the file
     final response = await http.get(Uri.parse(url));
