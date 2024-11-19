@@ -133,8 +133,7 @@ class CmSheetPageState extends State<CmSheetPage> {
         _siteData?.firstWhere((item) => item['site'] == siteName);
     setState(() {
       _selectedSiteData = selectedSite;
-      siteController.text =
-          siteName; // Update the site controller with the selected site name
+      siteController.text = siteName;
     });
   }
 
@@ -500,6 +499,8 @@ class CmSheetPageState extends State<CmSheetPage> {
         return '$siteName AC';
       case 'Civil':
         return '$siteName Civil';
+      case 'Site Management':
+        return '$siteName SM';
       default:
         return siteName;
     }
@@ -1338,6 +1339,14 @@ class CmSheetPageState extends State<CmSheetPage> {
                     backgroundColor: Colors.red,
                     label: 'Civil',
                     onTap: () => _showCMTypeDialog("Civil"),
+                  ),
+                  SpeedDialChild(
+                    shape: CircleBorder(),
+                    child: Icon(Icons.manage_accounts_rounded,
+                        color: Colors.white),
+                    backgroundColor: Colors.green,
+                    label: 'Site Management',
+                    onTap: () => _showCMTypeDialog("Site Management"),
                   ),
                 ],
               ),

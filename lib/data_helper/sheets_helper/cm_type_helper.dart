@@ -80,8 +80,13 @@ class CMTypeDialog {
         options2 = ['Civil work'];
         options3 = ['Civil'];
         break;
+      case 'Site Management':
+        options1 = ['Site Management'];
+        options2 = ['Corrective'];
+        options3 = ['Planned', 'Respond to Alarm', '3rd Party Related'];
+        break;
       default:
-        return; // Invalid type
+        return;
     }
 
     showDialog(

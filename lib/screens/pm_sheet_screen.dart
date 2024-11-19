@@ -1100,6 +1100,16 @@ class PmSheetPageState extends State<PmSheetPage> {
                   Step(
                     isActive: _currentStep == 4,
                     title: Text('Earth & External load'),
+                    subtitle: _currentStep == 4
+                        ? Column(
+                            children: [
+                              Text(
+                                'Don\'t Switch Earth & External Load Unless its Showing Wrong Data.',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          )
+                        : null,
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [

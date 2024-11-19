@@ -16,6 +16,7 @@ import 'package:power_diyala/screens/spms_screen.dart';
 import 'package:power_diyala/screens/teams_screen.dart';
 import 'package:power_diyala/settings/remote_config.dart';
 import 'package:power_diyala/settings/theme_control.dart';
+import 'package:power_diyala/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   bool isBannerON = false;
   String bannerText = "";
   String bannerTitle = "";
-  bool check = true;
+  bool check = false;
   final List<String> labels = [
     "Calculator",
     "Teams",
@@ -95,9 +96,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     themeControl.toggleTheme(value);
                   },
                 )
-              : Center(
-                  child: Text('Not available'),
-                );
+              : NotAvailableWidget();
         },
       ),
     );
@@ -111,9 +110,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     themeControl.toggleTheme(value);
                   },
                 )
-              : Center(
-                  child: Text('Not available'),
-                );
+              : NotAvailableWidget();
         },
       ),
     );
@@ -128,9 +125,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     themeControl.toggleTheme(value);
                   },
                 )
-              : Center(
-                  child: Text('Not available'),
-                );
+              : NotAvailableWidget();
         },
       ),
     );
@@ -144,9 +139,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     themeControl.toggleTheme(value);
                   },
                 )
-              : Center(
-                  child: Text('Not available'),
-                );
+              : NotAvailableWidget();
         },
       ),
     );

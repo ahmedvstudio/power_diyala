@@ -1,6 +1,7 @@
 import 'package:power_diyala/settings/theme_control.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lottie/lottie.dart';
 
 void showSearchableDropdown(BuildContext context, List<String> siteNames,
     Function(String) onSelected, TextEditingController searchController) {
@@ -250,4 +251,19 @@ Column buildValueColumn(
       ),
     ],
   );
+}
+
+class NotAvailableWidget extends StatelessWidget {
+  const NotAvailableWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Center(
+        child: Lottie.asset('assets/website-maintenance.json'),
+      ),
+    );
+  }
 }
