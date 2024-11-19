@@ -1,7 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:power_diyala/data_helper/calc_table_helper.dart';
+import 'package:power_diyala/firebase_options.dart';
 import 'package:power_diyala/screens/stepper.dart';
 import 'package:flutter/material.dart';
+import 'package:power_diyala/settings/remote_config.dart';
 import 'package:provider/provider.dart';
 import 'settings/theme_control.dart';
 
@@ -15,7 +18,8 @@ Future<void> main() async {
   } catch (e) {
     logger.e('Error loading .env file: $e');
   }
-
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await fetchAndActivate();
   runApp(const MyApp());
 }
 

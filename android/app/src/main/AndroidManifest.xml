@@ -15,7 +15,8 @@
         android:label="Power"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true">
+        android:requestLegacyExternalStorage="true"
+        android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -39,6 +40,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2"/>
+
+
     </application>
 
     <queries>

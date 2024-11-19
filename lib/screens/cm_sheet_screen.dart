@@ -182,15 +182,15 @@ class CmSheetPageState extends State<CmSheetPage> {
     final List<String> combinedList = spareData.map((item) {
       String itemName = item['Item name'] as String;
       String itemCode = item['Code'] as String;
-      return '$itemCode - $itemName';
+      return '$itemCode -- $itemName';
     }).toList();
 
     showSearchableDropdown(
       context,
       combinedList,
       (selected) {
-        String itemName = selected.split(' - ')[1];
-        String itemCode = selected.split(' - ')[0];
+        String itemName = selected.split(' -- ')[1];
+        String itemCode = selected.split(' -- ')[0];
 
         if (itemName.isNotEmpty) {
           if (_selectedSpareItems.length < 15) {
@@ -1432,7 +1432,8 @@ class CmSheetPageState extends State<CmSheetPage> {
               item.name,
               style: TextStyle(fontSize: 18),
               softWrap: true,
-              overflow: TextOverflow.ellipsis,
+              overflow: TextOverflow.visible,
+              maxLines: null,
             ),
             Text(
               item.code,

@@ -45,3 +45,6 @@ app.*.map.json
 /assets/excel/
 /assets/powerdiyala.json
 /android/app/src/google-services.json
+/firebase.json
+/lib/firebase_options.dart
+/flutter_jank_metrics_01.json
