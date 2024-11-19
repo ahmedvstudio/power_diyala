@@ -14,9 +14,7 @@ import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
 import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
 import 'package:power_diyala/screens/main_screen.dart';
-import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/settings/theme_control.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class CmSheetPage extends StatefulWidget {
   final ThemeMode themeMode;
@@ -261,8 +259,13 @@ class CmSheetPageState extends State<CmSheetPage> {
 
     if (picked != null) {
       setState(() {
+        String period = picked.hour >= 12 ? 'PM' : 'AM';
+        int hour = picked.hour % 12;
+        hour = hour == 0 ? 12 : hour;
+
         String formattedTime =
-            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+            '${hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} $period';
+
         _commentsControllers[0].text = formattedTime;
       });
     }
@@ -565,46 +568,6 @@ class CmSheetPageState extends State<CmSheetPage> {
                 style: Theme.of(context).textTheme.titleLarge)
             : Text('CM Sheet', style: Theme.of(context).textTheme.titleLarge),
         actions: [
-          TextButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Beta Feature'),
-                    content: Text(
-                        'This feature is under testing.\nfeel free to report a problem.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                          const url = reportIssue;
-                          if (await canLaunchUrl(Uri.parse(url))) {
-                            await launchUrl(Uri.parse(url),
-                                mode: LaunchMode.externalApplication);
-                          } else {}
-                        },
-                        child: Text(
-                          'Report',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            child: Text(
-              'Beta',
-              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-            ),
-          ),
           IconButton(
             onPressed: () {
               showDialog(
@@ -642,7 +605,6 @@ class CmSheetPageState extends State<CmSheetPage> {
             },
             icon: Icon(Icons.restart_alt_rounded),
             tooltip: 'Reset',
-            color: Colors.red,
           ),
         ],
       ),
@@ -1140,8 +1102,10 @@ class CmSheetPageState extends State<CmSheetPage> {
                             children: [
                               buildCommentField('Comment 1',
                                   _commentsControllers[1], context),
-                              buildCommentField('Comment 2',
-                                  _commentsControllers[2], context),
+                              if (_selectedCMType == 'Generator' ||
+                                  _selectedCMType == 'AC')
+                                buildCommentField('Comment 2',
+                                    _commentsControllers[2], context),
                               SizedBox(height: 10),
                               DropdownButton<String>(
                                 isExpanded: true,
@@ -1329,14 +1293,14 @@ class CmSheetPageState extends State<CmSheetPage> {
                   SpeedDialChild(
                     shape: CircleBorder(),
                     child: Icon(Icons.ac_unit, color: Colors.white),
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.blue,
                     label: 'AC',
                     onTap: () => _showCMTypeDialog("AC"),
                   ),
                   SpeedDialChild(
                     shape: CircleBorder(),
                     child: Icon(Icons.construction, color: Colors.white),
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.indigoAccent,
                     label: 'Civil',
                     onTap: () => _showCMTypeDialog("Civil"),
                   ),
@@ -1344,7 +1308,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                     shape: CircleBorder(),
                     child: Icon(Icons.manage_accounts_rounded,
                         color: Colors.white),
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.brown,
                     label: 'Site Management',
                     onTap: () => _showCMTypeDialog("Site Management"),
                   ),
@@ -1412,6 +1376,32 @@ class CmSheetPageState extends State<CmSheetPage> {
                 width: 2.0,
               ),
             ),
+            suffixIcon: IconButton(
+                onPressed: () {
+                  showMenu<String>(
+                    context: context,
+                    position: RelativeRect.fromLTRB(175.0, 200.0, 250.0, 100.0),
+                    items: [
+                      PopupMenuItem<String>(
+                        value: 'Materials Used During PM',
+                        child: Text('During PM'),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'Replaced required items',
+                        child: Text('Required'),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'Replaced faulty items',
+                        child: Text('Faulty'),
+                      ),
+                    ],
+                  ).then((String? value) {
+                    if (value != null) {
+                      controller.text = value;
+                    }
+                  });
+                },
+                icon: Icon(Icons.add)),
             filled: true,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
@@ -1475,23 +1465,19 @@ class CmSheetPageState extends State<CmSheetPage> {
             });
           },
         ),
-        SizedBox(width: 30),
-        SizedBox(
-          width: 60,
-          child: QuantitySelector(
-            initialQuantity: item.quantity,
-            onQuantityChanged: (newQuantity) {
-              setState(() {
-                _selectedSpareItems[index] =
-                    item.copyWith(quantity: newQuantity);
-              });
-            },
-            onDelete: () {
-              setState(() {
-                _selectedSpareItems.removeAt(index);
-              });
-            },
-          ),
+        // SizedBox(width: 30),
+        QuantitySelector(
+          initialQuantity: item.quantity,
+          onQuantityChanged: (newQuantity) {
+            setState(() {
+              _selectedSpareItems[index] = item.copyWith(quantity: newQuantity);
+            });
+          },
+          onDelete: () {
+            setState(() {
+              _selectedSpareItems.removeAt(index);
+            });
+          },
         ),
       ],
     );

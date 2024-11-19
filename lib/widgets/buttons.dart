@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:power_diyala/settings/download_data.dart';
 import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -63,6 +64,9 @@ class ResetTextButton extends StatelessWidget {
           await Future.delayed(const Duration(seconds: 1));
           SystemNavigator.pop(); // This will exit the app
         }
+      },
+      onLongPress: () {
+        updateDatabase();
       },
       child: const Text(
         'Reset',

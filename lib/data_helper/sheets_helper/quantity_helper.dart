@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:power_diyala/settings/theme_control.dart';
 
 class QuantitySelector extends StatefulWidget {
-  final int initialQuantity;
-  final Function(int) onQuantityChanged;
+  final double initialQuantity;
+  final Function(double) onQuantityChanged;
   final Function() onDelete;
 
   const QuantitySelector({
@@ -17,7 +18,7 @@ class QuantitySelector extends StatefulWidget {
 }
 
 class QuantitySelectorState extends State<QuantitySelector> {
-  late int quantity;
+  late double quantity;
 
   @override
   void initState() {
@@ -27,15 +28,15 @@ class QuantitySelectorState extends State<QuantitySelector> {
 
   void _increaseQuantity() {
     setState(() {
-      quantity++;
+      quantity += 1.0;
       widget.onQuantityChanged(quantity);
     });
   }
 
   void _decreaseQuantity() {
-    if (quantity > 1) {
+    if (quantity > 1.0) {
       setState(() {
-        quantity--;
+        quantity -= 1.0;
         widget.onQuantityChanged(quantity);
       });
     } else {
@@ -43,48 +44,118 @@ class QuantitySelectorState extends State<QuantitySelector> {
     }
   }
 
+  void _showQuantityInputDialog() async {
+    final TextEditingController controller =
+        TextEditingController(text: quantity.toString());
+
+    final result = await showDialog<double>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Quantity'),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: 'Enter Quantity',
+              labelStyle:
+                  TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide:
+                    BorderSide(color: Theme.of(context).colorScheme.secondary),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  width: 2.0,
+                ),
+              ),
+              filled: true,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                final double? newQuantity = double.tryParse(controller.text);
+                if (newQuantity != null && newQuantity > 0) {
+                  Navigator.of(context).pop(newQuantity);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        quantity = result;
+        widget.onQuantityChanged(quantity);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Expanded(
-          child: IconButton(
-            icon: Icon(
-              quantity > 1 ? Icons.remove : Icons.delete,
-              size: 16,
-            ),
-            onPressed: _decreaseQuantity,
-            padding: EdgeInsets.zero,
-            constraints: BoxConstraints(),
-            color: quantity > 1
-                ? Theme.of(context).colorScheme.primary
-                : Colors.red,
-          ),
-        ),
-        Expanded(
-          child: Container(
-            width: 30,
-            alignment: Alignment.center,
-            child: Text(
-              quantity.toString(),
-              style: TextStyle(fontSize: 15),
+    return SizedBox(
+      width: 70,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: IconButton(
+              icon: Icon(
+                quantity > 1.0 ? Icons.remove : Icons.delete,
+                size: 16,
+              ),
+              onPressed: _decreaseQuantity,
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(),
+              color: quantity > 1.0
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.red,
             ),
           ),
-        ),
-        Expanded(
-          child: IconButton(
-            icon: Icon(
-              Icons.add,
-              size: 16,
+          GestureDetector(
+            onTap: _showQuantityInputDialog,
+            child: Container(
+              width: 30,
+              alignment: Alignment.center,
+              child: Text(
+                quantity.toString(),
+                style: TextStyle(fontSize: 15),
+              ),
             ),
-            onPressed: _increaseQuantity,
-            padding: EdgeInsets.zero,
-            constraints: BoxConstraints(),
-            color: Theme.of(context).colorScheme.primary,
           ),
-        ),
-      ],
+          Expanded(
+            child: IconButton(
+              icon: Icon(
+                Icons.add,
+                size: 16,
+              ),
+              onPressed: _increaseQuantity,
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(),
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

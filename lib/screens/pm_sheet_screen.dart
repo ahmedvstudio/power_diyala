@@ -13,9 +13,7 @@ import 'package:power_diyala/data_helper/sheets_helper/sheet_id_cells_helper.dar
 import 'package:power_diyala/data_helper/sheets_helper/toggles.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
 import 'package:power_diyala/screens/main_screen.dart';
-import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/settings/theme_control.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class PmSheetPage extends StatefulWidget {
   final ThemeMode themeMode;
@@ -599,46 +597,6 @@ class PmSheetPageState extends State<PmSheetPage> {
       appBar: AppBar(
         title: Text('PM Sheet', style: Theme.of(context).textTheme.titleLarge),
         actions: [
-          TextButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Beta Feature'),
-                    content: Text(
-                        'This feature is under testing.\nfeel free to report a problem.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                          const url = reportIssue;
-                          if (await canLaunchUrl(Uri.parse(url))) {
-                            await launchUrl(Uri.parse(url),
-                                mode: LaunchMode.externalApplication);
-                          } else {}
-                        },
-                        child: Text(
-                          'Report',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            child: Text(
-              'Beta',
-              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-            ),
-          ),
           IconButton(
             onPressed: () {
               showDialog(
@@ -676,7 +634,6 @@ class PmSheetPageState extends State<PmSheetPage> {
             },
             icon: Icon(Icons.restart_alt_rounded),
             tooltip: 'Reset',
-            color: Colors.red,
           ),
         ],
       ),
