@@ -33,10 +33,10 @@ class SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _selectedIndex = _getSelectedIndex(widget.themeMode);
-    _loadData();
+    _loadDataFromManager();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadDataFromManager() async {
     try {
       List<Map<String, dynamic>> data = await DatabaseHelper.loadInfoData();
       logger.i(data);

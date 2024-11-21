@@ -9,9 +9,6 @@ class ThemeControl with ChangeNotifier {
   Color _secondaryColor = const Color(0xffD9C3B2);
   Color _accentColor = const Color(0xff8E4B4A);
 
-  // static const Color primaryColor = Color(0xffC95A3D);
-  // static const Color secondaryColor = Color(0xffD9C3B2);
-  // static const Color accentColor = Color(0xff8E4B4A);
   static const Color _defaultPrimaryColor = Color(0xffC95A3D);
   static const Color _defaultSecondaryColor = Color(0xffD9C3B2);
   static const Color _defaultAccentColor = Color(0xff8E4B4A);

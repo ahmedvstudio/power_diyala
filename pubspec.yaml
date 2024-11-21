@@ -44,6 +44,7 @@ dependencies:
   app_settings: ^5.1.1
   marquee: ^2.3.0
   lottie: ^3.1.3
+  flutter_native_splash: ^2.4.2
 
 
 
@@ -57,7 +58,7 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^5.0.0
-  flutter_native_splash: ^2.4.2
+
 
 
 flutter:
@@ -71,7 +72,4 @@ flutter:
   - assets/powerdiyala.json
 
 
-flutter_native_splash:
-  color: "#42a5f5" # Background color of the splash screen
-  image: assets/Icon.png # Path to the image you want to use
-  android: true # Enables Android support
+

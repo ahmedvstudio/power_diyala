@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:power_diyala/data_helper/calc_table_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/widgets/calculations.dart';
-import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/widgets/widgets.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +23,8 @@ class CalculatorScreen extends StatefulWidget {
 class HomeScreenState extends State<CalculatorScreen> {
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
+  final calculatorData = DataManager().getCalculatorData();
+
   List<Map<String, dynamic>>? _data;
   String? _selectedSiteName;
   List<String> _siteNames = [];
@@ -46,7 +48,7 @@ class HomeScreenState extends State<CalculatorScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
+      _loadDataFromManager();
     });
 
     _g1Controller.addListener(_onInputChanged);
@@ -54,10 +56,10 @@ class HomeScreenState extends State<CalculatorScreen> {
     _cpController.addListener(_onInputChanged);
   }
 
-  Future<void> _loadData() async {
-    try {
-      List<Map<String, dynamic>> data =
-          await DatabaseHelper.loadCalculatorData();
+  Future<void> _loadDataFromManager() async {
+    List<Map<String, dynamic>>? data = DataManager().getCalculatorData();
+
+    if (data != null) {
       logger.i(data);
 
       if (mounted) {
@@ -66,9 +68,9 @@ class HomeScreenState extends State<CalculatorScreen> {
           _siteNames = data.map((item) => item['Site_name'] as String).toList();
         });
       }
-    } catch (e) {
+    } else {
       if (mounted) {
-        _showSnackbar('Error loading data: ${e.toString()}');
+        _showSnackbar('No data found');
       }
     }
   }

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:power_diyala/Widgets/widgets.dart';
-import 'package:power_diyala/data_helper/database_helper.dart';
+import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/data_helper/sheets_helper/google_sheet.dart';
 import 'package:power_diyala/data_helper/sheets_helper/ac_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
@@ -114,7 +114,7 @@ class PmSheetPageState extends State<PmSheetPage> {
     loadControllers = List.generate(3, (index) => TextEditingController());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
+      _loadDataFromManager();
     });
   }
 
@@ -161,16 +161,15 @@ class PmSheetPageState extends State<PmSheetPage> {
     super.dispose();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadDataFromManager() async {
     try {
-      List<Map<String, dynamic>> data = await DatabaseHelper.loadPMData();
-      logger.i(data);
+      _data = DataManager().getPMData();
+      _siteNames = _data?.map((item) => item['site'] as String).toList() ?? [];
+
+      logger.i("Loaded PM data: $_data");
 
       if (mounted) {
-        setState(() {
-          _data = data;
-          _siteNames = data.map((item) => item['site'] as String).toList();
-        });
+        setState(() {});
       }
     } catch (e) {
       if (mounted) {

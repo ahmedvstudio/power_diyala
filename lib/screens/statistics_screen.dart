@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:power_diyala/data_helper/database_helper.dart';
+import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/data_helper/spms_tables_helper.dart';
 
 class StatisticsScreen extends StatefulWidget {
@@ -155,7 +155,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Future<List<Spms>> fetchSpmsData() async {
-    final rawData = await DatabaseHelper.loadSPMSData();
+    final rawData = DataManager().getSpmsData(); // Get data from DataManager
+
+    if (rawData == null) {
+      logger.e('SPMS data is null');
+      return []; // Return an empty list if rawData is null
+    }
+
     logger.d('Raw data: $rawData');
     return List.generate(rawData.length, (i) => Spms.fromMap(rawData[i]));
   }
@@ -284,10 +290,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                   return Text(
                                     value.toInt().toString(),
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).primaryColor,
-                                      fontSize:
-                                          12, // Increased font size for better visibility
+                                      fontSize: 12,
                                     ),
                                   );
                                 },
@@ -303,7 +306,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               getTooltipItem:
                                   (group, groupIndex, rod, rodIndex) {
                                 return BarTooltipItem(
-                                  'Year ${group.x.toInt()}\n',
+                                  '${group.x.toInt()}\n',
                                   TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -319,11 +322,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               },
                             ),
                           ),
-                          borderData: FlBorderData(
-                              show: true), // Improved border styling
-                          gridData: FlGridData(
-                              show: true,
-                              horizontalInterval: 1), // More visible grid lines
+                          borderData: FlBorderData(show: true),
+                          gridData:
+                              FlGridData(show: true, horizontalInterval: 1),
                           barGroups: yearCounts.entries.map((entry) {
                             return BarChartGroupData(
                               x: entry.key,
@@ -332,16 +333,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                   toY: entry.value.toDouble(),
                                   color: Theme.of(context).primaryColor,
                                   borderSide: BorderSide(
-                                    color: Colors.black54, // Add border color
+                                    color: Colors.black54,
                                     width: 1,
                                   ),
-                                  width:
-                                      20, // Increased width of the bars for better visibility
+                                  width: 20,
                                   backDrawRodData: BackgroundBarChartRodData(
                                     show: true,
-                                    toY: 10, // Background rod height (optional)
-                                    color: Colors.grey
-                                        .shade300, // Background color of the bar
+                                    toY: 10,
+                                    color: Colors.grey.shade300,
                                   ),
                                 ),
                               ],

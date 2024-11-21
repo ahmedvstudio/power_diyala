@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:logger/logger.dart';
 import 'package:power_diyala/Widgets/widgets.dart';
+import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cm_cells_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cm_type_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/quantity_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/spare_item_class.dart';
 import 'package:power_diyala/data_helper/sheets_helper/used_for_helper.dart';
-import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/google_sheet.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
 import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
@@ -89,8 +89,7 @@ class CmSheetPageState extends State<CmSheetPage> {
     _tankControllers = List.generate(5, (index) => TextEditingController());
     _commentsControllers = List.generate(3, (index) => TextEditingController());
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
-      _loadSpareData();
+      _loadDataFromManager();
     });
   }
 
@@ -108,16 +107,25 @@ class CmSheetPageState extends State<CmSheetPage> {
     super.dispose();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadDataFromManager() async {
     try {
-      List<Map<String, dynamic>> data = await DatabaseHelper.loadPMData();
-      logger.i(data);
+      // Load PM Data
+      _siteData = DataManager().getPMData();
+      _siteNames =
+          _siteData?.map((item) => item['site'] as String).toList() ?? [];
+
+      // Load Spare Data
+      _spareData = DataManager().getSpareData();
+      _spareNames =
+          _spareData?.map((item) => item['Item name'] as String).toList() ?? [];
+      _spareCode =
+          _spareData?.map((item) => item['Code'] as String).toList() ?? [];
+
+      logger.i("Loaded PM data: $_siteData");
+      logger.i("Loaded Spare data: $_spareData");
 
       if (mounted) {
-        setState(() {
-          _siteData = data;
-          _siteNames = data.map((item) => item['site'] as String).toList();
-        });
+        setState(() {});
       }
     } catch (e) {
       if (mounted) {
@@ -133,27 +141,6 @@ class CmSheetPageState extends State<CmSheetPage> {
       _selectedSiteData = selectedSite;
       siteController.text = siteName;
     });
-  }
-
-  Future<void> _loadSpareData() async {
-    try {
-      List<Map<String, dynamic>> spareData =
-          await DatabaseHelper.loadSpareData();
-      logger.i(spareData);
-
-      if (mounted) {
-        setState(() {
-          _spareData = spareData;
-          _spareNames =
-              spareData.map((item) => item['Item name'] as String).toList();
-          _spareCode = spareData.map((item) => item['Code'] as String).toList();
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        _showSnackbar('Error loading data: ${e.toString()}');
-      }
-    }
   }
 
   void _updateSelectedSpareName(String spareName) {

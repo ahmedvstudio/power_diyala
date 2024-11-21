@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/widgets/widgets.dart';
-import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:logger/logger.dart';
 
 class NetworkScreen extends StatefulWidget {
@@ -22,26 +22,27 @@ class HomeScreenState extends State<NetworkScreen> {
   List<Map<String, dynamic>>? _data;
   List<String> _siteNames = [];
   final TextEditingController _searchController = TextEditingController();
-  Map<String, dynamic>? _selectedSiteData; // To hold the selected site's data
+  Map<String, dynamic>? _selectedSiteData;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
+      _loadDataFromManager();
     });
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadDataFromManager() async {
     try {
-      List<Map<String, dynamic>> data = await DatabaseHelper.loadNetworkData();
-      logger.i(data);
+      // Load Network Data
+      _data = DataManager().getNetworkData();
+      _siteNames =
+          _data?.map((item) => item['Site name'] as String).toList() ?? [];
+
+      logger.i("Loaded Network data: $_data");
 
       if (mounted) {
-        setState(() {
-          _data = data;
-          _siteNames = data.map((item) => item['Site name'] as String).toList();
-        });
+        setState(() {});
       }
     } catch (e) {
       if (mounted) {

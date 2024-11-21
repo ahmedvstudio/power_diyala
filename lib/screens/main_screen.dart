@@ -5,8 +5,8 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:logger/logger.dart';
 import 'package:marquee/marquee.dart';
-import 'package:power_diyala/data_helper/calc_table_helper.dart';
 import 'package:power_diyala/screens/cm_sheet_screen.dart';
 import 'package:power_diyala/screens/calc_screen.dart';
 import 'package:power_diyala/screens/network_screen.dart';
@@ -27,6 +27,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
+  final Logger logger =
+      kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   final autoSizeGroup = AutoSizeGroup();
   int _selectedIndex = 0;
   final List<Widget> _screens = [];

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:power_diyala/Data_helper/spms_tables_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:power_diyala/data_helper/database_helper.dart';
+import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/Widgets/widgets.dart';
 import 'package:logger/logger.dart';
 import 'package:power_diyala/screens/statistics_screen.dart';
@@ -23,6 +23,7 @@ class HomeScreenState extends State<SpmsScreen> {
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   List<Map<String, dynamic>>? _data;
+  Map<String, dynamic>? _infoData;
   String? _selectedSiteName;
   List<String> _siteNames = [];
   final List<Map<String, dynamic>> components = [
@@ -171,20 +172,30 @@ class HomeScreenState extends State<SpmsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
+      _loadDataFromManager();
     });
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadDataFromManager() async {
     try {
-      List<Map<String, dynamic>> data = await DatabaseHelper.loadSPMSData();
-      logger.i(data);
+      // Load SPMS Data
+      _data = DataManager()
+          .getSpmsData(); // Assuming DataManager has loaded data already
+      _siteNames =
+          _data?.map((item) => item['Sitename'] as String).toList() ?? [];
+
+      logger.i("Loaded SPMS data: $_data");
+
+      // Load Info Data
+      List<Map<String, dynamic>> infoData = DataManager().getInfoData() ?? [];
+      logger.i(infoData);
+
+      if (infoData.isNotEmpty) {
+        _infoData = infoData.first;
+      }
 
       if (mounted) {
-        setState(() {
-          _data = data;
-          _siteNames = data.map((item) => item['Sitename'] as String).toList();
-        });
+        setState(() {});
       }
     } catch (e) {
       if (mounted) {
@@ -351,6 +362,17 @@ class HomeScreenState extends State<SpmsScreen> {
                       },
                     ),
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(' Last Update',
+                          style: Theme.of(context).textTheme.labelSmall),
+                      if (_infoData != null &&
+                          _infoData!.containsKey('last_update'))
+                        Text('${_infoData!['last_update'] ?? 'N/A'}  ',
+                            style: Theme.of(context).textTheme.labelSmall),
+                    ],
+                  )
                 ],
               ),
       ),

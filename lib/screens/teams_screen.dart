@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/widgets/detect_date_format.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:logger/logger.dart';
@@ -32,33 +32,18 @@ class TeamsScreenState extends State<TeamsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
+      _loadDataFromManager();
     });
   }
 
-  Future<void> _loadData() async {
-    try {
-      List<Map<String, dynamic>> data = await DatabaseHelper.loadTeamData();
-      logger.i("Loaded data: $data");
+  Future<void> _loadDataFromManager() async {
+    _data = DataManager().getTeamData();
 
-      if (mounted) {
-        setState(() {
-          _data = data;
-          _cacheEvents();
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        _showSnackbar('Error loading data: ${e.toString()}');
-      }
+    if (mounted) {
+      setState(() {
+        _cacheEvents();
+      });
     }
-  }
-
-  void _showSnackbar(String message,
-      {Duration duration = const Duration(seconds: 3)}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: duration),
-    );
   }
 
   void _cacheEvents() {
