@@ -393,12 +393,12 @@ Future<bool> _showPasswordDialog(BuildContext context) async {
                                 .error
                                 .withOpacity(0.8)),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
+                          borderRadius: BorderRadius.circular(20.0),
                           borderSide: BorderSide(
                               color: Theme.of(context).colorScheme.secondary),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
+                          borderRadius: BorderRadius.circular(20.0),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.tertiary,
                             width: 2.0,
@@ -410,8 +410,8 @@ Future<bool> _showPasswordDialog(BuildContext context) async {
                           borderSide:
                               const BorderSide(color: Colors.grey, width: 1),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16.0, horizontal: 12.0),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 12.0),
                         suffixIcon: IconButton(
                           icon: Icon(
                             isObscured

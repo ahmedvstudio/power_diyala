@@ -13,7 +13,6 @@ import 'package:power_diyala/data_helper/sheets_helper/google_sheet.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
 import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
-import 'package:power_diyala/main.dart';
 import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/theme_control.dart';
 import 'package:provider/provider.dart';
@@ -736,16 +735,10 @@ class CmSheetPageState extends State<CmSheetPage> {
                                                                   onTap: () {
                                                                     Navigator.of(
                                                                             context)
-                                                                        .pushAndRemoveUntil(
-                                                                      MaterialPageRoute(
-                                                                        builder:
-                                                                            (context) =>
-                                                                                const MyApp(),
-                                                                      ),
-                                                                      (Route<dynamic>
-                                                                              route) =>
-                                                                          false,
-                                                                    );
+                                                                        .pop();
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
                                                                   },
                                                                   child:
                                                                       Container(
