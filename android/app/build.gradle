@@ -58,8 +58,6 @@ dependencies {
     // Import the Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:33.6.0')
     implementation("com.google.firebase:firebase-analytics")
+    implementation 'com.google.firebase:firebase-firestore'
 
-    // Add Firebase dependencies you want to use
-    // Add any other Firebase products you need
-    // e.g., implementation 'com.google.firebase:firebase-messaging'
 }

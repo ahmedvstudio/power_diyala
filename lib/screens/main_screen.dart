@@ -251,6 +251,9 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final isOnline = Provider.of<ConnectivityService>(context).isOnline;
     final themeControl = Provider.of<ThemeControl>(context);
+    if (Provider.of<ConnectivityService>(context).isOnline) {
+      fetchAndActivate();
+    }
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
