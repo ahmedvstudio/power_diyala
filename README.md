@@ -19,10 +19,12 @@ This App Will Make Our Job Easy ...I Think !
 
 <div align="left">
 
-* Calculater for PM data runtime/replacement.
+* Calculator for PM data runtime/replacement.
 * SPMS items replacements tracking.
 * PM teams plan.
 * Network information.
+* PM Sheet.
+* CM Sheet.
 * maybe more coming soon...
 
 </div>
