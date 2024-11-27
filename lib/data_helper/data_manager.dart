@@ -16,6 +16,7 @@ class DataManager {
   List<Map<String, dynamic>>? infoData;
   List<Map<String, dynamic>>? pmData;
   List<Map<String, dynamic>>? spareData;
+  List<Map<String, dynamic>>? namesData;
 
   DataManager._internal();
 
@@ -28,6 +29,7 @@ class DataManager {
       infoData = await DatabaseHelper.loadInfoData();
       pmData = await DatabaseHelper.loadPMData();
       spareData = await DatabaseHelper.loadSpareData();
+      namesData = await DatabaseHelper.loadNamesData();
 
       logger.i("All data loaded successfully.");
     } catch (e) {
@@ -42,4 +44,5 @@ class DataManager {
   List<Map<String, dynamic>>? getInfoData() => infoData;
   List<Map<String, dynamic>>? getPMData() => pmData;
   List<Map<String, dynamic>>? getSpareData() => spareData;
+  List<Map<String, dynamic>>? getNamesData() => namesData;
 }

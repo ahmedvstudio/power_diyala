@@ -55,7 +55,7 @@ Future<String> _fetchDownloadId() async {
 Future<void> updateDatabase() async {
   // Check permissions before proceeding
   if (!await _checkPermissions()) {
-    return; // Exit if permissions are not granted
+    return;
   }
 
   try {

@@ -38,6 +38,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
   final TextEditingController _ownerController = TextEditingController();
   final TextEditingController _neighbourController = TextEditingController();
   final TextEditingController _partyController = TextEditingController();
+  final TextEditingController _partyController2 = TextEditingController();
   final TextEditingController _startDCController = TextEditingController();
   final TextEditingController _endDCController = TextEditingController();
   final TextEditingController _fireController = TextEditingController();
@@ -65,6 +66,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
       _ownerController,
       _neighbourController,
       _partyController,
+      _partyController2,
     ]);
 
     widget.batteryTestControllers.addAll([
@@ -90,11 +92,14 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                 'Earth Readings',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              Switch(
-                value: widget.isEarthEnabled,
-                onChanged: (bool value) {
-                  widget.onEarthEnabledChanged(value); // Use the callback
+              GestureDetector(
+                onDoubleTap: () {
+                  widget.onEarthEnabledChanged(!widget.isEarthEnabled);
                 },
+                child: Switch(
+                  value: widget.isEarthEnabled,
+                  onChanged: (bool value) {},
+                ),
               ),
             ],
           ),
@@ -255,13 +260,16 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                 'External Load',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              Switch(
-                value: isExternalLoadEnabled,
-                onChanged: (bool value) {
+              GestureDetector(
+                onDoubleTap: () {
                   setState(() {
-                    isExternalLoadEnabled = value;
+                    isExternalLoadEnabled = !isExternalLoadEnabled;
                   });
                 },
+                child: Switch(
+                  value: isExternalLoadEnabled,
+                  onChanged: (bool value) {},
+                ),
               ),
             ],
           ),
@@ -328,9 +336,41 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                 ),
               ),
               SizedBox(width: 3),
+            ],
+          ),
+          SizedBox(height: 5),
+          Row(
+            children: [
               Expanded(
                 child: TextField(
                   controller: widget.externalLoadControllers[2],
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: '3rd Party',
+                    labelStyle: TextStyle(
+                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        fontSize: 12),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                        borderSide:
+                            BorderSide(color: ThemeControl().secondaryColor)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.tertiary,
+                            width: 2.0)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                        borderSide:
+                            const BorderSide(color: Colors.grey, width: 1.5)),
+                  ),
+                  enabled: isExternalLoadEnabled,
+                ),
+              ),
+              SizedBox(width: 3),
+              Expanded(
+                child: TextField(
+                  controller: widget.externalLoadControllers[3],
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: '3rd Party',

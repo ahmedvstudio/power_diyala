@@ -1,6 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:power_diyala/data_helper/database_helper.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:power_diyala/data_helper/data_manager.dart';
+import 'package:power_diyala/main.dart';
+import 'package:power_diyala/settings/download_data.dart';
+import 'package:power_diyala/settings/pick_data_from_storage.dart';
+import 'package:power_diyala/settings/remote_config.dart';
 import 'package:power_diyala/widgets/color_picker.dart';
 import 'package:power_diyala/widgets/buttons.dart';
 import 'package:power_diyala/screens/licences.dart';
@@ -38,7 +44,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadDataFromManager() async {
     try {
-      List<Map<String, dynamic>> data = await DatabaseHelper.loadInfoData();
+      List<Map<String, dynamic>> data = DataManager().getInfoData() ?? [];
       logger.i(data);
 
       if (data.isNotEmpty) {
@@ -98,9 +104,45 @@ class SettingsScreenState extends State<SettingsScreen> {
     Icons.wb_sunny, // Light
     Icons.nights_stay, // Dark
   ];
-
+  void _showToast(message) => Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black,
+        fontSize: 14.0,
+      );
   @override
   Widget build(BuildContext context) {
+    void onLoading() {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            contentPadding: const EdgeInsets.all(0.0),
+            insetPadding: EdgeInsets.symmetric(horizontal: 100),
+            content: Padding(
+              padding: EdgeInsets.only(top: 20, bottom: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                      color: Theme.of(context).primaryColor),
+                  const SizedBox(height: 16),
+                  Text('Loading New Data...')
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     const double iconSize = 30;
     return Scaffold(
       appBar: AppBar(
@@ -117,7 +159,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 );
               },
               icon: Icon(Icons.color_lens_rounded),
-              tooltip: 'Color Palette'),
+              tooltip: 'Theme Color'),
           IconButton(
             onPressed: () async {
               Navigator.of(context).pop();
@@ -130,6 +172,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             icon: Icon(Icons.bug_report_rounded),
             tooltip: 'Report a bug',
           ),
+          const ResetTextButton(),
         ],
       ),
       body: SafeArea(
@@ -226,8 +269,35 @@ class SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                     const SizedBox(height: 8),
-                    const ResetTextButton(),
-                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      child: const Text('Import Data From Storage'),
+                      onPressed: () async {
+                        await updateDatabaseFromFilePicker(context);
+                        await fetchAndActivate();
+                      },
+                      onLongPress: () async {
+                        // Show password dialog before updating the database
+                        bool passwordCorrect =
+                            await _showPasswordDialog(context);
+                        if (passwordCorrect) {
+                          await updateDatabase();
+                          onLoading();
+                          _showToast("Database updated successfully.");
+                          await fetchAndActivate();
+                          await Future.delayed(const Duration(seconds: 1));
+                          if (!context.mounted) return;
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const MyApp(),
+                            ),
+                            (Route<dynamic> route) => false,
+                          );
+                        } else {
+                          _showToast("Incorrect password. Update canceled.");
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     Center(
                       child: Text(
                         appName,
@@ -293,4 +363,95 @@ class SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+}
+
+Future<bool> _showPasswordDialog(BuildContext context) async {
+  String password = dotenv.env['DRIVE_PASSWORD'] ?? "";
+  return await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          final TextEditingController controller = TextEditingController();
+          bool isObscured = true;
+          return AlertDialog(
+            title: const Text(
+              'Enter Password',
+              style: TextStyle(decoration: TextDecoration.underline),
+            ),
+            content: StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: controller,
+                      obscureText: isObscured,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .error
+                                .withOpacity(0.8)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.secondary),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.tertiary,
+                            width: 2.0,
+                          ),
+                        ),
+                        filled: true,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                          borderSide:
+                              const BorderSide(color: Colors.grey, width: 1),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16.0, horizontal: 12.0),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            isObscured
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Theme.of(context).colorScheme.secondary,
+                            size: 18,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isObscured = !isObscured;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text('Confirm'),
+                onPressed: () {
+                  if (controller.text == password) {
+                    Navigator.of(context).pop(true);
+                  } else {
+                    Navigator.of(context).pop(false);
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      ) ??
+      false;
 }

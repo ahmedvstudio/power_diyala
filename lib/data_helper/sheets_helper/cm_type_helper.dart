@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:power_diyala/settings/theme_control.dart';
 
 class CMTypeDialog {
   final BuildContext context;
@@ -99,7 +100,8 @@ class CMTypeDialog {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
-              title: Text('CM - $cmType'),
+              title: Text('CM - $cmType',
+                  style: TextStyle(decoration: TextDecoration.underline)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -112,7 +114,6 @@ class CMTypeDialog {
                         setState(() {
                           selectedOption1 = value;
                           option1Controller.text = value ?? '';
-                          // Reset option 2 if "Extra" is not selected
                           if (value != "Extra") {
                             option2Controller.clear();
                             selectedOption2 = null;
@@ -194,11 +195,11 @@ class CMTypeDialog {
     required ValueChanged<String?> onChanged,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 12.0),
+      padding: EdgeInsets.symmetric(horizontal: 12.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(20.0),
         border: Border.all(
-            color: Theme.of(context).colorScheme.tertiary, width: 2.0),
+            color: Theme.of(context).colorScheme.tertiary, width: 1.0),
         color: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: DropdownButtonHideUnderline(
@@ -218,7 +219,8 @@ class CMTypeDialog {
               child: Text(
                 option,
                 style: TextStyle(
-                    color: Colors.blue, fontWeight: FontWeight.normal),
+                    color: ThemeControl.errorColor,
+                    fontWeight: FontWeight.normal),
               ),
             );
           }).toList(),

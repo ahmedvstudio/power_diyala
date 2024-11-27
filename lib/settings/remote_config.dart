@@ -2,14 +2,13 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Fetch and activate remote config values
 Future<Map<String, dynamic>> fetchAndActivate() async {
   final remoteConfig = FirebaseRemoteConfig.instance;
 
   // Set the config settings
   await remoteConfig.setConfigSettings(RemoteConfigSettings(
     fetchTimeout: const Duration(minutes: 1),
-    minimumFetchInterval: const Duration(seconds: 30),
+    minimumFetchInterval: const Duration(hours: 6),
   ));
 
   // Set default values
@@ -29,31 +28,9 @@ Future<Map<String, dynamic>> fetchAndActivate() async {
   try {
     // Fetch and activate remote config values
     await remoteConfig.fetchAndActivate();
-    if (kDebugMode) {
-      print('Calculator==> ${remoteConfig.getBool('isCalculatorHere')}');
-      print('Teams==> ${remoteConfig.getBool('isTeamsHere')}');
-      print('SPMS==> ${remoteConfig.getBool('isSPMSHere')}');
-      print('Network==> ${remoteConfig.getBool('isNetworkHere')}');
-      print('PM Sheet==> ${remoteConfig.getBool('isPMsheetON')}');
-      print('CM Sheet==> ${remoteConfig.getBool('isCMsheetON')}');
-      print('Banner==> ${remoteConfig.getBool('isBannerON')}');
-      print('Banner Title==> ${remoteConfig.getString('bannerTitle')}');
-      print('Banner Text==> ${remoteConfig.getString('bannerText')}');
-      print('ID==> ${remoteConfig.getString('database_download_id')}');
-    }
+    _printFetchedData(remoteConfig);
     // Get the fetched values in a map
-    final configValues = {
-      'isCalculatorHere': remoteConfig.getBool('isCalculatorHere'),
-      'isTeamsHere': remoteConfig.getBool('isTeamsHere'),
-      'isSPMSHere': remoteConfig.getBool('isSPMSHere'),
-      'isNetworkHere': remoteConfig.getBool('isNetworkHere'),
-      'isPMsheetON': remoteConfig.getBool('isPMsheetON'),
-      'isCMsheetON': remoteConfig.getBool('isCMsheetON'),
-      'isBannerON': remoteConfig.getBool('isBannerON'),
-      'bannerText': remoteConfig.getString('bannerText'),
-      'bannerTitle': remoteConfig.getString('bannerTitle'),
-      'database_download_id': remoteConfig.getString('database_download_id'),
-    };
+    final configValues = _getConfigValues(remoteConfig);
 
     // Save the fetched values locally
     await _saveToLocal(configValues);
@@ -64,14 +41,42 @@ Future<Map<String, dynamic>> fetchAndActivate() async {
       print('Error fetching remote config: $e');
     }
 
-    // If fetch fails (e.g., due to offline), return last known values
     return await _loadFromLocal();
   }
 }
 
-// Method to save config values to SharedPreferences
+void _printFetchedData(FirebaseRemoteConfig remoteConfig) {
+  if (kDebugMode) {
+    print('Calculator==> ${remoteConfig.getBool('isCalculatorHere')}');
+    print('Teams==> ${remoteConfig.getBool('isTeamsHere')}');
+    print('SPMS==> ${remoteConfig.getBool('isSPMSHere')}');
+    print('Network==> ${remoteConfig.getBool('isNetworkHere')}');
+    print('PM Sheet==> ${remoteConfig.getBool('isPMsheetON')}');
+    print('CM Sheet==> ${remoteConfig.getBool('isCMsheetON')}');
+    print('Banner==> ${remoteConfig.getBool('isBannerON')}');
+    print('Banner Title==> ${remoteConfig.getString('bannerTitle')}');
+    print('Banner Text==> ${remoteConfig.getString('bannerText')}');
+    print('ID==> ${remoteConfig.getString('database_download_id')}');
+  }
+}
+
+Map<String, dynamic> _getConfigValues(FirebaseRemoteConfig remoteConfig) {
+  return {
+    'isCalculatorHere': remoteConfig.getBool('isCalculatorHere'),
+    'isTeamsHere': remoteConfig.getBool('isTeamsHere'),
+    'isSPMSHere': remoteConfig.getBool('isSPMSHere'),
+    'isNetworkHere': remoteConfig.getBool('isNetworkHere'),
+    'isPMsheetON': remoteConfig.getBool('isPMsheetON'),
+    'isCMsheetON': remoteConfig.getBool('isCMsheetON'),
+    'isBannerON': remoteConfig.getBool('isBannerON'),
+    'bannerText': remoteConfig.getString('bannerText'),
+    'bannerTitle': remoteConfig.getString('bannerTitle'),
+    'database_download_id': remoteConfig.getString('database_download_id'),
+  };
+}
+
 Future<void> _saveToLocal(Map<String, dynamic> configValues) async {
-  final prefs = await SharedPreferences.getInstance();
+  SharedPreferencesAsync prefs = SharedPreferencesAsync();
   await prefs.setBool('isCalculatorHere', configValues['isCalculatorHere']);
   await prefs.setBool('isTeamsHere', configValues['isTeamsHere']);
   await prefs.setBool('isSPMSHere', configValues['isSPMSHere']);
@@ -84,20 +89,24 @@ Future<void> _saveToLocal(Map<String, dynamic> configValues) async {
       'database_download_id', configValues['database_download_id']);
 }
 
-// Method to load config values from SharedPreferences
 Future<Map<String, dynamic>> _loadFromLocal() async {
-  final prefs = await SharedPreferences.getInstance();
-  return {
-    'isCalculatorHere': prefs.getBool('isCalculatorHere') ?? true,
-    'isTeamsHere': prefs.getBool('isTeamsHere') ?? true,
-    'isSPMSHere': prefs.getBool('isSPMSHere') ?? true,
-    'isNetworkHere': prefs.getBool('isNetworkHere') ?? true,
-    'isPMsheetON': prefs.getBool('isPMsheetON') ?? true,
-    'isCMsheetON': prefs.getBool('isCMsheetON') ?? true,
-    'isBannerON': prefs.getBool('isBannerON') ?? false,
-    'bannerText': prefs.getString('bannerText') ?? "",
-    'bannerTitle': prefs.getString('bannerTitle') ?? "",
+  SharedPreferencesAsync prefs = SharedPreferencesAsync();
+  // Load values from local storage
+  Map<String, dynamic> configValues = {
+    'isCalculatorHere': await prefs.getBool('isCalculatorHere') ?? true,
+    'isTeamsHere': await prefs.getBool('isTeamsHere') ?? true,
+    'isSPMSHere': await prefs.getBool('isSPMSHere') ?? true,
+    'isNetworkHere': await prefs.getBool('isNetworkHere') ?? true,
+    'isPMsheetON': await prefs.getBool('isPMsheetON') ?? true,
+    'isCMsheetON': await prefs.getBool('isCMsheetON') ?? true,
+    'isBannerON': await prefs.getBool('isBannerON') ?? false,
+    'bannerText': await prefs.getString('bannerText') ?? "",
+    'bannerTitle': await prefs.getString('bannerTitle') ?? "",
     'database_download_id':
-        prefs.getString('database_download_id') ?? "default_id",
+        await prefs.getString('database_download_id') ?? "default_id",
   };
+  if (kDebugMode) {
+    print('Local values loaded: $configValues');
+  }
+  return configValues;
 }

@@ -31,14 +31,15 @@ class ThemeControl with ChangeNotifier {
   }
 
   Future<void> _loadColorPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
 
-    _primaryColor =
-        Color(prefs.getInt('primary_color') ?? _defaultPrimaryColor.value);
-    _secondaryColor =
-        Color(prefs.getInt('secondary_color') ?? _defaultSecondaryColor.value);
+    _primaryColor = Color(
+        await prefs.getInt('primary_color') ?? _defaultPrimaryColor.value);
+    _secondaryColor = Color(
+        await prefs.getInt('secondary_color') ?? _defaultSecondaryColor.value);
     _accentColor =
-        Color(prefs.getInt('accent_color') ?? _defaultAccentColor.value);
+        Color(await prefs.getInt('accent_color') ?? _defaultAccentColor.value);
+
     notifyListeners();
   }
 
@@ -47,9 +48,8 @@ class ThemeControl with ChangeNotifier {
   Color get secondaryColor => _secondaryColor;
   Color get accentColor => _accentColor;
 
-  // Save color preferences
   Future<void> saveColors(Color primary, Color secondary, Color accent) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
     await prefs.setInt('primary_color', primary.value);
     await prefs.setInt('secondary_color', secondary.value);
     await prefs.setInt('accent_color', accent.value);
@@ -62,8 +62,8 @@ class ThemeControl with ChangeNotifier {
   }
 
   Future<void> _loadThemePreference() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? savedTheme = prefs.getString('theme_mode');
+    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+    String? savedTheme = await prefs.getString('theme_mode');
 
     if (savedTheme != null) {
       _themeMode = ThemeMode.values.firstWhere(
@@ -79,7 +79,7 @@ class ThemeControl with ChangeNotifier {
     notifyListeners();
 
     // Save the selected theme in shared preferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
     await prefs.setString('theme_mode', mode.toString());
   }
 

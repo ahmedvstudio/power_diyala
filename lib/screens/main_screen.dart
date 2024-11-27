@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -14,6 +13,7 @@ import 'package:power_diyala/screens/pm_sheet_screen.dart';
 import 'package:power_diyala/screens/setting_screen.dart';
 import 'package:power_diyala/screens/spms_screen.dart';
 import 'package:power_diyala/screens/teams_screen.dart';
+import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/remote_config.dart';
 import 'package:power_diyala/settings/theme_control.dart';
 import 'package:power_diyala/widgets/widgets.dart';
@@ -45,7 +45,6 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   bool isBannerON = false;
   String bannerText = "";
   String bannerTitle = "";
-  bool check = false;
   final List<String> labels = [
     "Calculator",
     "Teams",
@@ -59,15 +58,12 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     Icons.home_repair_service_rounded,
     Icons.webhook_rounded,
   ];
-  // Firebase Remote Config instance
-  late FirebaseRemoteConfig remoteConfig;
 
   @override
   void initState() {
     super.initState();
-    _initializeFirebase();
     _initializeScreens();
-
+    _fetchAndActivateRemoteConfig();
     _borderRadiusAnimationController = AnimationController(
       duration: Duration(milliseconds: 500),
       vsync: this,
@@ -85,6 +81,31 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       Duration(seconds: 1),
       () => _borderRadiusAnimationController.forward(),
     );
+  }
+
+  Future<void> _fetchAndActivateRemoteConfig() async {
+    try {
+      final configValues = await fetchAndActivate();
+
+      _updateLocalConfig(configValues);
+    } catch (e) {
+      logger.e('Error fetching remote config: $e');
+    }
+  }
+
+  void _updateLocalConfig(Map<String, dynamic> configValues) {
+    setState(() {
+      isCalculatorHere = configValues['isCalculatorHere'];
+      isTeamsHere = configValues['isTeamsHere'];
+      isSPMSHere = configValues['isSPMSHere'];
+      isNetworkHere = configValues['isNetworkHere'];
+      isPMsheetON = configValues['isPMsheetON'];
+      isCMsheetON = configValues['isCMsheetON'];
+      isBannerON = configValues['isBannerON'];
+      bannerText = configValues['bannerText'];
+      bannerTitle = configValues['bannerTitle'];
+      _initializeScreens();
+    });
   }
 
   void _initializeScreens() {
@@ -153,54 +174,74 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     });
   }
 
-  Future<void> _initializeFirebase() async {
-    // Fetch and activate remote config values initially
-    await _fetchAndActivateRemoteConfig();
-    _fetchAndActivateRemoteConfig();
-  }
-
-// Fetch and activate remote config, then update local state
-  Future<void> _fetchAndActivateRemoteConfig() async {
-    try {
-      final configValues = await fetchAndActivate();
-
-      // Update local state with fetched values
-      _updateLocalConfig(configValues);
-    } catch (e) {
-      logger.e('Error fetching remote config: $e');
-    }
-  }
-
-// Update local state variables based on fetched config values
-  void _updateLocalConfig(Map<String, dynamic> configValues) {
-    setState(() {
-      isCalculatorHere = configValues['isCalculatorHere'];
-      isTeamsHere = configValues['isTeamsHere'];
-      isSPMSHere = configValues['isSPMSHere'];
-      isNetworkHere = configValues['isNetworkHere'];
-      isPMsheetON = configValues['isPMsheetON'];
-      isCMsheetON = configValues['isCMsheetON'];
-      isBannerON = configValues['isBannerON'];
-      bannerText = configValues['bannerText'];
-      bannerTitle = configValues['bannerTitle'];
-    });
-  }
-
-  void _showFeatureUnavailableDialog(BuildContext context) {
+  void _showFeatureUnavailable(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Unavailable'),
-          content: Text('This feature is not available.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20), // Round all corners
+            child: Container(
+              color: Theme.of(context).cardColor,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          height: 120,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                        Column(
+                          children: [
+                            Icon(Icons.warning, color: Colors.white, size: 32),
+                            const SizedBox(height: 8),
+                            Text(
+                              'OOPs...',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Under maintenance',
+                              style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: Text(
+                          'Try again',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
             ),
-          ],
+          ),
         );
       },
     );
@@ -208,13 +249,30 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final isOnline = Provider.of<ConnectivityService>(context).isOnline;
     final themeControl = Provider.of<ThemeControl>(context);
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
-        title: Text(
-          'Power Diyala',
-          style: Theme.of(context).textTheme.titleLarge,
+        title: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: 'Power ',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+              ),
+              TextSpan(
+                text: 'Diyala',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.normal,
+                      color: isOnline ? Color(0xff00E676) : Colors.red,
+                    ),
+              ),
+            ],
+          ),
         ),
         actions: [
           if (kDebugMode)
@@ -224,7 +282,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               tooltip: 'test',
             ),
           IconButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => SettingsScreen(
                         themeMode: themeControl.themeMode,
@@ -232,6 +290,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           themeControl.toggleTheme(value);
                         },
                       )));
+              await fetchAndActivate();
             },
             icon: const Icon(Icons.engineering),
             tooltip: 'Settings',
@@ -243,15 +302,26 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           if (isBannerON)
             Container(
               padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              margin: EdgeInsets.all(10.0),
               decoration: BoxDecoration(
-                color: Theme.of(context).secondaryHeaderColor,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white,
+                    Theme.of(context).secondaryHeaderColor
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).shadowColor,
-                    blurRadius: 8.0,
-                    offset: Offset(0, 4),
+                    color: Theme.of(context).shadowColor.withOpacity(0.5),
+                    blurRadius: 5.0,
+                    offset: Offset(0, 2),
                   ),
                 ],
+                border: Border.all(
+                    color: Theme.of(context).colorScheme.tertiary, width: 0.5),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -263,7 +333,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         Text(
                           bannerTitle,
                           style: TextStyle(
-                              color: Theme.of(context).primaryColor,
+                              color: Colors.red,
                               fontSize: 18.0,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic),
@@ -275,8 +345,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                               ? Marquee(
                                   text: bannerText,
                                   style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
+                                    color: Colors.black,
                                     fontSize: 14.0,
                                   ),
                                   scrollAxis: Axis.horizontal,
@@ -303,13 +372,18 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
-                  IconButton(
-                      onPressed: () {
-                        setState(() {
-                          isBannerON = false;
-                        });
-                      },
-                      icon: Icon(Icons.close)),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isBannerON = false;
+                      });
+                    },
+                    child: Icon(
+                      Icons.close,
+                      size: 16,
+                      color: Colors.black54,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -338,6 +412,9 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           ],
         ),
         child: SpeedDial(
+          onOpen: () async {
+            await fetchAndActivate();
+          },
           animatedIcon: AnimatedIcons.menu_close,
           overlayColor: Colors.black,
           overlayOpacity: 0.5,
@@ -360,7 +437,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     ),
                   ));
                 } else {
-                  _showFeatureUnavailableDialog(context);
+                  _showFeatureUnavailable(context);
                 }
               },
             ),
@@ -380,7 +457,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     ),
                   ));
                 } else {
-                  _showFeatureUnavailableDialog(context);
+                  _showFeatureUnavailable(context);
                 }
               },
             ),

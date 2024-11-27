@@ -261,8 +261,19 @@ class NotAvailableWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Center(
-        child: Lottie.asset('assets/website-maintenance.json'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Under Maintenance',
+              style: TextStyle(
+                  decoration: TextDecoration.underline,
+                  decorationColor: Theme.of(context).primaryColor,
+                  fontSize: 25,
+                  fontStyle: FontStyle.italic,
+                  color: Theme.of(context).primaryColor)),
+          Lottie.asset('assets/website-maintenance.json'),
+        ],
       ),
     );
   }

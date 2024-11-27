@@ -25,6 +25,7 @@ class DatabaseHelper {
   static const String infoTable = 'info';
   static const String pmHelperTable = 'PM_helper';
   static const String spareHelperTable = 'SpareParts';
+  static const String nameHelperTable = 'Names';
 
   static Future<Database> getDatabase() async {
     if (_database != null) return _database!;
@@ -85,6 +86,10 @@ class DatabaseHelper {
     return loadData(spareHelperTable);
   }
 
+  static Future<List<Map<String, dynamic>>> loadNamesData() async {
+    return loadData(nameHelperTable);
+  }
+
   static Future<void> deleteDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'the_data.db');
@@ -119,11 +124,10 @@ class DBHelper {
     }
   }
 
-  static Future<void> pickAndReplaceDatabase(BuildContext context) async {
-    final localContext = context; // Capture the BuildContext
-
+  static Future<bool> pickAndReplaceDatabase(BuildContext context) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
+      type: FileType.custom,
+      allowedExtensions: ['bin'],
     );
 
     if (result != null && result.files.isNotEmpty) {
@@ -131,9 +135,9 @@ class DBHelper {
 
       if (!newDbPath.endsWith('.db')) {
         // Check if the widget is still mounted
-        if (!localContext.mounted) return;
+        if (!context.mounted) return false;
 
-        return;
+        return false; // Return false if file extension is not valid
       }
 
       Directory documentsDirectory = await getApplicationDocumentsDirectory();
@@ -163,20 +167,25 @@ class DBHelper {
         await DatabaseHelper.loadInfoData();
         await DatabaseHelper.loadPMData();
         await DatabaseHelper.loadSpareData();
+        await DatabaseHelper.loadNamesData();
+
+        return true;
       } catch (e) {
         logger.e("Error replacing database: $e");
-        // Check if the widget is still mounted before showing the dialog
-        if (!localContext.mounted) return;
       }
     } else {
       logger.e('No file selected.');
     }
+    return false;
   }
 
-  static Future<bool> checkDatabaseData() async {
-    // Implement logic to check if required data is present
+  static Future<bool> checkDatabaseData(bool fileSelected) async {
+    if (!fileSelected) {
+      logger.e("checkDatabaseData called without a valid file selection.");
+      return false; // Skip checking if no file was selected
+    }
+
     try {
-      // Example query to check for expected records
       final result = await DatabaseHelper.loadCalculatorData();
       await DatabaseHelper.loadSPMSData();
       await DatabaseHelper.loadNetworkData();
@@ -184,10 +193,10 @@ class DBHelper {
       await DatabaseHelper.loadInfoData();
       await DatabaseHelper.loadPMData();
       await DatabaseHelper.loadSpareData();
+      await DatabaseHelper.loadNamesData();
 
       if (result.isNotEmpty) {
-        // Perform additional checks as needed
-        return true; // Data loaded correctly
+        return true;
       }
     } catch (e) {
       logger.e("Error checking database data: $e");

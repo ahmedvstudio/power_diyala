@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:power_diyala/data_helper/calc_table_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:power_diyala/data_helper/data_manager.dart';
+import 'package:power_diyala/settings/remote_config.dart';
 import 'package:power_diyala/widgets/calculations.dart';
 import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/widgets/widgets.dart';
@@ -17,10 +18,10 @@ class CalculatorScreen extends StatefulWidget {
       {super.key, required this.themeMode, required this.onThemeChanged});
 
   @override
-  HomeScreenState createState() => HomeScreenState();
+  CalculatorScreenState createState() => CalculatorScreenState();
 }
 
-class HomeScreenState extends State<CalculatorScreen> {
+class CalculatorScreenState extends State<CalculatorScreen> {
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   final calculatorData = DataManager().getCalculatorData();
@@ -28,7 +29,6 @@ class HomeScreenState extends State<CalculatorScreen> {
   List<Map<String, dynamic>>? _data;
   String? _selectedSiteName;
   List<String> _siteNames = [];
-  // Controllers for text inputs
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _g1Controller = TextEditingController();
   final TextEditingController _g2Controller = TextEditingController();
@@ -283,16 +283,19 @@ class HomeScreenState extends State<CalculatorScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GestureDetector(
-                        onTap: () => showSearchableDropdown(
-                          context,
-                          _siteNames,
-                          (selected) {
-                            setState(() {
-                              _selectedSiteName = selected;
-                            });
-                          },
-                          _searchController,
-                        ),
+                        onTap: () async {
+                          showSearchableDropdown(
+                            context,
+                            _siteNames,
+                            (selected) {
+                              setState(() {
+                                _selectedSiteName = selected;
+                              });
+                            },
+                            _searchController,
+                          );
+                          await fetchAndActivate();
+                        },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               vertical: 12.0, horizontal: 16.0),
@@ -478,7 +481,10 @@ class HomeScreenState extends State<CalculatorScreen> {
                             children: [
                               Expanded(
                                 child: ElevatedButton.icon(
-                                  onPressed: () => _clearSelection(),
+                                  onPressed: () async {
+                                    _clearSelection();
+                                    await fetchAndActivate();
+                                  },
                                   label: const Text('Clear'),
                                   icon: Icon(Icons.delete_sweep),
                                 ),

@@ -4,8 +4,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
 import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/firebase_options.dart';
-import 'package:power_diyala/screens/stepper.dart';
+import 'package:power_diyala/screens/setup_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/remote_config.dart';
 import 'package:provider/provider.dart';
 import 'settings/theme_control.dart';
@@ -13,10 +14,10 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
+
   try {
     await dotenv.load(fileName: ".env");
     if (dotenv.env['DB_PASSWORD'] == null) {
@@ -60,16 +61,19 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ThemeControl(),
-      child: Consumer<ThemeControl>(
-        builder: (context, themeControl, child) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeControl()),
+        ChangeNotifierProvider(create: (_) => ConnectivityService()),
+      ],
+      child: Consumer2<ThemeControl, ConnectivityService>(
+        builder: (context, themeControl, connectivityService, child) {
           return MaterialApp(
             title: 'Power Diyala',
             theme: themeControl.appTheme(isDarkMode: false),
             darkTheme: themeControl.appTheme(isDarkMode: true),
             themeMode: themeControl.themeMode,
-            home: const StepperScreen(),
+            home: const SetupScreen(),
           );
         },
       ),

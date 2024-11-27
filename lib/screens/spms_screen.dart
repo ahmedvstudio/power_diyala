@@ -16,10 +16,10 @@ class SpmsScreen extends StatefulWidget {
       {super.key, required this.themeMode, required this.onThemeChanged});
 
   @override
-  HomeScreenState createState() => HomeScreenState();
+  SpmsScreenState createState() => SpmsScreenState();
 }
 
-class HomeScreenState extends State<SpmsScreen> {
+class SpmsScreenState extends State<SpmsScreen> {
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   List<Map<String, dynamic>>? _data;

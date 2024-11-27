@@ -13,10 +13,10 @@ class NetworkScreen extends StatefulWidget {
       {super.key, required this.themeMode, required this.onThemeChanged});
 
   @override
-  HomeScreenState createState() => HomeScreenState();
+  NetworkScreenState createState() => NetworkScreenState();
 }
 
-class HomeScreenState extends State<NetworkScreen> {
+class NetworkScreenState extends State<NetworkScreen> {
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   List<Map<String, dynamic>>? _data;

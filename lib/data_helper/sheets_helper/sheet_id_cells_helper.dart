@@ -88,6 +88,7 @@ class SheetMapper {
         'AC72': 'owner load',
         'BA72': 'neighbor load',
         'AC73': '3rd load',
+        'K73': '3rd load2',
         'K74': 'electricComments',
         'AL80': 'battery test',
         //Fuel Section
@@ -188,6 +189,7 @@ class SheetMapper {
         'AC72': 'owner load',
         'BA72': 'neighbor load',
         'AC73': '3rd load',
+        'K73': '3rd load2',
         'K74': 'electricComments',
         'AL80': 'battery test',
         //Fuel Section
@@ -286,6 +288,7 @@ class SheetMapper {
         'AC72': 'owner load',
         'BA72': 'neighbor load',
         'AC73': '3rd load',
+        'K73': '3rd load2',
         'K74': 'electricComments',
         'AL80': 'battery test',
         //Fuel Section
@@ -380,6 +383,7 @@ class SheetMapper {
         'AC71': 'owner load',
         'BA71': 'neighbor load',
         'AC72': '3rd load',
+        'K72': '3rd load2',
         'K73': 'electricComments',
         'AL79': 'battery test',
         //Fuel Section
@@ -476,6 +480,7 @@ class SheetMapper {
         'AC71': 'owner load',
         'BA71': 'neighbor load',
         'AC72': '3rd load',
+        'K72': '3rd load2',
         'K73': 'electricComments',
         'AL79': 'battery test',
         //Fuel Section
@@ -570,6 +575,7 @@ class SheetMapper {
         'AC71': 'owner load',
         'BA71': 'neighbor load',
         'AC72': '3rd load',
+        'K72': '3rd load2',
         'K73': 'electricComments',
         'AL79': 'battery test',
         //Fuel Section
@@ -666,6 +672,7 @@ class SheetMapper {
         'AC71': 'owner load',
         'BA71': 'neighbor load',
         'AC72': '3rd load',
+        'K72': '3rd load2',
         'K73': 'electricComments',
         'AL79': 'battery test',
         //Fuel Section
@@ -758,6 +765,7 @@ class SheetMapper {
         'AC68': 'owner load',
         'AY68': 'neighbor load',
         'AC69': '3rd load',
+        'K69': '3rd load2',
         'K70': 'electricComments',
         'AL76': 'battery test',
         //Fuel Section
@@ -852,6 +860,7 @@ class SheetMapper {
         'AC68': 'owner load',
         'AY68': 'neighbor load',
         'AC69': '3rd load',
+        'K69': '3rd load2',
         'K70': 'electricComments',
         'AL76': 'battery test',
         //Fuel Section
@@ -927,6 +936,7 @@ class SheetMapper {
         'AC69': 'owner load',
         'AZ69': 'neighbor load',
         'AC70': '3rd load',
+        'K70': '3rd load2',
         'K71': 'electricComments',
         'AL77': 'battery test',
         //Fuel Section
@@ -1004,6 +1014,7 @@ class SheetMapper {
         'AC69': 'owner load',
         'AZ69': 'neighbor load',
         'AC70': '3rd load',
+        'K70': '3rd load2',
         'K71': 'electricComments',
         'AL77': 'battery test',
         //Fuel Section
@@ -1075,6 +1086,7 @@ class SheetMapper {
         'AC65': 'owner load',
         'AX65': 'neighbor load',
         'AC66': '3rd load',
+        'K66': '3rd load2',
         'K67': 'electricComments',
         'AL73': 'battery test',
         //Fuel Section
@@ -1148,6 +1160,7 @@ class SheetMapper {
         'AC68': 'owner load',
         'AZ68': 'neighbor load',
         'AC69': '3rd load',
+        'K69': '3rd load2',
         'K70': 'electricComments',
         'AL76': 'battery test',
         //Fuel Section
@@ -1221,6 +1234,7 @@ class SheetMapper {
         'AC68': 'owner load',
         'AZ68': 'neighbor load',
         'AC69': '3rd load',
+        'K69': '3rd load2',
         'K70': 'electricComments',
         'AL76': 'battery test',
         //Fuel Section
@@ -1347,6 +1361,7 @@ class SheetMapper {
         'AC74': 'owner load',
         'BA74': 'neighbor load',
         'AC75': '3rd load',
+        'K75': '3rd load2',
         'K76': 'electricComments',
         'AL82': 'battery test',
         //Fuel Section

@@ -13,8 +13,10 @@ import 'package:power_diyala/data_helper/sheets_helper/google_sheet.dart';
 import 'package:power_diyala/data_helper/sheets_helper/cp_inputs.dart';
 import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
-import 'package:power_diyala/screens/main_screen.dart';
+import 'package:power_diyala/main.dart';
+import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/theme_control.dart';
+import 'package:provider/provider.dart';
 
 class CmSheetPage extends StatefulWidget {
   final ThemeMode themeMode;
@@ -32,7 +34,9 @@ class CmSheetPageState extends State<CmSheetPage> {
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   List<Map<String, dynamic>>? _siteData;
   List<Map<String, dynamic>>? _spareData;
+  List<Map<String, dynamic>>? _nameData;
   List<String> _siteNames = [];
+  List<String> _cmNames = [];
   final TextEditingController _searchController = TextEditingController();
   Map<String, dynamic>? _selectedSiteData;
   final List<SpareItem> _selectedSpareItems = [];
@@ -42,12 +46,12 @@ class CmSheetPageState extends State<CmSheetPage> {
   List<TextEditingController> _genControllers = [];
   List<TextEditingController> _tankControllers = [];
   List<TextEditingController> _commentsControllers = [];
+  List<TextEditingController> _nameController = [];
   TextEditingController siteController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   TextEditingController cpController = TextEditingController();
   TextEditingController kwhController = TextEditingController();
-  String? _selectedEngName;
-  String? _selectedTechName;
   bool _isLoading = false;
   bool _isSiteSelected = false;
   bool _isCMTypeSelected = false;
@@ -61,26 +65,6 @@ class CmSheetPageState extends State<CmSheetPage> {
   String? _selectedCategory;
   String? _selectedExtraType;
   String? _selectedType;
-  final List<String> engNames = [
-    'Ahmed Adnan',
-    'Ahmed Jassim',
-    'Ahmed Noori',
-    'Mustafa Raad',
-    'Ali Mahmod',
-    'Yahya Falih',
-  ];
-  final List<String> techNames = [
-    'Ali Adnan',
-    'Shams Ahmed',
-    'Raed Ahmed',
-    'Abdulwahab Ahmed',
-    'Amer Shalal',
-    'Bashar Shuker',
-    'Mahmod Hashim',
-    'Haider Ahmed',
-    'Mustafa Hussein',
-    'Hussein Mahmod'
-  ];
 
   @override
   void initState() {
@@ -88,6 +72,7 @@ class CmSheetPageState extends State<CmSheetPage> {
     _genControllers = List.generate(5, (index) => TextEditingController());
     _tankControllers = List.generate(5, (index) => TextEditingController());
     _commentsControllers = List.generate(3, (index) => TextEditingController());
+    _nameController = List.generate(2, (index) => TextEditingController());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDataFromManager();
     });
@@ -99,6 +84,7 @@ class CmSheetPageState extends State<CmSheetPage> {
       ..._genControllers,
       ..._tankControllers,
       ..._commentsControllers,
+      ..._nameController,
       siteController,
     ]) {
       controller.dispose();
@@ -109,25 +95,35 @@ class CmSheetPageState extends State<CmSheetPage> {
 
   Future<void> _loadDataFromManager() async {
     try {
+      // Create a single instance of DataManager
+      final dataManager = DataManager();
+
       // Load PM Data
-      _siteData = DataManager().getPMData();
+      _siteData = dataManager.getPMData();
       _siteNames =
           _siteData?.map((item) => item['site'] as String).toList() ?? [];
 
       // Load Spare Data
-      _spareData = DataManager().getSpareData();
+      _spareData = dataManager.getSpareData();
       _spareNames =
           _spareData?.map((item) => item['Item name'] as String).toList() ?? [];
       _spareCode =
           _spareData?.map((item) => item['Code'] as String).toList() ?? [];
 
+      // Load Names Data
+      _nameData = dataManager.getNamesData();
+      _cmNames =
+          _nameData?.map((item) => item['CM Name'] as String).toList() ?? [];
+
       logger.i("Loaded PM data: $_siteData");
       logger.i("Loaded Spare data: $_spareData");
+      logger.i("Loaded Name data: $_nameData");
 
       if (mounted) {
         setState(() {});
       }
     } catch (e) {
+      logger.e("Error loading data: ${e.toString()}"); // Log the error
       if (mounted) {
         _showSnackbar('Error loading data: ${e.toString()}');
       }
@@ -140,6 +136,21 @@ class CmSheetPageState extends State<CmSheetPage> {
     setState(() {
       _selectedSiteData = selectedSite;
       siteController.text = siteName;
+    });
+  }
+
+  void _updateEngName(String name) {
+    _nameData?.firstWhere((item) => item['CM Name'] == name);
+    setState(() {
+      _nameController[0].text = name;
+    });
+  }
+
+  void _updateTechName(String name) {
+    _nameData?.firstWhere((item) => item['CM Name'] == name);
+
+    setState(() {
+      _nameController[1].text = name;
     });
   }
 
@@ -451,8 +462,8 @@ class CmSheetPageState extends State<CmSheetPage> {
       //step3
       'Comments1': _commentsControllers[1].text,
       'Comments2': _commentsControllers[2].text,
-      'engineer name': _selectedEngName ?? '',
-      'tech name': _selectedTechName ?? '',
+      'engineer name': _nameController[0].text,
+      'tech name': _nameController[1].text,
     };
   }
 
@@ -548,52 +559,13 @@ class CmSheetPageState extends State<CmSheetPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isOnline = Provider.of<ConnectivityService>(context).isOnline;
     return Scaffold(
       appBar: AppBar(
         title: _isCMTypeSelected
             ? Text(_selectedCMType ?? '',
                 style: Theme.of(context).textTheme.titleLarge)
             : Text('CM Sheet', style: Theme.of(context).textTheme.titleLarge),
-        actions: [
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Confirm Restart'),
-                    content: Text('Are you sure you want to restart?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CmSheetPage(
-                                themeMode: widget.themeMode,
-                                onThemeChanged: widget.onThemeChanged,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Text('Yes'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            icon: Icon(Icons.restart_alt_rounded),
-            tooltip: 'Reset',
-          ),
-        ],
       ),
       body: !_isCMTypeSelected
           ? Center(
@@ -622,17 +594,16 @@ class CmSheetPageState extends State<CmSheetPage> {
                                       : () {
                                           controls.onStepCancel!();
                                         },
-                                  icon: Icon(Icons.arrow_back), // Back icon
+                                  icon: Icon(Icons.arrow_back),
                                   label: Text('Back'),
                                   style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.black,
+                                    backgroundColor:
+                                        Theme.of(context).secondaryHeaderColor,
                                     padding: EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                        vertical: 10), // Text color
+                                        horizontal: 20, vertical: 10),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          30.0), // Rounded corners
+                                      borderRadius: BorderRadius.circular(30.0),
                                     ),
                                   ),
                                 ),
@@ -645,31 +616,174 @@ class CmSheetPageState extends State<CmSheetPage> {
                                             showDialog(
                                               context: context,
                                               builder: (BuildContext context) {
-                                                return AlertDialog(
-                                                  title: Text('All Done'),
-                                                  content: Text(
-                                                      'Are you sure you want to proceed?'),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                      child: Text('No'),
+                                                return Dialog(
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    child: Container(
+                                                      color: Theme.of(context)
+                                                          .cardColor,
+                                                      child: SizedBox(
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.5,
+                                                        child: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Stack(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              children: [
+                                                                Container(
+                                                                  height: 120,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .tertiary,
+                                                                ),
+                                                                Column(
+                                                                  children: [
+                                                                    Icon(
+                                                                        Icons
+                                                                            .task_alt_rounded,
+                                                                        color: Colors
+                                                                            .white,
+                                                                        size:
+                                                                            32),
+                                                                    const SizedBox(
+                                                                        height:
+                                                                            8),
+                                                                    Text(
+                                                                      'All Done',
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            18,
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                        height:
+                                                                            8),
+                                                                    Text(
+                                                                      'Would you like to exit?',
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.white),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 30),
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceEvenly,
+                                                              children: [
+                                                                GestureDetector(
+                                                                  onTap: () {
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .colorScheme
+                                                                          .tertiary,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10),
+                                                                    ),
+                                                                    padding: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            16,
+                                                                            8,
+                                                                            16,
+                                                                            8),
+                                                                    child: Text(
+                                                                      'No',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize:
+                                                                              16),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                GestureDetector(
+                                                                  onTap: () {
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pushAndRemoveUntil(
+                                                                      MaterialPageRoute(
+                                                                        builder:
+                                                                            (context) =>
+                                                                                const MyApp(),
+                                                                      ),
+                                                                      (Route<dynamic>
+                                                                              route) =>
+                                                                          false,
+                                                                    );
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .colorScheme
+                                                                          .tertiary,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10),
+                                                                    ),
+                                                                    padding: EdgeInsets
+                                                                        .fromLTRB(
+                                                                            16,
+                                                                            8,
+                                                                            16,
+                                                                            8),
+                                                                    child: Text(
+                                                                      'Yes',
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize:
+                                                                              16),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 16),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     ),
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pushReplacement(
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                const MainScreen(),
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: Text('Yes'),
-                                                    ),
-                                                  ],
+                                                  ),
                                                 );
                                               },
                                             );
@@ -684,7 +798,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                   style: ElevatedButton.styleFrom(
                                     foregroundColor: Colors.white,
                                     backgroundColor: _currentStep != 2
-                                        ? Colors.green
+                                        ? Theme.of(context).primaryColor
                                         : Colors.red,
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 20,
@@ -744,6 +858,8 @@ class CmSheetPageState extends State<CmSheetPage> {
                                 child: AbsorbPointer(
                                   child: TextField(
                                     controller: siteController,
+                                    style: TextStyle(
+                                        color: ThemeControl.errorColor),
                                     decoration: InputDecoration(
                                       prefixIcon: Icon(
                                         Icons.cell_tower_rounded,
@@ -1094,87 +1210,162 @@ class CmSheetPageState extends State<CmSheetPage> {
                                 buildCommentField('Comment 2',
                                     _commentsControllers[2], context),
                               SizedBox(height: 10),
-                              DropdownButton<String>(
-                                isExpanded: true,
-                                hint: Text(
-                                  'Engineer Name..',
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ), // Placeholder text
-                                value: _selectedEngName,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    _selectedEngName = newValue;
-                                  });
-                                },
-                                items: engNames.map<DropdownMenuItem<String>>(
-                                    (String value) {
-                                  return DropdownMenuItem<String>(
-                                    alignment: Alignment.center,
-                                    value: value,
-                                    child: Text(
-                                      value,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineLarge,
+                              GestureDetector(
+                                onTap: () => showSearchableDropdown(
+                                  context,
+                                  _cmNames,
+                                  (selected) {
+                                    setState(() {
+                                      _updateEngName(selected);
+                                    });
+                                  },
+                                  _searchController,
+                                ),
+                                child: AbsorbPointer(
+                                  child: TextField(
+                                    controller: _nameController[0],
+                                    style: TextStyle(
+                                        color: ThemeControl.errorColor),
+                                    decoration: InputDecoration(
+                                      label: Text(
+                                        _selectedSiteData != null
+                                            ? 'Engineer Name:'
+                                            : 'No site selected',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: 16.0),
+                                      ),
+                                      filled: true,
+                                      labelStyle: TextStyle(
+                                          color: ThemeControl.errorColor
+                                              .withOpacity(0.8)),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                        borderSide: BorderSide(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                        borderSide: BorderSide(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .tertiary,
+                                            width: 2.0),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                        borderSide: const BorderSide(
+                                            color: Colors.grey, width: 1.5),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 16.0, horizontal: 12.0),
                                     ),
-                                  );
-                                }).toList(),
+                                    keyboardType: TextInputType.number,
+                                    readOnly: true,
+                                  ),
+                                ),
                               ),
-                              DropdownButton<String>(
-                                isExpanded: true,
-                                hint: Text(
-                                  'Tech Name..',
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ), // Placeholder text
-                                value: _selectedTechName,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    _selectedTechName = newValue;
-                                  });
-                                },
-                                items: techNames.map<DropdownMenuItem<String>>(
-                                    (String value) {
-                                  return DropdownMenuItem<String>(
-                                    alignment: Alignment.center,
-                                    value: value,
-                                    child: Text(
-                                      value,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineLarge,
+                              SizedBox(height: 10),
+                              GestureDetector(
+                                onTap: () => showSearchableDropdown(
+                                  context,
+                                  _cmNames,
+                                  (selected) {
+                                    setState(() {
+                                      _updateTechName(selected);
+                                    });
+                                  },
+                                  _searchController,
+                                ),
+                                child: AbsorbPointer(
+                                  child: TextField(
+                                    controller: _nameController[1],
+                                    style: TextStyle(
+                                        color: ThemeControl.errorColor),
+                                    decoration: InputDecoration(
+                                      label: Text(
+                                        _selectedSiteData != null
+                                            ? 'Technician Name:'
+                                            : 'No site selected',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: 16.0),
+                                      ),
+                                      filled: true,
+                                      labelStyle: TextStyle(
+                                          color: ThemeControl.errorColor
+                                              .withOpacity(0.8)),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                        borderSide: BorderSide(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                        borderSide: BorderSide(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .tertiary,
+                                            width: 2.0),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                        borderSide: const BorderSide(
+                                            color: Colors.grey, width: 1.5),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 16.0, horizontal: 12.0),
                                     ),
-                                  );
-                                }).toList(),
+                                    keyboardType: TextInputType.number,
+                                    readOnly: true,
+                                  ),
+                                ),
                               ),
+                              SizedBox(height: 20),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
                                 children: [
                                   Expanded(
                                     child: ElevatedButton(
-                                      onPressed: _isLoading
-                                          ? null
-                                          : () async {
-                                              setState(() {
-                                                _isLoading = true;
-                                              });
+                                      onPressed: isOnline
+                                          ? _isLoading
+                                              ? null
+                                              : () async {
+                                                  setState(() {
+                                                    _isLoading = true;
+                                                  });
 
-                                              try {
-                                                await _submitData();
+                                                  try {
+                                                    await _submitData();
 
-                                                if (!context.mounted) return;
-                                                _showSnackbar(
-                                                  '/PowerDiyala/${_generateModifiedFileName(_selectedCMType ?? 'Generator')}',
-                                                );
-                                              } catch (error) {
-                                                _showSnackbar(
-                                                    'Error submitting data: $error');
-                                              } finally {
-                                                setState(() {
-                                                  _isLoading =
-                                                      false; // Stop loading
-                                                });
-                                              }
+                                                    if (!context.mounted) {
+                                                      return;
+                                                    }
+                                                    _showSnackbar(
+                                                      '/PowerDiyala/${_generateModifiedFileName(_selectedCMType ?? 'Generator')}',
+                                                    );
+                                                  } catch (error) {
+                                                    _showSnackbar(
+                                                        'Error submitting data: $error');
+                                                  } finally {
+                                                    setState(() {
+                                                      _isLoading = false;
+                                                    });
+                                                  }
+                                                }
+                                          : () {
+                                              _showNoInternetDialog();
                                             },
                                       onLongPress: () {
                                         if (_selectedSiteData != null &&
@@ -1196,7 +1387,9 @@ class CmSheetPageState extends State<CmSheetPage> {
                                       },
                                       style: ElevatedButton.styleFrom(
                                         foregroundColor: Colors.black,
-                                        backgroundColor: Color(0xff69F0AE),
+                                        backgroundColor: isOnline
+                                            ? Colors.tealAccent
+                                            : Colors.grey,
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 20, vertical: 12),
                                         shape: RoundedRectangleBorder(
@@ -1218,7 +1411,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                                   ),
                                                 ),
                                                 SizedBox(width: 10),
-                                                Text('Submitting...'),
+                                                Text('Downloading...'),
                                               ],
                                             )
                                           : Text('Submit'),
@@ -1452,7 +1645,6 @@ class CmSheetPageState extends State<CmSheetPage> {
             });
           },
         ),
-        // SizedBox(width: 30),
         QuantitySelector(
           initialQuantity: item.quantity,
           onQuantityChanged: (newQuantity) {
@@ -1467,6 +1659,80 @@ class CmSheetPageState extends State<CmSheetPage> {
           },
         ),
       ],
+    );
+  }
+
+  void _showNoInternetDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              color: Theme.of(context).cardColor,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          height: 120,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                        Column(
+                          children: [
+                            Icon(Icons.wifi_off_rounded,
+                                color: Colors.white, size: 32),
+                            const SizedBox(height: 8),
+                            Text(
+                              'OOPs...',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'No Internet Connection!',
+                              style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: Text(
+                          'Try again',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

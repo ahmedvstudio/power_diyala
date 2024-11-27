@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +13,10 @@ import 'package:power_diyala/data_helper/sheets_helper/gen_input.dart';
 import 'package:power_diyala/data_helper/sheets_helper/sheet_id_cells_helper.dart';
 import 'package:power_diyala/data_helper/sheets_helper/toggles.dart';
 import 'package:power_diyala/data_helper/sheets_helper/tank_input.dart';
-import 'package:power_diyala/screens/main_screen.dart';
+import 'package:power_diyala/main.dart';
+import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/theme_control.dart';
+import 'package:provider/provider.dart';
 
 class PmSheetPage extends StatefulWidget {
   final ThemeMode themeMode;
@@ -31,17 +34,19 @@ class PmSheetPageState extends State<PmSheetPage> {
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   List<Map<String, dynamic>>? _data;
   List<String> _siteNames = [];
+  List<Map<String, dynamic>>? _nameData;
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   Map<String, dynamic>? _selectedSiteData;
   List<TextEditingController> genControllers = [];
   List<TextEditingController> genVLControllers = [];
   List<TextEditingController> tankControllers = [];
   List<TextEditingController> commentsControllers = [];
+  List<String> _pmNames = [];
   TextEditingController siteController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   TextEditingController cpController = TextEditingController();
   TextEditingController kwhController = TextEditingController();
-  String? _selectedName;
   final List<TextEditingController> acVoltControllers =
       List.generate(6, (index) => TextEditingController());
   final List<TextEditingController> acLoadControllers =
@@ -84,10 +89,13 @@ class PmSheetPageState extends State<PmSheetPage> {
     false,
     false,
   ];
+
   bool isCpEnabled = true;
   bool isLowVoltage = false;
   bool isEarthEnabled = false;
   bool isBatteryTestEnabled = false;
+  bool _isRandomGenerated = false;
+  bool _isSiteDataLoaded = false;
   List<bool> stepCompleted = List.filled(7, false);
   List<bool> gensSwitches = [true, true];
   TimeOfDay? fromTime;
@@ -105,7 +113,6 @@ class PmSheetPageState extends State<PmSheetPage> {
   @override
   void initState() {
     super.initState();
-
     genControllers = List.generate(5, (index) => TextEditingController());
     tankControllers = List.generate(5, (index) => TextEditingController());
     genVLControllers = List.generate(20, (index) => TextEditingController());
@@ -117,9 +124,6 @@ class PmSheetPageState extends State<PmSheetPage> {
       _loadDataFromManager();
     });
   }
-
-  bool _isRandomGenerated = false;
-  bool _isSiteDataLoaded = false;
 
   @override
   void setState(VoidCallback fn) {
@@ -157,15 +161,17 @@ class PmSheetPageState extends State<PmSheetPage> {
     ]) {
       controller.dispose();
     }
-
     super.dispose();
   }
 
   Future<void> _loadDataFromManager() async {
     try {
-      _data = DataManager().getPMData();
+      final dataManager = DataManager();
+      _data = dataManager.getPMData();
       _siteNames = _data?.map((item) => item['site'] as String).toList() ?? [];
-
+      _nameData = dataManager.getNamesData();
+      _pmNames =
+          _nameData?.map((item) => item['Full Name'] as String).toList() ?? [];
       logger.i("Loaded PM data: $_data");
 
       if (mounted) {
@@ -178,12 +184,18 @@ class PmSheetPageState extends State<PmSheetPage> {
     }
   }
 
+  void _updateEngName(String name) {
+    _nameData?.firstWhere((item) => item['Full Name'] == name);
+    setState(() {
+      _nameController.text = name;
+    });
+  }
+
   void _updateSelectedSiteData(String siteName) {
     final selectedSite = _data?.firstWhere((item) => item['site'] == siteName);
     setState(() {
       _selectedSiteData = selectedSite;
-      siteController.text =
-          siteName; // Update the site controller with the selected site name
+      siteController.text = siteName;
     });
   }
 
@@ -300,7 +312,8 @@ class PmSheetPageState extends State<PmSheetPage> {
       setState(() {
         externalLoadControllers[0].text = _selectedSiteData!['owner'] ?? '';
         externalLoadControllers[1].text = _selectedSiteData!['neighbour'] ?? '';
-        externalLoadControllers[2].text = _selectedSiteData!['3rdparty'] ?? '';
+        externalLoadControllers[2].text = _selectedSiteData!['3rdparty1'] ?? '';
+        externalLoadControllers[3].text = _selectedSiteData!['3rdparty2'] ?? '';
         isEarthEnabled = (_selectedSiteData!['earth'] == 'Yes');
       });
     }
@@ -320,7 +333,7 @@ class PmSheetPageState extends State<PmSheetPage> {
       'siteName': '${siteController.text}-${_selectedSiteData?['code'] ?? ''}',
       'location': _selectedSiteData?['Location'] ?? '',
       'date': _dateController.text,
-      'engineer name': _selectedName,
+      'engineer name': _nameController.text,
       'timeIn': fromTime?.format(context) ?? '',
       'timeOut': toTime?.format(context) ?? '',
       'G1': genControllers[0].text,
@@ -423,6 +436,7 @@ class PmSheetPageState extends State<PmSheetPage> {
       'owner load': externalLoadControllers[0].text,
       'neighbor load': externalLoadControllers[1].text,
       '3rd load': externalLoadControllers[2].text,
+      '3rd load2': externalLoadControllers[3].text,
       'battery test': isBatteryTestEnabled ? 'Yes' : 'No',
       'start dc': isBatteryTestEnabled == false
           ? '0'
@@ -592,49 +606,11 @@ class PmSheetPageState extends State<PmSheetPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isOnline = Provider.of<ConnectivityService>(context).isOnline;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('PM Sheet', style: Theme.of(context).textTheme.titleLarge),
-        actions: [
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Confirm Restart'),
-                    content: Text('Are you sure you want to restart?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PmSheetPage(
-                                themeMode: widget.themeMode,
-                                onThemeChanged: widget.onThemeChanged,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Text('Yes'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            icon: Icon(Icons.restart_alt_rounded),
-            tooltip: 'Reset',
-          ),
-        ],
       ),
       body: SafeArea(
         child: _data == null
@@ -661,69 +637,208 @@ class PmSheetPageState extends State<PmSheetPage> {
                             icon: Icon(Icons.arrow_back), // Back icon
                             label: Text('Back'),
                             style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.black,
+                              backgroundColor:
+                                  Theme.of(context).secondaryHeaderColor,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10), // Text color
+                                  horizontal: 20, vertical: 10),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    30.0), // Rounded corners
+                                borderRadius: BorderRadius.circular(30.0),
                               ),
                             ),
                           ),
                           ElevatedButton.icon(
                             onPressed: (_isSiteSelected)
                                 ? () {
-                                    if (_currentStep != 6) {
+                                    if (_currentStep != 5) {
                                       controls.onStepContinue!();
                                     } else {
                                       showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text('All Done'),
-                                            content: Text(
-                                                'Are you sure you want to proceed?'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('No'),
+                                          return Dialog(
+                                            backgroundColor: Colors.transparent,
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              child: Container(
+                                                color:
+                                                    Theme.of(context).cardColor,
+                                                child: SizedBox(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.5,
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Stack(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        children: [
+                                                          Container(
+                                                            height: 120,
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .tertiary,
+                                                          ),
+                                                          Column(
+                                                            children: [
+                                                              Icon(
+                                                                  Icons
+                                                                      .task_alt_rounded,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: 32),
+                                                              const SizedBox(
+                                                                  height: 8),
+                                                              Text(
+                                                                'All Done',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 18,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  height: 8),
+                                                              Text(
+                                                                'Would you like to exit',
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 30),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceEvenly,
+                                                        children: [
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            child: Container(
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .tertiary,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                              ),
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .fromLTRB(
+                                                                          16,
+                                                                          8,
+                                                                          16,
+                                                                          8),
+                                                              child: Text(
+                                                                'No',
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        16),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pushAndRemoveUntil(
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          const MyApp(),
+                                                                ),
+                                                                (Route<dynamic>
+                                                                        route) =>
+                                                                    false,
+                                                              );
+                                                            },
+                                                            child: Container(
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .tertiary,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                              ),
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .fromLTRB(
+                                                                          16,
+                                                                          8,
+                                                                          16,
+                                                                          8),
+                                                              child: Text(
+                                                                'Yes',
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        16),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 16),
+                                                    ],
+                                                  ),
+                                                ),
                                               ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context)
-                                                      .pushReplacement(
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          const MainScreen(),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Text('Yes'),
-                                              ),
-                                            ],
+                                            ),
                                           );
                                         },
                                       );
                                     }
                                   }
                                 : null,
-                            icon: Icon(_currentStep != 6
+                            icon: Icon(_currentStep != 5
                                 ? Icons.arrow_forward
                                 : Icons.check),
                             label:
-                                Text(_currentStep != 6 ? 'Continue' : 'Done'),
+                                Text(_currentStep != 5 ? 'Continue' : 'Done'),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor:
-                                  _currentStep != 6 ? Colors.green : Colors.red,
+                              backgroundColor: _currentStep != 5
+                                  ? Theme.of(context).primaryColor
+                                  : Colors.red,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10), // Text color
+                                  horizontal: 20, vertical: 10),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    30.0), // Rounded corners
+                                borderRadius: BorderRadius.circular(30.0),
                               ),
                             ),
                           ),
@@ -740,7 +855,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                   }
                 },
                 onStepContinue: () {
-                  if (_currentStep < 6) {
+                  if (_currentStep < 5) {
                     setState(() {
                       stepCompleted[_currentStep] = true;
                       _currentStep++;
@@ -771,7 +886,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Text(
-                                            'Reset the page to change the site')),
+                                            '${siteController.text} ${_selectedSiteData?['code']}')),
                                   );
                                 }
                               : () => showSearchableDropdown(
@@ -788,6 +903,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                           child: AbsorbPointer(
                             child: TextField(
                               controller: siteController,
+                              style: TextStyle(color: ThemeControl.errorColor),
                               decoration: InputDecoration(
                                 prefixIcon: Icon(
                                   Icons.cell_tower_rounded,
@@ -980,7 +1096,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                     isActive: _currentStep == 1,
                     title: Text('Generator'),
                     subtitle:
-                        _currentStep == 1 ? Text('on => Yes, off => No') : null,
+                        _currentStep == 1 ? Text('on = Yes, off = No') : null,
                     content: Column(
                       children: [
                         if (_selectedSiteData != null)
@@ -1100,7 +1216,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                         Expanded(child: Text('Comments')),
                         if (_currentStep == 5)
                           Text(
-                            'Add Comments ->',
+                            'Add Comments first ->',
                             style: TextStyle(fontSize: 8, color: Colors.red),
                           ),
                         if (_currentStep == 5)
@@ -1144,77 +1260,102 @@ class PmSheetPageState extends State<PmSheetPage> {
                         buildCommentField(
                             'Electric', commentsControllers[4], context),
                         SizedBox(height: 10),
-                        DropdownButton<String>(
-                          hint: Text(
-                            'Engineer Name..',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ), // Placeholder text
-                          value: _selectedName,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedName =
-                                  newValue; // Update the selected name
-                            });
-                          },
-                          items: names
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                value,
-                                style:
-                                    Theme.of(context).textTheme.headlineLarge,
+                        GestureDetector(
+                          onTap: () => showSearchableDropdown(
+                            context,
+                            _pmNames,
+                            (selected) {
+                              setState(() {
+                                _updateEngName(selected);
+                              });
+                            },
+                            _searchController,
+                          ),
+                          child: AbsorbPointer(
+                            child: TextField(
+                              controller: _nameController,
+                              style: TextStyle(color: ThemeControl.errorColor),
+                              decoration: InputDecoration(
+                                label: Text(
+                                  _selectedSiteData != null
+                                      ? 'Engineer Name:'
+                                      : 'No site selected',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 16.0),
+                                ),
+                                filled: true,
+                                labelStyle: TextStyle(
+                                    color: ThemeControl.errorColor
+                                        .withOpacity(0.8)),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                      width: 2.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: const BorderSide(
+                                      color: Colors.grey, width: 1.5),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16.0, horizontal: 12.0),
                               ),
-                            );
-                          }).toList(),
+                              keyboardType: TextInputType.number,
+                              readOnly: true,
+                            ),
+                          ),
                         ),
-                      ],
-                    ),
-                    state: stepCompleted[5]
-                        ? StepState.complete
-                        : StepState.indexed,
-                  ),
-                  Step(
-                    isActive: _currentStep == 6,
-                    title: Text('Submit'),
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                        SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: _isLoading
-                                    ? null
-                                    : () async {
-                                        setState(() {
-                                          _isLoading = true; // Start loading
-                                        });
-
-                                        try {
-                                          await submitData();
-                                          if (!context.mounted) return;
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  '/PowerDiyala/${_collectData()['siteName']}'),
-                                            ),
-                                          );
-                                        } catch (error) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  'Error submitting data: $error'),
-                                            ),
-                                          );
-                                        } finally {
-                                          setState(() {
-                                            _isLoading = false; // Stop loading
-                                          });
-                                        }
+                                onPressed: isOnline
+                                    ? _isLoading
+                                        ? null
+                                        : () async {
+                                            setState(() {
+                                              _isLoading =
+                                                  true; // Start loading
+                                            });
+                                            try {
+                                              await submitData();
+                                              if (!context.mounted) return;
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      '/PowerDiyala/${_collectData()['siteName']}'),
+                                                ),
+                                              );
+                                            } catch (error) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      'Error submitting data: $error'),
+                                                ),
+                                              );
+                                            } finally {
+                                              setState(() {
+                                                _isLoading =
+                                                    false; // Stop loading
+                                              });
+                                            }
+                                          }
+                                    : () {
+                                        _showNoInternetDialog();
                                       },
                                 onLongPress: () {
                                   if (_selectedSiteData != null &&
@@ -1237,7 +1378,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.black,
-                                  backgroundColor: Color(0xff69F0AE),
+                                  backgroundColor: isOnline
+                                      ? Colors.tealAccent
+                                      : Colors.grey,
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 20, vertical: 12),
                                   shape: RoundedRectangleBorder(
@@ -1258,7 +1401,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                             ),
                                           ),
                                           SizedBox(width: 10),
-                                          Text('Submitting...'),
+                                          Text('Downloading...'),
                                         ],
                                       )
                                     : Text('Submit'),
@@ -1268,7 +1411,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                         ),
                       ],
                     ),
-                    state: stepCompleted[6]
+                    state: stepCompleted[5]
                         ? StepState.complete
                         : StepState.indexed,
                   ),
@@ -1308,6 +1451,80 @@ class PmSheetPageState extends State<PmSheetPage> {
               },
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _showNoInternetDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              color: Theme.of(context).cardColor,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          height: 120,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                        Column(
+                          children: [
+                            Icon(Icons.wifi_off_rounded,
+                                color: Colors.white, size: 32),
+                            const SizedBox(height: 8),
+                            Text(
+                              'OOPs...',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'No Internet Connection!',
+                              style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: Text(
+                          'Try again',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ),
+          ),
         );
       },
     );
