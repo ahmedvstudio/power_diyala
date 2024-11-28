@@ -61,12 +61,12 @@ class QuantitySelectorState extends State<QuantitySelector> {
               labelStyle:
                   TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(30.0),
                 borderSide:
                     BorderSide(color: Theme.of(context).colorScheme.secondary),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(30.0),
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.tertiary,
                   width: 2.0,
@@ -74,11 +74,10 @@ class QuantitySelectorState extends State<QuantitySelector> {
               ),
               filled: true,
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(30.0),
                 borderSide: const BorderSide(color: Colors.grey, width: 1.5),
               ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 18.0),
             ),
           ),
           actions: <Widget>[

@@ -145,7 +145,9 @@ class UsedForHelperState extends State<UsedForHelper> {
           },
           child: Text(
             onWhatValue.isEmpty ? 'On What' : onWhatValue,
-            style: TextStyle(fontSize: 14, color: Colors.teal),
+            style: TextStyle(
+                fontSize: 14,
+                color: onWhatValue.isEmpty ? Colors.red : Colors.teal),
           ),
         ),
       ],
