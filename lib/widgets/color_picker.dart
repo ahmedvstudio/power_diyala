@@ -34,8 +34,6 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
     });
   }
 
-// Method to pick any color using ColorPicker
-
   void _pickColor(Color currentColor, ValueChanged<Color> onColorChanged) {
     showDialog(
       context: context,
@@ -55,12 +53,14 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
             ),
           ),
           actions: [
-            TextButton(
-              child: const Text('Select'),
-              onPressed: () {
-                onColorChanged(tempColor); // Return the selected color
-                Navigator.of(context).pop();
-              },
+            Center(
+              child: OutlinedButton(
+                child: const Text('Select'),
+                onPressed: () {
+                  onColorChanged(tempColor);
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
           ],
         );
@@ -71,23 +71,29 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Theme Colors'),
+      title: const Text(
+        'Customize Theme',
+        style: TextStyle(
+            fontWeight: FontWeight.normal,
+            fontStyle: FontStyle.normal,
+            decoration: TextDecoration.underline),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildColorButton('Primary', primaryColor, (color) {
+          _buildColorButton('Primary Color', primaryColor, (color) {
             setState(() {
               primaryColor = color;
             });
           }),
           const SizedBox(height: 10),
-          _buildColorButton('Secondary', secondaryColor, (color) {
+          _buildColorButton('Secondary Color', secondaryColor, (color) {
             setState(() {
               secondaryColor = color;
             });
           }),
           const SizedBox(height: 10),
-          _buildColorButton('Accent', accentColor, (color) {
+          _buildColorButton('Accent Color', accentColor, (color) {
             setState(() {
               accentColor = color;
             });
@@ -128,7 +134,6 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
     );
   }
 
-  // Button to pick color for each section
   Widget _buildColorButton(
       String title, Color currentColor, ValueChanged<Color> onColorChanged) {
     return Row(
@@ -137,31 +142,25 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
           flex: 2,
           child: Text(
             title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(
+                fontSize: 17, fontWeight: FontWeight.w500, color: currentColor),
           ),
         ),
         Expanded(
           flex: 1,
-          child: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: currentColor,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey.shade300, width: 1),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 2,
-          child: ElevatedButton(
-            onPressed: () {
+          child: GestureDetector(
+            onTap: () {
               _pickColor(currentColor, onColorChanged);
             },
-            child: const Text('Pick'),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: currentColor,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey.shade300, width: 1),
+              ),
+            ),
           ),
         ),
       ],
