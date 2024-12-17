@@ -110,7 +110,7 @@ Widget buildTextField(
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: ThemeControl.errorColor),
+        labelStyle: const TextStyle(color: ThemeControl.errorColor),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
           borderSide: BorderSide(color: themeControl.secondaryColor),

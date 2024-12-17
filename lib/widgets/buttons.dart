@@ -52,11 +52,11 @@ class ResetTextButton extends StatelessWidget {
                               height: 120,
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
-                            Column(
+                            const Column(
                               children: [
                                 Icon(Icons.rocket_launch_rounded,
                                     color: Colors.white, size: 32),
-                                const SizedBox(height: 8),
+                                SizedBox(height: 8),
                                 Text(
                                   'Nuke Everything!!',
                                   textAlign: TextAlign.center,
@@ -66,7 +66,7 @@ class ResetTextButton extends StatelessWidget {
                                     fontSize: 18,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
+                                SizedBox(height: 8),
                                 Text(
                                   'Would you like to reset the app ?',
                                   style: TextStyle(color: Colors.white),
@@ -93,8 +93,9 @@ class ResetTextButton extends StatelessWidget {
                                   color: Theme.of(context).colorScheme.tertiary,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                child: Text(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                child: const Text(
                                   'Cancel',
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 16),
@@ -110,8 +111,9 @@ class ResetTextButton extends StatelessWidget {
                                   color: Theme.of(context).colorScheme.tertiary,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                child: Text(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                child: const Text(
                                   'Yes',
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 16),
@@ -143,7 +145,7 @@ class ResetTextButton extends StatelessWidget {
           exit(0);
         }
       },
-      icon: Icon(Icons.restart_alt_rounded),
+      icon: const Icon(Icons.restart_alt_rounded),
       tooltip: 'Reset',
     );
   }
@@ -224,10 +226,10 @@ void _showUpdateDialog(BuildContext context, String latestVersion) {
                       ),
                       Column(
                         children: [
-                          Icon(Icons.update_rounded,
+                          const Icon(Icons.update_rounded,
                               color: Colors.white, size: 32),
                           const SizedBox(height: 8),
-                          Text(
+                          const Text(
                             'Update Available',
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -239,7 +241,7 @@ void _showUpdateDialog(BuildContext context, String latestVersion) {
                           const SizedBox(height: 8),
                           Text(
                             "$appName ($latestVersion) available.",
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ],
                       ),
@@ -258,8 +260,8 @@ void _showUpdateDialog(BuildContext context, String latestVersion) {
                             color: Theme.of(context).colorScheme.tertiary,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                          child: Text(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          child: const Text(
                             'Cancel',
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
@@ -283,8 +285,8 @@ void _showUpdateDialog(BuildContext context, String latestVersion) {
                             color: Theme.of(context).colorScheme.tertiary,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                          child: Text(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          child: const Text(
                             'Download',
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),

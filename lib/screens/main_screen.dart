@@ -65,12 +65,12 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _initializeScreens();
     _fetchAndActivateRemoteConfig();
     _borderRadiusAnimationController = AnimationController(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     borderRadiusCurve = CurvedAnimation(
       parent: _borderRadiusAnimationController,
-      curve: Interval(0.5, 1.0, curve: Curves.fastOutSlowIn),
+      curve: const Interval(0.5, 1.0, curve: Curves.fastOutSlowIn),
     );
 
     borderRadiusAnimation = Tween<double>(begin: 0, end: 1).animate(
@@ -78,7 +78,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
 
     Future.delayed(
-      Duration(seconds: 1),
+      const Duration(seconds: 1),
       () => _borderRadiusAnimationController.forward(),
     );
   }
@@ -119,7 +119,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     themeControl.toggleTheme(value);
                   },
                 )
-              : NotAvailableWidget();
+              : const NotAvailableWidget();
         },
       ),
     );
@@ -133,7 +133,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     themeControl.toggleTheme(value);
                   },
                 )
-              : NotAvailableWidget();
+              : const NotAvailableWidget();
         },
       ),
     );
@@ -148,7 +148,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     themeControl.toggleTheme(value);
                   },
                 )
-              : NotAvailableWidget();
+              : const NotAvailableWidget();
         },
       ),
     );
@@ -162,7 +162,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     themeControl.toggleTheme(value);
                   },
                 )
-              : NotAvailableWidget();
+              : const NotAvailableWidget();
         },
       ),
     );
@@ -197,10 +197,10 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           height: 120,
                           color: Theme.of(context).colorScheme.tertiary,
                         ),
-                        Column(
+                        const Column(
                           children: [
                             Icon(Icons.warning, color: Colors.white, size: 32),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Text(
                               'OOPs...',
                               textAlign: TextAlign.center,
@@ -210,7 +210,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                                 fontSize: 18,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Text(
                               'Under maintenance',
                               style: TextStyle(color: Colors.white),
@@ -229,8 +229,8 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           color: Theme.of(context).colorScheme.tertiary,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: Text(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: const Text(
                           'Try again',
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
@@ -271,7 +271,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 text: 'Diyala',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.normal,
-                      color: isOnline ? Color(0xff00E676) : Colors.red,
+                      color: isOnline ? const Color(0xff00E676) : Colors.red,
                     ),
               ),
             ],
@@ -304,8 +304,9 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         children: [
           if (isBannerON)
             Container(
-              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              margin: EdgeInsets.all(10.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              margin: const EdgeInsets.all(10.0),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -320,7 +321,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   BoxShadow(
                     color: Theme.of(context).shadowColor.withOpacity(0.5),
                     blurRadius: 5.0,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
                 border: Border.all(
@@ -335,19 +336,19 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                       children: [
                         Text(
                           bannerTitle,
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Colors.red,
                               fontSize: 18.0,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic),
                         ),
-                        SizedBox(height: 5.0),
+                        const SizedBox(height: 5.0),
                         SizedBox(
                           height: 20.0,
                           child: bannerText.isNotEmpty
                               ? Marquee(
                                   text: bannerText,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 14.0,
                                   ),
@@ -355,12 +356,13 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   blankSpace: 20.0,
                                   velocity: 100.0,
-                                  pauseAfterRound: Duration(seconds: 1),
+                                  pauseAfterRound: const Duration(seconds: 1),
                                   startPadding: 10.0,
-                                  accelerationDuration: Duration(seconds: 1),
+                                  accelerationDuration:
+                                      const Duration(seconds: 1),
                                   accelerationCurve: Curves.linear,
                                   decelerationDuration:
-                                      Duration(milliseconds: 500),
+                                      const Duration(milliseconds: 500),
                                   decelerationCurve: Curves.easeOut,
                                 )
                               : Text(
@@ -381,7 +383,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         isBannerON = false;
                       });
                     },
-                    child: Icon(
+                    child: const Icon(
                       Icons.close,
                       size: 16,
                       color: Colors.black54,
@@ -410,7 +412,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 7,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -425,8 +427,8 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           spaceBetweenChildren: 10,
           children: [
             SpeedDialChild(
-              shape: CircleBorder(),
-              child: Icon(Icons.assignment, color: Colors.white),
+              shape: const CircleBorder(),
+              child: const Icon(Icons.assignment, color: Colors.white),
               backgroundColor: Colors.green,
               label: 'CM',
               onTap: () {
@@ -445,8 +447,8 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               },
             ),
             SpeedDialChild(
-              shape: CircleBorder(),
-              child: Icon(Icons.assessment, color: Colors.white),
+              shape: const CircleBorder(),
+              child: const Icon(Icons.assessment, color: Colors.white),
               backgroundColor: Colors.red,
               label: 'PM',
               onTap: () {
@@ -507,7 +509,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         rightCornerRadius: 32,
         onTap: _onItemTapped,
         shadow: BoxShadow(
-          offset: Offset(0, 1),
+          offset: const Offset(0, 1),
           blurRadius: 12,
           spreadRadius: 0.5,
           color: Theme.of(context).shadowColor,

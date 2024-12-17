@@ -29,14 +29,14 @@ class ReplacementSwitch {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Expanded(child: Container()),
-                  Text('G1',
+                  const Text('G1',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 35),
-                  Text('G2',
+                  const SizedBox(width: 35),
+                  const Text('G2',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                 ],
               ),
               Divider(thickness: 1, color: Colors.grey[300]),
@@ -85,7 +85,7 @@ class ReplacementSwitch {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Expanded(
-            child: Text(label, style: TextStyle(fontSize: 16)),
+            child: Text(label, style: const TextStyle(fontSize: 16)),
           ),
           Switch(
             value: switchValues[g1Index],
@@ -188,7 +188,7 @@ class SeparatorSwitch {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Expanded(
-            child: Text(label, style: TextStyle(fontSize: 16)),
+            child: Text(label, style: const TextStyle(fontSize: 16)),
           ),
           _buildSwitchWithLabel(
               g1Index, switchValues[g1Index], onChanged, isGen1Enabled),

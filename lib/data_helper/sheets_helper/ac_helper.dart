@@ -195,7 +195,7 @@ class AcInputState extends State<AcInput> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Text('Outdoor'),
+          const Text('Outdoor'),
           const SizedBox(width: 8.0),
           _generateTextField(context, widget.acVoltControllers[3], 'V'),
           const SizedBox(width: 8.0),

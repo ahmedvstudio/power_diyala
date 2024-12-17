@@ -122,19 +122,19 @@ class SettingsScreenState extends State<SettingsScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10))),
             contentPadding: const EdgeInsets.all(0.0),
-            insetPadding: EdgeInsets.symmetric(horizontal: 100),
+            insetPadding: const EdgeInsets.symmetric(horizontal: 100),
             content: Padding(
-              padding: EdgeInsets.only(top: 20, bottom: 20),
+              padding: const EdgeInsets.only(top: 20, bottom: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CircularProgressIndicator(
                       color: Theme.of(context).primaryColor),
                   const SizedBox(height: 16),
-                  Text('Loading New Data...')
+                  const Text('Loading New Data...')
                 ],
               ),
             ),
@@ -155,10 +155,10 @@ class SettingsScreenState extends State<SettingsScreen> {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (context) => ColorPickerDialog(),
+                  builder: (context) => const ColorPickerDialog(),
                 );
               },
-              icon: Icon(Icons.color_lens_rounded),
+              icon: const Icon(Icons.color_lens_rounded),
               tooltip: 'Theme Color'),
           IconButton(
             onPressed: () async {
@@ -169,7 +169,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     mode: LaunchMode.externalApplication);
               } else {}
             },
-            icon: Icon(Icons.bug_report_rounded),
+            icon: const Icon(Icons.bug_report_rounded),
             tooltip: 'Report a bug',
           ),
           const ResetTextButton(),
@@ -189,7 +189,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     width: 250,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
                   child: Row(
@@ -330,7 +330,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   mode: LaunchMode.externalApplication);
                             } else {}
                           },
-                          icon: Icon(SimpleIcons.facebook, size: iconSize),
+                          icon:
+                              const Icon(SimpleIcons.facebook, size: iconSize),
                         ),
                         IconButton(
                           onPressed: () async {
@@ -340,7 +341,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   mode: LaunchMode.externalApplication);
                             } else {}
                           },
-                          icon: Icon(SimpleIcons.github, size: iconSize),
+                          icon: const Icon(SimpleIcons.github, size: iconSize),
                         ),
                         IconButton(
                           onPressed: () async {
@@ -350,7 +351,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   mode: LaunchMode.externalApplication);
                             } else {}
                           },
-                          icon: Icon(SimpleIcons.x, size: iconSize),
+                          icon: const Icon(SimpleIcons.x, size: iconSize),
                         ),
                       ],
                     ),

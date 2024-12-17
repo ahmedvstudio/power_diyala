@@ -251,10 +251,10 @@ class SpmsScreenState extends State<SpmsScreen> {
                   IconButton(
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => StatisticsScreen(),
+                          builder: (context) => const StatisticsScreen(),
                         ));
                       },
-                      icon: Icon(Icons.insert_chart_outlined_rounded)),
+                      icon: const Icon(Icons.insert_chart_outlined_rounded)),
                 ],
               ),
             ),

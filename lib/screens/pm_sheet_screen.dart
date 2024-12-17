@@ -617,12 +617,12 @@ class PmSheetPageState extends State<PmSheetPage> {
             : Stepper(
                 currentStep: _currentStep,
                 type: StepperType.vertical,
-                physics: ScrollPhysics(),
+                physics: const ScrollPhysics(),
                 controlsBuilder:
                     (BuildContext context, ControlsDetails controls) {
                   return Column(
                     children: [
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -633,13 +633,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 : () {
                                     controls.onStepCancel!();
                                   },
-                            icon: Icon(Icons.arrow_back), // Back icon
-                            label: Text('Back'),
+                            icon: const Icon(Icons.arrow_back), // Back icon
+                            label: const Text('Back'),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.black,
                               backgroundColor:
                                   Theme.of(context).secondaryHeaderColor,
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30.0),
@@ -686,7 +686,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                                                 .colorScheme
                                                                 .tertiary,
                                                           ),
-                                                          Column(
+                                                          const Column(
                                                             children: [
                                                               Icon(
                                                                   Icons
@@ -694,7 +694,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                                                   color: Colors
                                                                       .white,
                                                                   size: 32),
-                                                              const SizedBox(
+                                                              SizedBox(
                                                                   height: 8),
                                                               Text(
                                                                 'All Done',
@@ -711,7 +711,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                                                   fontSize: 18,
                                                                 ),
                                                               ),
-                                                              const SizedBox(
+                                                              SizedBox(
                                                                   height: 8),
                                                               Text(
                                                                 'Would you like to exit',
@@ -749,13 +749,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                                                                             10),
                                                               ),
                                                               padding:
-                                                                  EdgeInsets
+                                                                  const EdgeInsets
                                                                       .fromLTRB(
-                                                                          16,
-                                                                          8,
-                                                                          16,
-                                                                          8),
-                                                              child: Text(
+                                                                      16,
+                                                                      8,
+                                                                      16,
+                                                                      8),
+                                                              child: const Text(
                                                                 'No',
                                                                 style: TextStyle(
                                                                     color: Colors
@@ -787,13 +787,13 @@ class PmSheetPageState extends State<PmSheetPage> {
                                                                             10),
                                                               ),
                                                               padding:
-                                                                  EdgeInsets
+                                                                  const EdgeInsets
                                                                       .fromLTRB(
-                                                                          16,
-                                                                          8,
-                                                                          16,
-                                                                          8),
-                                                              child: Text(
+                                                                      16,
+                                                                      8,
+                                                                      16,
+                                                                      8),
+                                                              child: const Text(
                                                                 'Yes',
                                                                 style: TextStyle(
                                                                     color: Colors
@@ -828,7 +828,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                               backgroundColor: _currentStep != 5
                                   ? Theme.of(context).primaryColor
                                   : Colors.red,
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30.0),
@@ -866,9 +866,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                 steps: [
                   Step(
                     isActive: _currentStep == 0,
-                    title: Text('General'),
+                    title: const Text('General'),
                     subtitle: _currentStep == 0
-                        ? Text('All Fields Are Required.')
+                        ? const Text('All Fields Are Required.')
                         : null,
                     content: Column(
                       children: [
@@ -896,14 +896,15 @@ class PmSheetPageState extends State<PmSheetPage> {
                           child: AbsorbPointer(
                             child: TextField(
                               controller: siteController,
-                              style: TextStyle(color: ThemeControl.errorColor),
+                              style: const TextStyle(
+                                  color: ThemeControl.errorColor),
                               decoration: InputDecoration(
                                 prefixIcon: Icon(
                                   Icons.cell_tower_rounded,
                                   color: Theme.of(context).colorScheme.tertiary,
                                 ),
                                 suffixIcon: _isSiteSelected
-                                    ? Icon(
+                                    ? const Icon(
                                         Icons.check,
                                         color: Colors.green,
                                       )
@@ -913,7 +914,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                       ? 'Site Name:'
                                       : 'No site selected',
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontSize: 16.0),
+                                  style: const TextStyle(fontSize: 16.0),
                                 ),
                                 filled: true,
                                 labelStyle: TextStyle(
@@ -957,7 +958,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                               Icons.calendar_month_rounded,
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
-                            label: Text('Select Date'),
+                            label: const Text('Select Date'),
                             filled: true,
                             labelStyle: TextStyle(
                                 color:
@@ -993,9 +994,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                               child: OutlinedButton.icon(
                                 onPressed: () => _selectFromTime(context),
                                 style: OutlinedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       vertical: 15.0, horizontal: 10.0),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                       color: Colors.grey, width: 2.0),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.0),
@@ -1012,14 +1013,14 @@ class PmSheetPageState extends State<PmSheetPage> {
                                         : Colors.grey),
                               ),
                             ),
-                            SizedBox(width: 15),
+                            const SizedBox(width: 15),
                             Expanded(
                               child: OutlinedButton.icon(
                                 onPressed: () => _selectToTime(context),
                                 style: OutlinedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       vertical: 15.0, horizontal: 10.0),
-                                  side: BorderSide(
+                                  side: const BorderSide(
                                       color: Colors.grey, width: 2.0),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.0),
@@ -1087,9 +1088,10 @@ class PmSheetPageState extends State<PmSheetPage> {
                   ),
                   Step(
                     isActive: _currentStep == 1,
-                    title: Text('Generator'),
-                    subtitle:
-                        _currentStep == 1 ? Text('on = Yes, off = No') : null,
+                    title: const Text('Generator'),
+                    subtitle: _currentStep == 1
+                        ? const Text('on = Yes, off = No')
+                        : null,
                     content: Column(
                       children: [
                         if (_selectedSiteData != null)
@@ -1109,9 +1111,10 @@ class PmSheetPageState extends State<PmSheetPage> {
                   ),
                   Step(
                     isActive: _currentStep == 2,
-                    title: Text('Load & Voltage'),
-                    subtitle:
-                        _currentStep == 2 ? Text('Randomize First') : null,
+                    title: const Text('Load & Voltage'),
+                    subtitle: _currentStep == 2
+                        ? const Text('Randomize First')
+                        : null,
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -1124,7 +1127,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                             isCpEnabled: isCpEnabled,
                             onCpEnabledChanged: _handleCpEnabledChange,
                           ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         if (_selectedSiteData != null)
                           GenVLInput(
                             sheetNumber: _selectedSiteData![
@@ -1145,7 +1148,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                   ),
                   Step(
                     isActive: _currentStep == 3,
-                    title: Text('AC'),
+                    title: const Text('AC'),
                     content: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -1164,9 +1167,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                   ),
                   Step(
                     isActive: _currentStep == 4,
-                    title: Text('Earth & External load'),
+                    title: const Text('Earth & External load'),
                     subtitle: _currentStep == 4
-                        ? Column(
+                        ? const Column(
                             children: [
                               Text(
                                 'Don\'t Switch Earth & External Load Unless its Showing Wrong Data.',
@@ -1206,9 +1209,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(child: Text('Comments')),
+                        const Expanded(child: Text('Comments')),
                         if (_currentStep == 5)
-                          Text(
+                          const Text(
                             'Add Comments first ->',
                             style: TextStyle(fontSize: 8, color: Colors.red),
                           ),
@@ -1221,7 +1224,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                               });
                               _updateComments();
                             },
-                            icon: Icon(Icons.add),
+                            icon: const Icon(Icons.add),
                           ),
                       ],
                     ),
@@ -1241,7 +1244,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 _updateCPText();
                               },
                             ),
-                            Text("System low voltage"),
+                            const Text("System low voltage"),
                           ],
                         ),
                         buildCommentField(
@@ -1252,7 +1255,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                             'AC', commentsControllers[3], context),
                         buildCommentField(
                             'Electric', commentsControllers[4], context),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         GestureDetector(
                           onTap: () => showSearchableDropdown(
                             context,
@@ -1267,14 +1270,15 @@ class PmSheetPageState extends State<PmSheetPage> {
                           child: AbsorbPointer(
                             child: TextField(
                               controller: _nameController,
-                              style: TextStyle(color: ThemeControl.errorColor),
+                              style: const TextStyle(
+                                  color: ThemeControl.errorColor),
                               decoration: InputDecoration(
                                 label: Text(
                                   _selectedSiteData != null
                                       ? 'Engineer Name:'
                                       : 'No site selected',
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontSize: 16.0),
+                                  style: const TextStyle(fontSize: 16.0),
                                 ),
                                 filled: true,
                                 labelStyle: TextStyle(
@@ -1308,7 +1312,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -1374,7 +1378,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                   backgroundColor: isOnline
                                       ? Colors.tealAccent
                                       : Colors.grey,
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 20, vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(
@@ -1382,7 +1386,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                   ),
                                 ),
                                 child: _isLoading
-                                    ? Row(
+                                    ? const Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           SizedBox(
@@ -1397,7 +1401,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                           Text('Downloading...'),
                                         ],
                                       )
-                                    : Text('Submit'),
+                                    : const Text('Submit'),
                               ),
                             ),
                           ],
@@ -1428,7 +1432,7 @@ class PmSheetPageState extends State<PmSheetPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Collected Data'),
+          title: const Text('Collected Data'),
           content: SingleChildScrollView(
             child: ListBody(
               children: data.entries.map((entry) {
@@ -1438,7 +1442,7 @@ class PmSheetPageState extends State<PmSheetPage> {
           ),
           actions: [
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -1472,11 +1476,11 @@ class PmSheetPageState extends State<PmSheetPage> {
                           height: 120,
                           color: Theme.of(context).colorScheme.tertiary,
                         ),
-                        Column(
+                        const Column(
                           children: [
                             Icon(Icons.wifi_off_rounded,
                                 color: Colors.white, size: 32),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Text(
                               'OOPs...',
                               textAlign: TextAlign.center,
@@ -1486,7 +1490,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 fontSize: 18,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Text(
                               'No Internet Connection!',
                               style: TextStyle(color: Colors.white),
@@ -1505,8 +1509,8 @@ class PmSheetPageState extends State<PmSheetPage> {
                           color: Theme.of(context).colorScheme.tertiary,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: Text(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: const Text(
                           'Try again',
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
@@ -1527,7 +1531,7 @@ class PmSheetPageState extends State<PmSheetPage> {
       BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         TextField(
           controller: controller,
           decoration: InputDecoration(

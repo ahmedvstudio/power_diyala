@@ -486,7 +486,7 @@ class CalculatorScreenState extends State<CalculatorScreen> {
                                     await fetchAndActivate();
                                   },
                                   label: const Text('Clear'),
-                                  icon: Icon(Icons.delete_sweep),
+                                  icon: const Icon(Icons.delete_sweep),
                                 ),
                               ),
                             ],

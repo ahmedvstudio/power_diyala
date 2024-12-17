@@ -121,12 +121,12 @@ class SetupScreenState extends State<SetupScreen> {
                                                 .colorScheme
                                                 .tertiary,
                                           ),
-                                          Column(
+                                          const Column(
                                             children: [
                                               Icon(Icons.warning,
                                                   color: Colors.white,
                                                   size: 32),
-                                              const SizedBox(height: 8),
+                                              SizedBox(height: 8),
                                               Text(
                                                 'OOPs...',
                                                 textAlign: TextAlign.center,
@@ -136,7 +136,7 @@ class SetupScreenState extends State<SetupScreen> {
                                                   fontSize: 18,
                                                 ),
                                               ),
-                                              const SizedBox(height: 8),
+                                              SizedBox(height: 8),
                                               Text(
                                                 'Permission Denied!',
                                                 style: TextStyle(
@@ -159,9 +159,9 @@ class SetupScreenState extends State<SetupScreen> {
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                           ),
-                                          padding:
-                                              EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                          child: Text(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              16, 8, 16, 8),
+                                          child: const Text(
                                             'Try again',
                                             style: TextStyle(
                                                 color: Colors.white,
@@ -248,12 +248,12 @@ class SetupScreenState extends State<SetupScreen> {
                                                   .colorScheme
                                                   .tertiary,
                                             ),
-                                            Column(
+                                            const Column(
                                               children: [
                                                 Icon(Icons.warning,
                                                     color: Colors.white,
                                                     size: 32),
-                                                const SizedBox(height: 8),
+                                                SizedBox(height: 8),
                                                 Text(
                                                   'OOPs...',
                                                   textAlign: TextAlign.center,
@@ -263,7 +263,7 @@ class SetupScreenState extends State<SetupScreen> {
                                                     fontSize: 18,
                                                   ),
                                                 ),
-                                                const SizedBox(height: 8),
+                                                SizedBox(height: 8),
                                                 Text(
                                                   'Data Validation Failed!',
                                                   style: TextStyle(
@@ -286,9 +286,9 @@ class SetupScreenState extends State<SetupScreen> {
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
-                                            padding: EdgeInsets.fromLTRB(
+                                            padding: const EdgeInsets.fromLTRB(
                                                 16, 8, 16, 8),
-                                            child: Text(
+                                            child: const Text(
                                               'Try again',
                                               style: TextStyle(
                                                   color: Colors.white,

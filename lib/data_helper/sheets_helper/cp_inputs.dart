@@ -53,7 +53,7 @@ class CpInputState extends State<CpInput> {
           ),
         ),
       );
-      cpFields.add(SizedBox(width: 4));
+      cpFields.add(const SizedBox(width: 4));
       cpFields.add(
         Expanded(
           child: TextField(
@@ -151,7 +151,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Main',
                 style: TextStyle(fontSize: 18),
               ),
@@ -163,7 +163,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ...phaseFields,
         ],
       ),
@@ -248,7 +248,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
 
     return [
       Row(children: vInputs),
-      SizedBox(height: 8),
+      const SizedBox(height: 8),
       Row(children: loadInputs),
     ];
   }
@@ -292,7 +292,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
           )
         ],
       ),
-      SizedBox(height: 8), // Space between Phase and Load
+      const SizedBox(height: 8), // Space between Phase and Load
       Row(
         children: [
           Expanded(

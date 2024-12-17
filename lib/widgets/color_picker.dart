@@ -47,7 +47,7 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
               onColorChanged: (color) {
                 tempColor = color;
               },
-              labelTypes: [ColorLabelType.rgb, ColorLabelType.hex],
+              labelTypes: const [ColorLabelType.rgb, ColorLabelType.hex],
               pickerAreaHeightPercent:
                   0.8, // Adjust the size of the picker area
             ),

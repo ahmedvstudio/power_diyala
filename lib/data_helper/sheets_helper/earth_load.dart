@@ -88,7 +88,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Earth Readings',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -103,7 +103,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
               ),
             ],
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Row(
             children: [
               Expanded(
@@ -137,7 +137,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   enabled: widget.isEarthEnabled,
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: widget.groundControllers[1],
@@ -171,7 +171,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -205,7 +205,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   enabled: widget.isEarthEnabled,
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: widget.groundControllers[3],
@@ -256,7 +256,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'External Load',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -273,7 +273,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
               ),
             ],
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Row(
             children: [
               Expanded(
@@ -307,7 +307,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   enabled: isExternalLoadEnabled,
                 ),
               ),
-              SizedBox(width: 3),
+              const SizedBox(width: 3),
               Expanded(
                 child: TextField(
                   controller: widget.externalLoadControllers[1],
@@ -335,10 +335,10 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   enabled: isExternalLoadEnabled,
                 ),
               ),
-              SizedBox(width: 3),
+              const SizedBox(width: 3),
             ],
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Row(
             children: [
               Expanded(
@@ -367,7 +367,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   enabled: isExternalLoadEnabled,
                 ),
               ),
-              SizedBox(width: 3),
+              const SizedBox(width: 3),
               Expanded(
                 child: TextField(
                   controller: widget.externalLoadControllers[3],
@@ -413,7 +413,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Battery Test',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -425,7 +425,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
               ),
             ],
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Row(
             children: [
               Expanded(
@@ -459,7 +459,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   enabled: widget.isBatteryTestEnabled,
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: widget.batteryTestControllers[1],
@@ -493,7 +493,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
               ),
             ],
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Row(
             children: [
               Expanded(
@@ -542,9 +542,9 @@ class EarthInputFieldsState extends State<EarthInputFields> {
     return Column(
       children: [
         _buildEarthReadingsSection(),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _buildExternalLoadSection(),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _buildBatteryTestSection(),
       ],
     );

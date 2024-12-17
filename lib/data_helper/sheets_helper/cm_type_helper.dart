@@ -101,7 +101,7 @@ class CMTypeDialog {
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               title: Text('CM - $cmType',
-                  style: TextStyle(decoration: TextDecoration.underline)),
+                  style: const TextStyle(decoration: TextDecoration.underline)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -122,7 +122,7 @@ class CMTypeDialog {
                       },
                     ),
                     if (selectedOption1 == "Extra") ...[
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       _buildDropdown(
                         hint: 'Extra Type',
                         value: selectedOption2,
@@ -135,7 +135,7 @@ class CMTypeDialog {
                         },
                       ),
                     ],
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     _buildDropdown(
                       hint: 'Type',
                       value: selectedOption3,
@@ -155,7 +155,7 @@ class CMTypeDialog {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -167,7 +167,7 @@ class CMTypeDialog {
                         (selectedOption3 == null || selectedOption3!.isEmpty)) {
                       // Show a SnackBar or some feedback
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                             content:
                                 Text('Please fill in all required fields.')),
                       );
@@ -178,7 +178,7 @@ class CMTypeDialog {
                       Navigator.of(context).pop(); // Close dialog
                     }
                   },
-                  child: Text('Select'),
+                  child: const Text('Select'),
                 ),
               ],
             );
@@ -195,7 +195,7 @@ class CMTypeDialog {
     required ValueChanged<String?> onChanged,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.0),
         border: Border.all(
@@ -206,7 +206,8 @@ class CMTypeDialog {
         child: DropdownButton<String>(
           hint: Text(
             hint,
-            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.normal),
+            style: const TextStyle(
+                color: Colors.grey, fontWeight: FontWeight.normal),
           ),
           isExpanded: true,
           value: value,
@@ -218,7 +219,7 @@ class CMTypeDialog {
               value: option,
               child: Text(
                 option,
-                style: TextStyle(
+                style: const TextStyle(
                     color: ThemeControl.errorColor,
                     fontWeight: FontWeight.normal),
               ),

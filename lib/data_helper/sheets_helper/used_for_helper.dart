@@ -51,7 +51,7 @@ class UsedForHelperState extends State<UsedForHelper> {
       case 'Civil':
         return _generateCivilInputs();
       default:
-        return SizedBox();
+        return const SizedBox();
     }
   }
 
@@ -69,10 +69,10 @@ class UsedForHelperState extends State<UsedForHelper> {
           },
           child: Text(
             usedForValue.isEmpty ? 'Used For' : usedForValue,
-            style: TextStyle(fontSize: 14, color: Colors.teal),
+            style: const TextStyle(fontSize: 14, color: Colors.teal),
           ),
         ),
-        SizedBox(width: 20),
+        const SizedBox(width: 20),
         GestureDetector(
           onTap: () {
             _showDropdownMenu(context, onWhatGenItems, (value) {
@@ -108,7 +108,7 @@ class UsedForHelperState extends State<UsedForHelper> {
           },
           child: Text(
             usedForValue.isEmpty ? 'Used For' : usedForValue,
-            style: TextStyle(fontSize: 14, color: Colors.teal),
+            style: const TextStyle(fontSize: 14, color: Colors.teal),
           ),
         ),
       ],
@@ -130,10 +130,10 @@ class UsedForHelperState extends State<UsedForHelper> {
           },
           child: Text(
             usedForValue.isEmpty ? 'Used For' : usedForValue,
-            style: TextStyle(fontSize: 14, color: Colors.teal),
+            style: const TextStyle(fontSize: 14, color: Colors.teal),
           ),
         ),
-        SizedBox(width: 20),
+        const SizedBox(width: 20),
         GestureDetector(
           onTap: () {
             _showDropdownMenu(context, onWhatAcItems, (value) {
@@ -169,7 +169,7 @@ class UsedForHelperState extends State<UsedForHelper> {
           },
           child: Text(
             usedForValue.isEmpty ? 'Used For' : usedForValue,
-            style: TextStyle(fontSize: 14, color: Colors.teal),
+            style: const TextStyle(fontSize: 14, color: Colors.teal),
           ),
         ),
       ],
@@ -181,7 +181,7 @@ void _showDropdownMenu(
     BuildContext context, List<String> items, Function(String) onSelect) {
   showModalBottomSheet(
     context: context,
-    shape: RoundedRectangleBorder(
+    shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
     builder: (context) {
@@ -191,8 +191,8 @@ void _showDropdownMenu(
           shrinkWrap: true,
           children: items
               .map((item) => Card(
-                    margin:
-                        EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 4.0, horizontal: 8.0),
                     child: ListTile(
                       title: Text(item),
                       onTap: () {

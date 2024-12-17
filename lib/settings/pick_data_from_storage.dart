@@ -77,7 +77,7 @@ Future<void> updateDatabaseFromFilePicker(BuildContext context) async {
                     color: Theme.of(context).primaryColor,
                   ),
                   const SizedBox(height: 16),
-                  Text('Loading New Data...'),
+                  const Text('Loading New Data...'),
                 ],
               ),
             ),

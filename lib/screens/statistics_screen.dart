@@ -232,17 +232,17 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Expanded(
               child: FutureBuilder<List<Spms>>(
             future: spmsData,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No data found.'));
+                return const Center(child: Text('No data found.'));
               }
 
               final filteredList =
@@ -289,14 +289,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 getTitlesWidget: (value, meta) {
                                   return Text(
                                     value.toInt().toString(),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 12,
                                     ),
                                   );
                                 },
                               ),
                             ),
-                            topTitles: AxisTitles(
+                            topTitles: const AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
@@ -307,15 +307,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                   (group, groupIndex, rod, rodIndex) {
                                 return BarTooltipItem(
                                   '${group.x.toInt()}\n',
-                                  TextStyle(
+                                  const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
                                   children: [
                                     TextSpan(
                                       text: rod.toY.toString(),
-                                      style:
-                                          TextStyle(color: Colors.yellowAccent),
+                                      style: const TextStyle(
+                                          color: Colors.yellowAccent),
                                     ),
                                   ],
                                 );
@@ -323,8 +323,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             ),
                           ),
                           borderData: FlBorderData(show: true),
-                          gridData:
-                              FlGridData(show: true, horizontalInterval: 1),
+                          gridData: const FlGridData(
+                              show: true, horizontalInterval: 1),
                           barGroups: yearCounts.entries.map((entry) {
                             return BarChartGroupData(
                               x: entry.key,
@@ -332,7 +332,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 BarChartRodData(
                                   toY: entry.value.toDouble(),
                                   color: Theme.of(context).primaryColor,
-                                  borderSide: BorderSide(
+                                  borderSide: const BorderSide(
                                     color: Colors.black54,
                                     width: 1,
                                   ),
@@ -354,13 +354,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         } else if (snapshot.hasError) {
                           return Center(
                               child: Text('Error: ${snapshot.error}'));
                         } else if (!snapshot.hasData ||
                             snapshot.data!.isEmpty) {
-                          return Center(child: Text('No data found.'));
+                          return const Center(child: Text('No data found.'));
                         }
 
                         final filteredList = filterSpmsData(snapshot.data!);
@@ -393,15 +394,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 1.0, horizontal: 8.0),
                                 child: ListTile(
-                                  leading: Icon(Icons.looks_one_rounded),
+                                  leading: const Icon(Icons.looks_one_rounded),
                                   title: Text(
                                     '${spms.siteName} G1',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 16.0, color: Colors.blue),
                                   ),
                                   subtitle: Text(
                                     formatDate(replacementDateG1),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 14, color: Colors.grey),
                                   ),
                                 ),
@@ -428,15 +429,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 1.0, horizontal: 8.0),
                                 child: ListTile(
-                                  leading: Icon(Icons.looks_two_rounded),
+                                  leading: const Icon(Icons.looks_two_rounded),
                                   title: Text(
                                     '${spms.siteName} G2',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 16.0, color: Colors.teal),
                                   ),
                                   subtitle: Text(
                                     formatDate(replacementDateG2),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 14, color: Colors.grey),
                                   ),
                                 ),
@@ -474,7 +475,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
                           displayWidgets.add(
                             Card(
-                              margin: EdgeInsets.symmetric(
+                              margin: const EdgeInsets.symmetric(
                                   vertical: 4.0, horizontal: 15.0),
                               child: ExpansionTile(
                                 title: Text(

@@ -52,10 +52,10 @@ class QuantitySelectorState extends State<QuantitySelector> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Quantity'),
+          title: const Text('Quantity'),
           content: TextField(
             controller: controller,
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: 'Enter Quantity',
               labelStyle:
@@ -82,13 +82,13 @@ class QuantitySelectorState extends State<QuantitySelector> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 final double? newQuantity = double.tryParse(controller.text);
                 if (newQuantity != null && newQuantity > 0) {
@@ -124,7 +124,7 @@ class QuantitySelectorState extends State<QuantitySelector> {
               ),
               onPressed: _decreaseQuantity,
               padding: EdgeInsets.zero,
-              constraints: BoxConstraints(),
+              constraints: const BoxConstraints(),
               color: quantity > 1.0
                   ? Theme.of(context).colorScheme.primary
                   : Colors.red,
@@ -137,19 +137,19 @@ class QuantitySelectorState extends State<QuantitySelector> {
               alignment: Alignment.center,
               child: Text(
                 quantity.toString(),
-                style: TextStyle(fontSize: 15),
+                style: const TextStyle(fontSize: 15),
               ),
             ),
           ),
           Expanded(
             child: IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.add,
                 size: 16,
               ),
               onPressed: _increaseQuantity,
               padding: EdgeInsets.zero,
-              constraints: BoxConstraints(),
+              constraints: const BoxConstraints(),
               color: Theme.of(context).colorScheme.primary,
             ),
           ),

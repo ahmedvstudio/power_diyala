@@ -257,7 +257,7 @@ class GenVLInputState extends State<GenVLInput> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('G1', style: TextStyle(fontSize: 18)),
+              const Text('G1', style: TextStyle(fontSize: 18)),
               ..._buildGeneratorButton(0), // G1 Button
             ],
           ),
@@ -274,18 +274,18 @@ class GenVLInputState extends State<GenVLInput> {
               widget.sheetNumber == 8 ||
               widget.sheetNumber == 9 ||
               widget.sheetNumber == 16) ...[
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('G2', style: TextStyle(fontSize: 18)),
+                const Text('G2', style: TextStyle(fontSize: 18)),
                 ..._buildGeneratorButton(1), // G2 Button
               ],
             ),
             _groupInRows(inputFields.sublist(10)), // G2 Inputs
           ],
 
-          SizedBox(height: 16), // Space for buttons
+          const SizedBox(height: 16), // Space for buttons
         ],
       ),
     );
@@ -298,7 +298,7 @@ class GenVLInputState extends State<GenVLInput> {
       IconButton(
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
         ),
         onPressed: () {
           setState(() {
@@ -324,7 +324,7 @@ class GenVLInputState extends State<GenVLInput> {
             }
           });
         },
-        icon: Icon(Icons.download_rounded), tooltip: 'Randomize',
+        icon: const Icon(Icons.download_rounded), tooltip: 'Randomize',
         // Button label
       ),
     ];

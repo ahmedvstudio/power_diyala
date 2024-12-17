@@ -199,7 +199,7 @@ class CmSheetPageState extends State<CmSheetPage> {
             });
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Too Much Items')),
+              const SnackBar(content: Text('Too Much Items')),
             );
           }
         }
@@ -582,7 +582,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                           (BuildContext context, ControlsDetails controls) {
                         return Column(
                           children: [
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -593,13 +593,13 @@ class CmSheetPageState extends State<CmSheetPage> {
                                       : () {
                                           controls.onStepCancel!();
                                         },
-                                  icon: Icon(Icons.arrow_back),
-                                  label: Text('Back'),
+                                  icon: const Icon(Icons.arrow_back),
+                                  label: const Text('Back'),
                                   style: ElevatedButton.styleFrom(
                                     foregroundColor: Colors.black,
                                     backgroundColor:
                                         Theme.of(context).secondaryHeaderColor,
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                         horizontal: 20, vertical: 10),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(30.0),
@@ -650,7 +650,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                                                       .colorScheme
                                                                       .tertiary,
                                                                 ),
-                                                                Column(
+                                                                const Column(
                                                                   children: [
                                                                     Icon(
                                                                         Icons
@@ -659,7 +659,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                                                             .white,
                                                                         size:
                                                                             32),
-                                                                    const SizedBox(
+                                                                    SizedBox(
                                                                         height:
                                                                             8),
                                                                     Text(
@@ -677,7 +677,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                                                             18,
                                                                       ),
                                                                     ),
-                                                                    const SizedBox(
+                                                                    SizedBox(
                                                                         height:
                                                                             8),
                                                                     Text(
@@ -715,13 +715,15 @@ class CmSheetPageState extends State<CmSheetPage> {
                                                                           BorderRadius.circular(
                                                                               10),
                                                                     ),
-                                                                    padding: EdgeInsets
-                                                                        .fromLTRB(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .fromLTRB(
                                                                             16,
                                                                             8,
                                                                             16,
                                                                             8),
-                                                                    child: Text(
+                                                                    child:
+                                                                        const Text(
                                                                       'No',
                                                                       style: TextStyle(
                                                                           color: Colors
@@ -752,13 +754,15 @@ class CmSheetPageState extends State<CmSheetPage> {
                                                                           BorderRadius.circular(
                                                                               10),
                                                                     ),
-                                                                    padding: EdgeInsets
-                                                                        .fromLTRB(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .fromLTRB(
                                                                             16,
                                                                             8,
                                                                             16,
                                                                             8),
-                                                                    child: Text(
+                                                                    child:
+                                                                        const Text(
                                                                       'Yes',
                                                                       style: TextStyle(
                                                                           color: Colors
@@ -793,7 +797,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                     backgroundColor: _currentStep != 2
                                         ? Theme.of(context).primaryColor
                                         : Colors.red,
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                         horizontal: 20,
                                         vertical: 10), // Text color
                                     shape: RoundedRectangleBorder(
@@ -833,7 +837,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                       steps: [
                         Step(
                           isActive: _currentStep == 0,
-                          title: Text(''),
+                          title: const Text(''),
                           content: Column(
                             children: [
                               GestureDetector(
@@ -851,7 +855,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                 child: AbsorbPointer(
                                   child: TextField(
                                     controller: siteController,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: ThemeControl.errorColor),
                                     decoration: InputDecoration(
                                       prefixIcon: Icon(
@@ -865,7 +869,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                             ? 'Site Name:'
                                             : 'No site selected',
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(fontSize: 16.0),
+                                        style: const TextStyle(fontSize: 16.0),
                                       ),
                                       filled: true,
                                       labelStyle: TextStyle(
@@ -913,7 +917,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                     color:
                                         Theme.of(context).colorScheme.tertiary,
                                   ),
-                                  label: Text('Select Date'),
+                                  label: const Text('Select Date'),
                                   filled: true,
                                   labelStyle: TextStyle(
                                       color: ThemeControl.errorColor
@@ -953,9 +957,9 @@ class CmSheetPageState extends State<CmSheetPage> {
                                     child: OutlinedButton.icon(
                                       onPressed: () => _selectFromTime(context),
                                       style: OutlinedButton.styleFrom(
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             vertical: 15.0, horizontal: 10.0),
-                                        side: BorderSide(
+                                        side: const BorderSide(
                                             color: Colors.grey, width: 2.0),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -975,14 +979,14 @@ class CmSheetPageState extends State<CmSheetPage> {
                                               : Colors.grey),
                                     ),
                                   ),
-                                  SizedBox(width: 15),
+                                  const SizedBox(width: 15),
                                   Expanded(
                                     child: OutlinedButton.icon(
                                       onPressed: () => _selectToTime(context),
                                       style: OutlinedButton.styleFrom(
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             vertical: 15.0, horizontal: 10.0),
-                                        side: BorderSide(
+                                        side: const BorderSide(
                                             color: Colors.grey, width: 2.0),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -1023,7 +1027,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                               .colorScheme
                                               .tertiary,
                                         ),
-                                        label: Text('Escalated'),
+                                        label: const Text('Escalated'),
                                         filled: true,
                                         labelStyle: TextStyle(
                                             color: ThemeControl.errorColor
@@ -1059,7 +1063,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                       readOnly: true,
                                     ),
                                   ),
-                                  SizedBox(width: 45),
+                                  const SizedBox(width: 45),
                                   Checkbox(
                                     value: isDuringPM,
                                     onChanged: (value) {
@@ -1069,7 +1073,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                       _updateEscalatedText();
                                     },
                                   ),
-                                  Text("During PM"),
+                                  const Text("During PM"),
                                 ],
                               ),
                               const SizedBox(height: 8.0),
@@ -1119,7 +1123,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                         ),
                         Step(
                           isActive: _currentStep == 1,
-                          title: Text(''),
+                          title: const Text(''),
                           content: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
@@ -1133,15 +1137,15 @@ class CmSheetPageState extends State<CmSheetPage> {
                                         _selectedSpareItems.clear();
                                       });
                                     },
-                                    icon: Icon(Icons.clear, size: 16),
-                                    label: Text('Clear'),
+                                    icon: const Icon(Icons.clear, size: 16),
+                                    label: const Text('Clear'),
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor: Theme.of(context)
                                           .colorScheme
                                           .secondary, // Use theme color
                                     ),
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   ElevatedButton.icon(
                                     onPressed: () =>
                                         showCombinedSearchableDropdown(
@@ -1159,8 +1163,8 @@ class CmSheetPageState extends State<CmSheetPage> {
                                         });
                                       },
                                     ),
-                                    icon: Icon(Icons.add, size: 16),
-                                    label: Text('Add Item'),
+                                    icon: const Icon(Icons.add, size: 16),
+                                    label: const Text('Add Item'),
                                     style: ElevatedButton.styleFrom(
                                       foregroundColor: Colors.white,
                                       backgroundColor:
@@ -1169,7 +1173,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               SizedBox(
                                 height:
                                     MediaQuery.of(context).size.height * 0.55,
@@ -1182,7 +1186,8 @@ class CmSheetPageState extends State<CmSheetPage> {
                                           return _buildItemCard(item, index);
                                         },
                                       )
-                                    : Center(child: Text('No items selected')),
+                                    : const Center(
+                                        child: Text('No items selected')),
                               ),
                             ],
                           ),
@@ -1192,7 +1197,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                         ),
                         Step(
                           isActive: _currentStep == 2,
-                          title: Text(''),
+                          title: const Text(''),
                           content: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1202,7 +1207,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                   _selectedCMType == 'AC')
                                 buildCommentField('Comment 2',
                                     _commentsControllers[2], context),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               GestureDetector(
                                 onTap: () => showSearchableDropdown(
                                   context,
@@ -1217,7 +1222,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                 child: AbsorbPointer(
                                   child: TextField(
                                     controller: _nameController[0],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: ThemeControl.errorColor),
                                     decoration: InputDecoration(
                                       label: Text(
@@ -1225,7 +1230,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                             ? 'Engineer Name:'
                                             : 'No site selected',
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(fontSize: 16.0),
+                                        style: const TextStyle(fontSize: 16.0),
                                       ),
                                       filled: true,
                                       labelStyle: TextStyle(
@@ -1263,7 +1268,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               GestureDetector(
                                 onTap: () => showSearchableDropdown(
                                   context,
@@ -1278,7 +1283,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                 child: AbsorbPointer(
                                   child: TextField(
                                     controller: _nameController[1],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: ThemeControl.errorColor),
                                     decoration: InputDecoration(
                                       label: Text(
@@ -1286,7 +1291,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                             ? 'Technician Name:'
                                             : 'No site selected',
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(fontSize: 16.0),
+                                        style: const TextStyle(fontSize: 16.0),
                                       ),
                                       filled: true,
                                       labelStyle: TextStyle(
@@ -1324,7 +1329,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
@@ -1383,7 +1388,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                         backgroundColor: isOnline
                                             ? Colors.tealAccent
                                             : Colors.grey,
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             horizontal: 20, vertical: 12),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -1391,7 +1396,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                         ),
                                       ),
                                       child: _isLoading
-                                          ? Row(
+                                          ? const Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 SizedBox(
@@ -1407,7 +1412,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                                 Text('Downloading...'),
                                               ],
                                             )
-                                          : Text('Submit'),
+                                          : const Text('Submit'),
                                     ),
                                   ),
                                 ],
@@ -1436,7 +1441,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 2,
                     blurRadius: 7,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -1448,38 +1453,38 @@ class CmSheetPageState extends State<CmSheetPage> {
                 spaceBetweenChildren: 10,
                 children: [
                   SpeedDialChild(
-                    shape: CircleBorder(),
-                    child:
-                        Icon(Icons.g_mobiledata_rounded, color: Colors.white),
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.g_mobiledata_rounded,
+                        color: Colors.white),
                     backgroundColor: Colors.green,
                     label: 'Generator',
                     onTap: () => _showCMTypeDialog("Generator"),
                   ),
                   SpeedDialChild(
-                    shape: CircleBorder(),
-                    child:
-                        Icon(Icons.electric_bolt_rounded, color: Colors.white),
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.electric_bolt_rounded,
+                        color: Colors.white),
                     backgroundColor: Colors.red,
                     label: 'Electric',
                     onTap: () => _showCMTypeDialog("Electric"),
                   ),
                   SpeedDialChild(
-                    shape: CircleBorder(),
-                    child: Icon(Icons.ac_unit, color: Colors.white),
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.ac_unit, color: Colors.white),
                     backgroundColor: Colors.blue,
                     label: 'AC',
                     onTap: () => _showCMTypeDialog("AC"),
                   ),
                   SpeedDialChild(
-                    shape: CircleBorder(),
-                    child: Icon(Icons.construction, color: Colors.white),
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.construction, color: Colors.white),
                     backgroundColor: Colors.indigoAccent,
                     label: 'Civil',
                     onTap: () => _showCMTypeDialog("Civil"),
                   ),
                   SpeedDialChild(
-                    shape: CircleBorder(),
-                    child: Icon(Icons.manage_accounts_rounded,
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.manage_accounts_rounded,
                         color: Colors.white),
                     backgroundColor: Colors.brown,
                     label: 'Site Management',
@@ -1505,7 +1510,7 @@ class CmSheetPageState extends State<CmSheetPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Collected Data'),
+          title: const Text('Collected Data'),
           content: SingleChildScrollView(
             child: ListBody(
               children: data.entries.map((entry) {
@@ -1515,7 +1520,7 @@ class CmSheetPageState extends State<CmSheetPage> {
           ),
           actions: [
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -1530,7 +1535,7 @@ class CmSheetPageState extends State<CmSheetPage> {
       BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         TextField(
           controller: controller,
           decoration: InputDecoration(
@@ -1553,17 +1558,18 @@ class CmSheetPageState extends State<CmSheetPage> {
                 onPressed: () {
                   showMenu<String>(
                     context: context,
-                    position: RelativeRect.fromLTRB(175.0, 200.0, 250.0, 100.0),
+                    position:
+                        const RelativeRect.fromLTRB(175.0, 200.0, 250.0, 100.0),
                     items: [
-                      PopupMenuItem<String>(
+                      const PopupMenuItem<String>(
                         value: 'Materials Used During PM',
                         child: Text('During PM'),
                       ),
-                      PopupMenuItem<String>(
+                      const PopupMenuItem<String>(
                         value: 'Replaced required items',
                         child: Text('Required'),
                       ),
-                      PopupMenuItem<String>(
+                      const PopupMenuItem<String>(
                         value: 'Replaced faulty items',
                         child: Text('Faulty'),
                       ),
@@ -1574,7 +1580,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                     }
                   });
                 },
-                icon: Icon(Icons.add)),
+                icon: const Icon(Icons.add)),
             filled: true,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
@@ -1592,7 +1598,7 @@ class CmSheetPageState extends State<CmSheetPage> {
   Widget _buildItemCard(SpareItem item, int index) {
     return Card(
       elevation: 4.0,
-      margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+      margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
@@ -1602,7 +1608,7 @@ class CmSheetPageState extends State<CmSheetPage> {
           children: [
             Text(
               item.name,
-              style: TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18),
               softWrap: true,
               overflow: TextOverflow.visible,
               maxLines: null,
@@ -1678,11 +1684,11 @@ class CmSheetPageState extends State<CmSheetPage> {
                           height: 120,
                           color: Theme.of(context).colorScheme.tertiary,
                         ),
-                        Column(
+                        const Column(
                           children: [
                             Icon(Icons.wifi_off_rounded,
                                 color: Colors.white, size: 32),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Text(
                               'OOPs...',
                               textAlign: TextAlign.center,
@@ -1692,7 +1698,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                                 fontSize: 18,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Text(
                               'No Internet Connection!',
                               style: TextStyle(color: Colors.white),
@@ -1711,8 +1717,8 @@ class CmSheetPageState extends State<CmSheetPage> {
                           color: Theme.of(context).colorScheme.tertiary,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: Text(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: const Text(
                           'Try again',
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
