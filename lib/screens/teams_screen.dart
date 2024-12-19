@@ -26,7 +26,7 @@ class TeamsScreenState extends State<TeamsScreen> {
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 
   final Map<DateTime, List<Map<String, dynamic>>> _eventsCache = {};
-  CalendarFormat _calendarFormat = CalendarFormat.month; // Default format
+  CalendarFormat _calendarFormat = CalendarFormat.week; // Default format
 
   @override
   void initState() {

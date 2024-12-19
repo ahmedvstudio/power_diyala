@@ -17,6 +17,7 @@ class DataManager {
   List<Map<String, dynamic>>? pmData;
   List<Map<String, dynamic>>? spareData;
   List<Map<String, dynamic>>? namesData;
+  List<Map<String, dynamic>>? emailsData;
 
   DataManager._internal();
 
@@ -30,7 +31,7 @@ class DataManager {
       pmData = await DatabaseHelper.loadPMData();
       spareData = await DatabaseHelper.loadSpareData();
       namesData = await DatabaseHelper.loadNamesData();
-
+      emailsData = await DatabaseHelper.loadEmailsData();
       logger.i("All data loaded successfully.");
     } catch (e) {
       logger.e("Error loading all data: $e");
@@ -45,4 +46,5 @@ class DataManager {
   List<Map<String, dynamic>>? getPMData() => pmData;
   List<Map<String, dynamic>>? getSpareData() => spareData;
   List<Map<String, dynamic>>? getNamesData() => namesData;
+  List<Map<String, dynamic>>? getEmailsData() => emailsData;
 }

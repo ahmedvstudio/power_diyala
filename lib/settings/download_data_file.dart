@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:power_diyala/settings/remote_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 
@@ -38,35 +41,36 @@ Future<bool> _checkPermissions() async {
   return false;
 }
 
-Future<String> _fetchDownloadId() async {
-  final remoteConfig = FirebaseRemoteConfig.instance;
+//Download from a link
+const String lastUpdateTimeKey = 'lastUpdateTime';
+void _showToast(message, bgColor) => Fluttertoast.showToast(
+      msg: message,
+      backgroundColor: bgColor,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      textColor: Colors.black,
+      fontSize: 14.0,
+    );
 
-  // Set default values for remote config
-  await remoteConfig.setDefaults({
-    'database_download_id': 'default_id', // Default value
-  });
+Future<void> updateDatabase(BuildContext context) async {
+  // Check if 24 hours have passed since the last update
+  if (!await _canUpdateDatabase()) {
+    _showToast("No New Data Update.", Colors.white);
+    return;
+  }
 
-  // Fetch and activate remote config values
-  await remoteConfig.fetchAndActivate();
-
-  return remoteConfig.getString('database_download_id');
-}
-
-Future<void> updateDatabase() async {
   // Check permissions before proceeding
   if (!await _checkPermissions()) {
     return;
   }
 
   try {
-    // Fetch the dynamic download ID from Remote Config
-    String downloadId = await _fetchDownloadId();
-
-    // Direct download link from Google Drive using the fetched ID
-    final url = 'https://drive.google.com/uc?export=download&id=$downloadId';
-
+    SharedPreferencesAsync prefs = SharedPreferencesAsync();
+    final url = await prefs.getString('dataFile_url');
+    logger.i(url);
     // Download the file
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(url!));
     if (response.statusCode == 200) {
       // Get the local path to save the file
       final dir = await getApplicationDocumentsDirectory();
@@ -75,7 +79,13 @@ Future<void> updateDatabase() async {
       // Save the file
       final file = File(filePath);
       await file.writeAsBytes(response.bodyBytes);
-
+      await fetchAndActivate();
+      // Save the current time as the last update time
+      SharedPreferencesAsync prefs = SharedPreferencesAsync();
+      await prefs.setInt(
+          lastUpdateTimeKey, DateTime.now().millisecondsSinceEpoch);
+      _showToast("Data Updated successfully\nPlease restart the app.",
+          Colors.tealAccent);
       logger.i("Database updated successfully!");
     } else {
       logger.e("Failed to download file: ${response.statusCode}");
@@ -83,4 +93,21 @@ Future<void> updateDatabase() async {
   } catch (e) {
     logger.e("Error updating database: $e");
   }
+}
+
+Future<bool> _canUpdateDatabase() async {
+  SharedPreferencesAsync prefs = SharedPreferencesAsync();
+  final lastUpdateTimeMillis = await prefs.getInt(lastUpdateTimeKey);
+
+  if (lastUpdateTimeMillis == null) {
+    // If no update has occurred, allow it
+    return true;
+  }
+
+  final lastUpdateTime =
+      DateTime.fromMillisecondsSinceEpoch(lastUpdateTimeMillis);
+  final currentTime = DateTime.now();
+
+  // Check if 24 hours have passed since the last update
+  return currentTime.difference(lastUpdateTime).inHours >= 24;
 }

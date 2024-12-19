@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:power_diyala/data_helper/data_manager.dart';
-import 'package:power_diyala/main.dart';
-import 'package:power_diyala/settings/download_data.dart';
+import 'package:power_diyala/settings/download_data_file.dart';
 import 'package:power_diyala/settings/pick_data_from_storage.dart';
 import 'package:power_diyala/settings/remote_config.dart';
 import 'package:power_diyala/widgets/color_picker.dart';
@@ -115,34 +114,6 @@ class SettingsScreenState extends State<SettingsScreen> {
       );
   @override
   Widget build(BuildContext context) {
-    void onLoading() {
-      showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10))),
-            contentPadding: const EdgeInsets.all(0.0),
-            insetPadding: const EdgeInsets.symmetric(horizontal: 100),
-            content: Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(
-                      color: Theme.of(context).primaryColor),
-                  const SizedBox(height: 16),
-                  const Text('Loading New Data...')
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    }
-
     const double iconSize = 30;
     return Scaffold(
       appBar: AppBar(
@@ -159,19 +130,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 );
               },
               icon: const Icon(Icons.color_lens_rounded),
-              tooltip: 'Theme Color'),
-          IconButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              const url = reportIssue;
-              if (await canLaunchUrl(Uri.parse(url))) {
-                await launchUrl(Uri.parse(url),
-                    mode: LaunchMode.externalApplication);
-              } else {}
-            },
-            icon: const Icon(Icons.bug_report_rounded),
-            tooltip: 'Report a bug',
-          ),
+              tooltip: 'Theme Colors'),
           const ResetTextButton(),
         ],
       ),
@@ -280,18 +239,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                         bool passwordCorrect =
                             await _showPasswordDialog(context);
                         if (passwordCorrect) {
-                          await updateDatabase();
-                          onLoading();
-                          _showToast("Database updated successfully.");
-                          await fetchAndActivate();
-                          await Future.delayed(const Duration(seconds: 1));
                           if (!context.mounted) return;
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) => const MyApp(),
-                            ),
-                            (Route<dynamic> route) => false,
-                          );
+                          await updateDatabase(context);
                         } else {
                           _showToast("Incorrect password. Update canceled.");
                         }

@@ -23,6 +23,7 @@ Future<Map<String, dynamic>> fetchAndActivate() async {
     'bannerText': "",
     'bannerTitle': "",
     'database_download_id': 'default_id',
+    'dataFile_url': 'default_id',
   });
 
   try {
@@ -57,6 +58,7 @@ void _printFetchedData(FirebaseRemoteConfig remoteConfig) {
     print('Banner Title==> ${remoteConfig.getString('bannerTitle')}');
     print('Banner Text==> ${remoteConfig.getString('bannerText')}');
     print('ID==> ${remoteConfig.getString('database_download_id')}');
+    print('url==> ${remoteConfig.getString('dataFile_url')}');
   }
 }
 
@@ -72,6 +74,7 @@ Map<String, dynamic> _getConfigValues(FirebaseRemoteConfig remoteConfig) {
     'bannerText': remoteConfig.getString('bannerText'),
     'bannerTitle': remoteConfig.getString('bannerTitle'),
     'database_download_id': remoteConfig.getString('database_download_id'),
+    'dataFile_url': remoteConfig.getString('dataFile_url'),
   };
 }
 
@@ -87,6 +90,7 @@ Future<void> _saveToLocal(Map<String, dynamic> configValues) async {
   await prefs.setString('bannerText', configValues['bannerText']);
   await prefs.setString(
       'database_download_id', configValues['database_download_id']);
+  await prefs.setString('dataFile_url', configValues['dataFile_url']);
 }
 
 Future<Map<String, dynamic>> _loadFromLocal() async {
@@ -104,6 +108,7 @@ Future<Map<String, dynamic>> _loadFromLocal() async {
     'bannerTitle': await prefs.getString('bannerTitle') ?? "",
     'database_download_id':
         await prefs.getString('database_download_id') ?? "default_id",
+    'dataFile_url': await prefs.getString('dataFile_url') ?? "default_id",
   };
   if (kDebugMode) {
     print('Local values loaded: $configValues');

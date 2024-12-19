@@ -26,6 +26,7 @@ class DatabaseHelper {
   static const String pmHelperTable = 'PM_helper';
   static const String spareHelperTable = 'SpareParts';
   static const String nameHelperTable = 'Names';
+  static const String emailsHelperTable = 'Emails';
 
   static Future<Database> getDatabase() async {
     if (_database != null) return _database!;
@@ -88,6 +89,10 @@ class DatabaseHelper {
 
   static Future<List<Map<String, dynamic>>> loadNamesData() async {
     return loadData(nameHelperTable);
+  }
+
+  static Future<List<Map<String, dynamic>>> loadEmailsData() async {
+    return loadData(emailsHelperTable);
   }
 
   static Future<void> deleteDatabase() async {
@@ -168,6 +173,7 @@ class DBHelper {
         await DatabaseHelper.loadPMData();
         await DatabaseHelper.loadSpareData();
         await DatabaseHelper.loadNamesData();
+        await DatabaseHelper.loadEmailsData();
 
         return true;
       } catch (e) {
@@ -194,6 +200,7 @@ class DBHelper {
       await DatabaseHelper.loadPMData();
       await DatabaseHelper.loadSpareData();
       await DatabaseHelper.loadNamesData();
+      await DatabaseHelper.loadEmailsData();
 
       if (result.isNotEmpty) {
         return true;

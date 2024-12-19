@@ -16,6 +16,7 @@ import 'package:power_diyala/screens/teams_screen.dart';
 import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/remote_config.dart';
 import 'package:power_diyala/settings/theme_control.dart';
+import 'package:power_diyala/test.dart';
 import 'package:power_diyala/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -280,7 +281,15 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         actions: [
           if (kDebugMode)
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => EmailSender(
+                          themeMode: themeControl.themeMode,
+                          onThemeChanged: (value) {
+                            themeControl.toggleTheme(value);
+                          },
+                        )));
+              },
               icon: const Icon(Icons.code),
               tooltip: 'test',
             ),
