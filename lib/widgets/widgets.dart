@@ -101,8 +101,8 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
   );
 }
 
-Widget buildTextField(
-    TextEditingController controller, String label, BuildContext context) {
+Widget buildTextField(TextEditingController controller, String label,
+    bool active, BuildContext context) {
   final themeControl = Provider.of<ThemeControl>(context);
   return Expanded(
     child: TextField(
@@ -127,6 +127,7 @@ Widget buildTextField(
             const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
       ),
       style: const TextStyle(fontSize: 16.0),
+      enabled: active,
     ),
   );
 }

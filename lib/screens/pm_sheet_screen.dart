@@ -88,7 +88,7 @@ class PmSheetPageState extends State<PmSheetPage> {
     false,
     false,
   ];
-
+  bool _dateSelected = false;
   bool isCpEnabled = true;
   bool isLowVoltage = false;
   bool isEarthEnabled = false;
@@ -201,6 +201,7 @@ class PmSheetPageState extends State<PmSheetPage> {
     if (picked != null) {
       setState(() {
         _dateController.text = picked.toString().split(" ")[0];
+        _dateSelected = true;
       });
     }
   }
@@ -639,7 +640,10 @@ class PmSheetPageState extends State<PmSheetPage> {
                             ),
                           ),
                           ElevatedButton.icon(
-                            onPressed: (_isSiteSelected)
+                            onPressed: (_isSiteSelected) &&
+                                    (_dateSelected) &&
+                                    (fromTime != null) &&
+                                    (toTime != null)
                                 ? () {
                                     if (_currentStep != 5) {
                                       controls.onStepContinue!();
@@ -942,7 +946,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                           ),
                         ),
                         const SizedBox(height: 12.0),
-                        TextField(
+                        TextFormField(
                           onTap: () => _selectDate(context),
                           controller: _dateController,
                           decoration: InputDecoration(

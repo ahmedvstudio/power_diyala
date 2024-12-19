@@ -25,7 +25,6 @@ class CalculatorScreenState extends State<CalculatorScreen> {
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   final calculatorData = DataManager().getCalculatorData();
-
   List<Map<String, dynamic>>? _data;
   String? _selectedSiteName;
   List<String> _siteNames = [];
@@ -33,7 +32,7 @@ class CalculatorScreenState extends State<CalculatorScreen> {
   final TextEditingController _g1Controller = TextEditingController();
   final TextEditingController _g2Controller = TextEditingController();
   final TextEditingController _cpController = TextEditingController();
-
+  bool _isDatePicked = false;
   DateTime? _selectedDate;
   double? _calculatedG1,
       _calculatedG2,
@@ -205,6 +204,7 @@ class CalculatorScreenState extends State<CalculatorScreen> {
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
+        _isDatePicked = true;
       });
       _showSnackbar(
           'Selected date: ${_selectedDate!.toLocal().toString().split(' ')[0]}');
@@ -394,11 +394,14 @@ class CalculatorScreenState extends State<CalculatorScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              buildTextField(_g1Controller, 'G1', context),
+                              buildTextField(
+                                  _g1Controller, 'G1', _isDatePicked, context),
                               const SizedBox(width: 10),
-                              buildTextField(_g2Controller, 'G2', context),
+                              buildTextField(
+                                  _g2Controller, 'G2', _isDatePicked, context),
                               const SizedBox(width: 10),
-                              buildTextField(_cpController, 'CP', context),
+                              buildTextField(
+                                  _cpController, 'CP', _isDatePicked, context),
                             ],
                           ),
                           const SizedBox(height: 16.0),
@@ -483,6 +486,7 @@ class CalculatorScreenState extends State<CalculatorScreen> {
                                 child: ElevatedButton.icon(
                                   onPressed: () async {
                                     _clearSelection();
+                                    _isDatePicked = false;
                                     await fetchAndActivate();
                                   },
                                   label: const Text('Clear'),
