@@ -49,9 +49,9 @@ class RuntimeCalculations extends StatelessWidget {
           buildCalculationRow(context, 'CP RT:', calculatedCP),
         ], Theme.of(context).cardColor),
         buildCalculationCard([
-          buildCalculationRow(context, 'Gen Diff:', genDifference),
-          buildCalculationRow(context, 'Total Gen:', totalGen),
           buildCalculationRow(context, 'Gen/Day:', genPerDay),
+          buildCalculationRow(context, 'Total Gen:', totalGen),
+          buildCalculationRow(context, 'Gen Diff:', genDifference),
         ], Theme.of(context).cardColor),
         buildCalculationCard([
           buildCalculationRow(context, 'Total RT:', totalRT),

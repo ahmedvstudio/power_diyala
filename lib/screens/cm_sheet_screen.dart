@@ -41,6 +41,8 @@ class CmSheetPageState extends State<CmSheetPage> {
   final List<SpareItem> _selectedSpareItems = [];
   List<String> _spareNames = [];
   List<String> _spareCode = [];
+  List<String> _hintGenTexts = [];
+  List<String> _hintCpTexts = [];
   final TextEditingController _spareController = TextEditingController();
   List<TextEditingController> _genControllers = [];
   List<TextEditingController> _tankControllers = [];
@@ -75,6 +77,19 @@ class CmSheetPageState extends State<CmSheetPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDataFromManager();
     });
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    _hintGenTexts = [
+      _selectedSiteData?['last_g1'].toString() ?? '',
+      _selectedSiteData?['last_g2'].toString() ?? ''
+    ];
+    _hintCpTexts = [
+      _selectedSiteData?['last_CP'].toString() ?? '',
+      _selectedSiteData?['last_KW'].toString() ?? ''
+    ];
   }
 
   @override
@@ -1081,7 +1096,8 @@ class CmSheetPageState extends State<CmSheetPage> {
                                 Row(
                                   children: [
                                     ...GenInput(_selectedSiteData!['sheet'])
-                                        .genInputs(context, _genControllers)
+                                        .genInputs(context, _genControllers,
+                                            _hintGenTexts)
                                         .map((inputField) {
                                       return Expanded(
                                         child: Padding(
@@ -1098,6 +1114,8 @@ class CmSheetPageState extends State<CmSheetPage> {
                                   cpValue: _selectedSiteData!['cp'],
                                   cpController: cpController,
                                   kwhController: kwhController,
+                                  cpHint: _hintCpTexts[0],
+                                  kwhHint: _hintCpTexts[1],
                                 ),
                               const SizedBox(height: 8.0),
                               if (_selectedSiteData != null)

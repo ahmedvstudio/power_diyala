@@ -107,7 +107,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   keyboardType: TextInputType.number,
                   controller: widget.groundControllers[0],
                   decoration: InputDecoration(
@@ -135,11 +135,19 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                     ),
                   ),
                   enabled: widget.isEarthEnabled,
+                  validator: widget.isEarthEnabled
+                      ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return '*';
+                          }
+                          return null;
+                        }
+                      : null,
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   controller: widget.groundControllers[1],
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
@@ -167,6 +175,14 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                     ),
                   ),
                   enabled: widget.isEarthEnabled,
+                  validator: widget.isEarthEnabled
+                      ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return '*';
+                          }
+                          return null;
+                        }
+                      : null,
                 ),
               ),
             ],
@@ -175,7 +191,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   controller: widget.groundControllers[2],
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
@@ -203,11 +219,19 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                     ),
                   ),
                   enabled: widget.isEarthEnabled,
+                  validator: widget.isEarthEnabled
+                      ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return '*';
+                          }
+                          return null;
+                        }
+                      : null,
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   controller: widget.groundControllers[3],
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
@@ -235,6 +259,14 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                     ),
                   ),
                   enabled: widget.isEarthEnabled,
+                  validator: widget.isEarthEnabled
+                      ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return '*';
+                          }
+                          return null;
+                        }
+                      : null,
                 ),
               ),
             ],
@@ -429,7 +461,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   controller: widget.batteryTestControllers[0],
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
@@ -457,11 +489,19 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                     ),
                   ),
                   enabled: widget.isBatteryTestEnabled,
+                  validator: widget.isBatteryTestEnabled
+                      ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return '*';
+                          }
+                          return null;
+                        }
+                      : null,
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   controller: widget.batteryTestControllers[1],
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
@@ -489,6 +529,14 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                     ),
                   ),
                   enabled: widget.isBatteryTestEnabled,
+                  validator: widget.isBatteryTestEnabled
+                      ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return '*';
+                          }
+                          return null;
+                        }
+                      : null,
                 ),
               ),
             ],

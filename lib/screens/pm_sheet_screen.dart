@@ -62,6 +62,8 @@ class PmSheetPageState extends State<PmSheetPage> {
   bool _isSiteSelected = false;
   List<TextEditingController> voltageControllers = [];
   List<TextEditingController> loadControllers = [];
+  List<String> _hintGenTexts = [];
+  List<String> _hintCpTexts = [];
   final _random = Random();
   List<bool> toggleValues = [
     false,
@@ -89,6 +91,8 @@ class PmSheetPageState extends State<PmSheetPage> {
     false,
   ];
   bool _dateSelected = false;
+  bool _isCommentsEnabled = false;
+  bool _engNameSelect = false;
   bool isCpEnabled = true;
   bool isLowVoltage = false;
   bool isEarthEnabled = false;
@@ -100,7 +104,10 @@ class PmSheetPageState extends State<PmSheetPage> {
   TimeOfDay? fromTime;
   TimeOfDay? toTime;
   int _currentStep = 0;
-
+  final _formKey = List<GlobalKey<FormState>>.generate(
+    5,
+    (index) => GlobalKey<FormState>(),
+  );
   @override
   void initState() {
     super.initState();
@@ -110,7 +117,6 @@ class PmSheetPageState extends State<PmSheetPage> {
     commentsControllers = List.generate(9, (index) => TextEditingController());
     voltageControllers = List.generate(3, (index) => TextEditingController());
     loadControllers = List.generate(3, (index) => TextEditingController());
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDataFromManager();
     });
@@ -119,6 +125,14 @@ class PmSheetPageState extends State<PmSheetPage> {
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
+    _hintGenTexts = [
+      _selectedSiteData?['last_g1'].toString() ?? '',
+      _selectedSiteData?['last_g2'].toString() ?? ''
+    ];
+    _hintCpTexts = [
+      _selectedSiteData?['last_CP'].toString() ?? '',
+      _selectedSiteData?['last_KW'].toString() ?? ''
+    ];
 
     if (_currentStep == 1) {
       _calculateAndDisplayCycles();
@@ -179,6 +193,7 @@ class PmSheetPageState extends State<PmSheetPage> {
     _nameData?.firstWhere((item) => item['Full Name'] == name);
     setState(() {
       _nameController.text = name;
+      _engNameSelect = true;
     });
   }
 
@@ -640,13 +655,17 @@ class PmSheetPageState extends State<PmSheetPage> {
                             ),
                           ),
                           ElevatedButton.icon(
-                            onPressed: (_isSiteSelected) &&
-                                    (_dateSelected) &&
-                                    (fromTime != null) &&
-                                    (toTime != null)
+                            onPressed: (_isSiteSelected &&
+                                    _dateSelected &&
+                                    fromTime != null &&
+                                    toTime != null)
                                 ? () {
-                                    if (_currentStep != 5) {
-                                      controls.onStepContinue!();
+                                    if (_currentStep < 5) {
+                                      if (_formKey[_currentStep]
+                                          .currentState!
+                                          .validate()) {
+                                        controls.onStepContinue!();
+                                      }
                                     } else {
                                       showDialog(
                                         context: context,
@@ -710,11 +729,10 @@ class PmSheetPageState extends State<PmSheetPage> {
                                                               SizedBox(
                                                                   height: 8),
                                                               Text(
-                                                                'Would you like to exit',
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .white),
-                                                              )
+                                                                  'Would you like to exit',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white)),
                                                             ],
                                                           ),
                                                         ],
@@ -768,7 +786,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                                                   .pop();
                                                               Navigator.of(
                                                                       context)
-                                                                  .pop();
+                                                                  .pop(); // Exit stepper or do another action
                                                             },
                                                             child: Container(
                                                               decoration:
@@ -830,7 +848,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ],
@@ -866,217 +884,228 @@ class PmSheetPageState extends State<PmSheetPage> {
                     subtitle: _currentStep == 0
                         ? const Text('All Fields Are Required.')
                         : null,
-                    content: Column(
-                      children: [
-                        const SizedBox(height: 8.0),
-                        GestureDetector(
-                          onTap: _isSiteSelected
-                              ? () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            '${siteController.text} ${_selectedSiteData?['code']}')),
-                                  );
-                                }
-                              : () => showSearchableDropdown(
-                                    context,
-                                    _siteNames,
-                                    (selected) {
-                                      setState(() {
-                                        _updateSelectedSiteData(selected);
-                                        _isSiteSelected = true;
-                                      });
-                                    },
-                                    _searchController,
+                    content: Form(
+                      key: _formKey[0],
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 8.0),
+                          GestureDetector(
+                            onTap: _isSiteSelected
+                                ? () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              '${siteController.text} ${_selectedSiteData?['code']}')),
+                                    );
+                                  }
+                                : () => showSearchableDropdown(
+                                      context,
+                                      _siteNames,
+                                      (selected) {
+                                        setState(() {
+                                          _updateSelectedSiteData(selected);
+                                          _isSiteSelected = true;
+                                        });
+                                      },
+                                      _searchController,
+                                    ),
+                            child: AbsorbPointer(
+                              child: TextField(
+                                controller: siteController,
+                                style: const TextStyle(
+                                    color: ThemeControl.errorColor),
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.cell_tower_rounded,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
-                          child: AbsorbPointer(
-                            child: TextField(
-                              controller: siteController,
-                              style: const TextStyle(
-                                  color: ThemeControl.errorColor),
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.cell_tower_rounded,
-                                  color: Theme.of(context).colorScheme.tertiary,
+                                  suffixIcon: _isSiteSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        )
+                                      : null,
+                                  label: Text(
+                                    _selectedSiteData != null
+                                        ? 'Site Name:'
+                                        : 'No site selected',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 16.0),
+                                  ),
+                                  filled: true,
+                                  labelStyle: TextStyle(
+                                      color: ThemeControl.errorColor
+                                          .withOpacity(0.8)),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary,
+                                        width: 2.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.grey, width: 1.5),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 16.0, horizontal: 12.0),
                                 ),
-                                suffixIcon: _isSiteSelected
-                                    ? const Icon(
-                                        Icons.check,
-                                        color: Colors.green,
-                                      )
-                                    : null,
-                                label: Text(
-                                  _selectedSiteData != null
-                                      ? 'Site Name:'
-                                      : 'No site selected',
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 16.0),
-                                ),
-                                filled: true,
-                                labelStyle: TextStyle(
-                                    color: ThemeControl.errorColor
-                                        .withOpacity(0.8)),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                      width: 2.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.grey, width: 1.5),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16.0, horizontal: 12.0),
+                                keyboardType: TextInputType.number,
+                                readOnly: true,
+                                enabled: !_isSiteSelected,
                               ),
-                              keyboardType: TextInputType.number,
-                              readOnly: true,
-                              enabled: !_isSiteSelected,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 12.0),
-                        TextFormField(
-                          onTap: () => _selectDate(context),
-                          controller: _dateController,
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(
-                              Icons.calendar_month_rounded,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                            label: const Text('Select Date'),
-                            filled: true,
-                            labelStyle: TextStyle(
-                                color:
-                                    ThemeControl.errorColor.withOpacity(0.8)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
+                          const SizedBox(height: 12.0),
+                          TextField(
+                            onTap: () => _selectDate(context),
+                            controller: _dateController,
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.calendar_month_rounded,
+                                color: Theme.of(context).colorScheme.tertiary,
+                              ),
+                              label: const Text('Select Date'),
+                              filled: true,
+                              labelStyle: TextStyle(
                                   color:
-                                      Theme.of(context).colorScheme.secondary),
+                                      ThemeControl.errorColor.withOpacity(0.8)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondary),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                borderSide: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                    width: 2.0),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                borderSide: const BorderSide(
+                                    color: Colors.grey, width: 1.5),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 12.0),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  width: 2.0),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.grey, width: 1.5),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 12.0),
+                            keyboardType: TextInputType.number,
+                            readOnly: true,
                           ),
-                          keyboardType: TextInputType.number,
-                          readOnly: true,
-                        ),
-                        const SizedBox(height: 12.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => _selectFromTime(context),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 15.0, horizontal: 10.0),
-                                  side: const BorderSide(
-                                      color: Colors.grey, width: 2.0),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
+                          const SizedBox(height: 12.0),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () => _selectFromTime(context),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 15.0, horizontal: 10.0),
+                                    side: const BorderSide(
+                                        color: Colors.grey, width: 2.0),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
                                   ),
+                                  label: Text(
+                                    fromTime != null
+                                        ? fromTime!.format(context)
+                                        : 'Time in',
+                                  ),
+                                  icon: Icon(Icons.access_time_rounded,
+                                      color: fromTime != null
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .tertiary
+                                          : Colors.grey),
                                 ),
-                                label: Text(
-                                  fromTime != null
-                                      ? fromTime!.format(context)
-                                      : 'Time in',
-                                ),
-                                icon: Icon(Icons.access_time_rounded,
-                                    color: fromTime != null
+                              ),
+                              const SizedBox(width: 15),
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () => _selectToTime(context),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 15.0, horizontal: 10.0),
+                                    side: const BorderSide(
+                                        color: Colors.grey, width: 2.0),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                  ),
+                                  label: Text(
+                                    toTime != null
+                                        ? toTime!.format(context)
+                                        : 'Time out',
+                                  ),
+                                  icon: Icon(
+                                    Icons.access_time_rounded,
+                                    color: toTime != null
                                         ? Theme.of(context).colorScheme.tertiary
-                                        : Colors.grey),
-                              ),
+                                        : Colors.grey,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                          const SizedBox(height: 8.0),
+                          if (_selectedSiteData != null)
+                            Row(
+                              children: [
+                                ...GenInput(_selectedSiteData!['sheet'])
+                                    .genInputs(
+                                        context, genControllers, _hintGenTexts)
+                                    .map((inputField) {
+                                  return Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: inputField,
+                                    ),
+                                  );
+                                }),
+                              ],
                             ),
-                            const SizedBox(width: 15),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => _selectToTime(context),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 15.0, horizontal: 10.0),
-                                  side: const BorderSide(
-                                      color: Colors.grey, width: 2.0),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                ),
-                                label: Text(
-                                  toTime != null
-                                      ? toTime!.format(context)
-                                      : 'Time out',
-                                ),
-                                icon: Icon(
-                                  Icons.access_time_rounded,
-                                  color: toTime != null
-                                      ? Theme.of(context).colorScheme.tertiary
-                                      : Colors.grey,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                        const SizedBox(height: 8.0),
-                        if (_selectedSiteData != null)
-                          Row(
-                            children: [
-                              ...GenInput(_selectedSiteData!['sheet'])
-                                  .genInputs(context, genControllers)
-                                  .map((inputField) {
-                                return Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: inputField,
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        const SizedBox(height: 8.0),
-                        if (_selectedSiteData != null)
-                          CpInput(
-                            cpValue: _selectedSiteData!['cp'],
-                            cpController: cpController,
-                            kwhController: kwhController,
-                          ),
-                        const SizedBox(height: 8.0),
-                        if (_selectedSiteData != null)
-                          Row(
-                            children: [
-                              ...TankInput(_selectedSiteData!['sheet'])
-                                  .tankInputs(context, tankControllers)
-                                  .map((inputField) {
-                                return Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: inputField,
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                      ],
+                          const SizedBox(height: 8.0),
+                          if (_selectedSiteData != null)
+                            CpInput(
+                              cpValue: _selectedSiteData!['cp'],
+                              cpController: cpController,
+                              kwhController: kwhController,
+                              cpHint: _hintCpTexts[0],
+                              kwhHint: _hintCpTexts[1],
+                            ),
+                          const SizedBox(height: 8.0),
+                          if (_selectedSiteData != null)
+                            Row(
+                              children: [
+                                ...TankInput(_selectedSiteData!['sheet'])
+                                    .tankInputs(context, tankControllers)
+                                    .map((inputField) {
+                                  return Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: inputField,
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                        ],
+                      ),
                     ),
                     state: stepCompleted[0]
                         ? StepState.complete
@@ -1088,18 +1117,21 @@ class PmSheetPageState extends State<PmSheetPage> {
                     subtitle: _currentStep == 1
                         ? const Text('on = Yes, off = No')
                         : null,
-                    content: Column(
-                      children: [
-                        if (_selectedSiteData != null)
-                          ...ReplacementSwitch(_selectedSiteData!['sheet'])
-                              .genSwitches(toggleValues, handleToggleChange),
-                        if (_selectedSiteData != null) ...[
-                          ...SeparatorSwitch(_selectedSiteData!['sheet'],
-                                  _selectedSiteData!.cast<String, String?>())
-                              .sepSwitches(
-                                  sepToggleValues, handleSepToggleChange),
+                    content: Form(
+                      key: _formKey[1],
+                      child: Column(
+                        children: [
+                          if (_selectedSiteData != null)
+                            ...ReplacementSwitch(_selectedSiteData!['sheet'])
+                                .genSwitches(toggleValues, handleToggleChange),
+                          if (_selectedSiteData != null) ...[
+                            ...SeparatorSwitch(_selectedSiteData!['sheet'],
+                                    _selectedSiteData!.cast<String, String?>())
+                                .sepSwitches(
+                                    sepToggleValues, handleSepToggleChange),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                     state: stepCompleted[1]
                         ? StepState.complete
@@ -1111,32 +1143,35 @@ class PmSheetPageState extends State<PmSheetPage> {
                     subtitle: _currentStep == 2
                         ? const Text('Randomize First')
                         : null,
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        if (_selectedSiteData != null)
-                          CpPhaseInput(
-                            cpValue: _selectedSiteData!['cp'],
-                            phase: _selectedSiteData!['phase'],
-                            voltageControllers: voltageControllers,
-                            loadControllers: loadControllers,
-                            isCpEnabled: isCpEnabled,
-                            onCpEnabledChanged: _handleCpEnabledChange,
-                          ),
-                        const SizedBox(height: 8),
-                        if (_selectedSiteData != null)
-                          GenVLInput(
-                            sheetNumber: _selectedSiteData![
-                                'sheet'], // Pass the sheet number here
-                            controllers: genVLControllers,
-                            gensSwitches: gensSwitches,
-                            onSwitchChanged: (index, value) {
-                              setState(() {
-                                gensSwitches[index] = value;
-                              });
-                            },
-                          ),
-                      ],
+                    content: Form(
+                      key: _formKey[2],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          if (_selectedSiteData != null)
+                            CpPhaseInput(
+                              cpValue: _selectedSiteData!['cp'],
+                              phase: _selectedSiteData!['phase'],
+                              voltageControllers: voltageControllers,
+                              loadControllers: loadControllers,
+                              isCpEnabled: isCpEnabled,
+                              onCpEnabledChanged: _handleCpEnabledChange,
+                            ),
+                          const SizedBox(height: 8),
+                          if (_selectedSiteData != null)
+                            GenVLInput(
+                              sheetNumber: _selectedSiteData![
+                                  'sheet'], // Pass the sheet number here
+                              controllers: genVLControllers,
+                              gensSwitches: gensSwitches,
+                              onSwitchChanged: (index, value) {
+                                setState(() {
+                                  gensSwitches[index] = value;
+                                });
+                              },
+                            ),
+                        ],
+                      ),
                     ),
                     state: stepCompleted[2]
                         ? StepState.complete
@@ -1145,17 +1180,20 @@ class PmSheetPageState extends State<PmSheetPage> {
                   Step(
                     isActive: _currentStep == 3,
                     title: const Text('AC'),
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        if (_selectedSiteData != null)
-                          AcInput(
-                            _selectedSiteData!['sheet'],
-                            acVoltControllers: acVoltControllers,
-                            acLoadControllers: acLoadControllers,
-                            acOtherController: acOtherController,
-                          ),
-                      ],
+                    content: Form(
+                      key: _formKey[3],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          if (_selectedSiteData != null)
+                            AcInput(
+                              _selectedSiteData!['sheet'],
+                              acVoltControllers: acVoltControllers,
+                              acLoadControllers: acLoadControllers,
+                              acOtherController: acOtherController,
+                            ),
+                        ],
+                      ),
                     ),
                     state: stepCompleted[3]
                         ? StepState.complete
@@ -1174,27 +1212,30 @@ class PmSheetPageState extends State<PmSheetPage> {
                             ],
                           )
                         : null,
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        EarthInputFields(
-                            selectedSiteData: _selectedSiteData,
-                            groundControllers: groundControllers,
-                            externalLoadControllers: externalLoadControllers,
-                            batteryTestControllers: batteryTestControllers,
-                            isBatteryTestEnabled: isBatteryTestEnabled,
-                            isEarthEnabled: isEarthEnabled,
-                            onEarthEnabledChanged: (value) {
-                              setState(() {
-                                isEarthEnabled = value;
-                              });
-                            },
-                            onBatteryTestEnabledChanged: (bool value) {
-                              setState(() {
-                                isBatteryTestEnabled = value;
-                              });
-                            }),
-                      ],
+                    content: Form(
+                      key: _formKey[4],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          EarthInputFields(
+                              selectedSiteData: _selectedSiteData,
+                              groundControllers: groundControllers,
+                              externalLoadControllers: externalLoadControllers,
+                              batteryTestControllers: batteryTestControllers,
+                              isBatteryTestEnabled: isBatteryTestEnabled,
+                              isEarthEnabled: isEarthEnabled,
+                              onEarthEnabledChanged: (value) {
+                                setState(() {
+                                  isEarthEnabled = value;
+                                });
+                              },
+                              onBatteryTestEnabledChanged: (bool value) {
+                                setState(() {
+                                  isBatteryTestEnabled = value;
+                                });
+                              }),
+                        ],
+                      ),
                     ),
                     state: stepCompleted[4]
                         ? StepState.complete
@@ -1209,7 +1250,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                         if (_currentStep == 5)
                           const Text(
                             'Add Comments first ->',
-                            style: TextStyle(fontSize: 8, color: Colors.red),
+                            style: TextStyle(fontSize: 9, color: Colors.red),
                           ),
                         if (_currentStep == 5)
                           IconButton(
@@ -1217,10 +1258,11 @@ class PmSheetPageState extends State<PmSheetPage> {
                               setState(() {
                                 isCpEnabled = isCpEnabled;
                                 isBatteryTestEnabled = isBatteryTestEnabled;
+                                _isCommentsEnabled = true;
                               });
                               _updateComments();
                             },
-                            icon: const Icon(Icons.add),
+                            icon: const Icon(Icons.download),
                           ),
                       ],
                     ),
@@ -1233,20 +1275,86 @@ class PmSheetPageState extends State<PmSheetPage> {
                           children: [
                             Checkbox(
                               value: isLowVoltage,
-                              onChanged: (value) {
-                                setState(() {
-                                  isLowVoltage = value ?? false;
-                                });
-                                _updateCPText();
-                              },
+                              onChanged: _isCommentsEnabled
+                                  ? (value) {
+                                      setState(() {
+                                        isLowVoltage = value ?? false;
+                                      });
+                                      _updateCPText();
+                                    }
+                                  : null,
                             ),
                             const Text("System low voltage"),
                           ],
                         ),
                         buildCommentField(
-                            'G1', commentsControllers[1], context),
+                          'G1',
+                          commentsControllers[1],
+                          context,
+                          suffixIcon: IconButton(
+                              onPressed: () {
+                                showMenu<String>(
+                                  context: context,
+                                  position: const RelativeRect.fromLTRB(
+                                      175.0, 350.0, 250.0, 100.0),
+                                  items: [
+                                    const PopupMenuItem<String>(
+                                      value:
+                                          'Replaced Oil & Filters Below 450hr to avoid oil exceeding 550hr next PM.',
+                                      child: Text('Under 450'),
+                                    ),
+                                    const PopupMenuItem<String>(
+                                      value:
+                                          'Replaced Oil & Filters exceeded 550hr due to bad cp supply.',
+                                      child: Text('Above 550'),
+                                    ),
+                                    const PopupMenuItem<String>(
+                                      value: 'Old Alarm on G1',
+                                      child: Text('Old Alarm'),
+                                    ),
+                                  ],
+                                ).then((String? value) {
+                                  if (value != null) {
+                                    commentsControllers[1].text = value;
+                                  }
+                                });
+                              },
+                              icon: const Icon(Icons.add)),
+                        ),
                         buildCommentField(
-                            'G2', commentsControllers[2], context),
+                          'G2',
+                          commentsControllers[2],
+                          context,
+                          suffixIcon: IconButton(
+                              onPressed: () {
+                                showMenu<String>(
+                                  context: context,
+                                  position: const RelativeRect.fromLTRB(
+                                      175.0, 350.0, 250.0, 100.0),
+                                  items: [
+                                    const PopupMenuItem<String>(
+                                      value:
+                                          'Replaced Oil & Filters Below 450hr to avoid oil exceeding 550hr next PM.',
+                                      child: Text('Under 450'),
+                                    ),
+                                    const PopupMenuItem<String>(
+                                      value:
+                                          'Replaced Oil & Filters exceeded 550hr due to bad cp supply.',
+                                      child: Text('Above 550'),
+                                    ),
+                                    const PopupMenuItem<String>(
+                                      value: 'Old Alarm on G2',
+                                      child: Text('Old Alarm'),
+                                    ),
+                                  ],
+                                ).then((String? value) {
+                                  if (value != null) {
+                                    commentsControllers[2].text = value;
+                                  }
+                                });
+                              },
+                              icon: const Icon(Icons.add)),
+                        ),
                         buildCommentField(
                             'AC', commentsControllers[3], context),
                         buildCommentField(
@@ -1272,7 +1380,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 label: Text(
                                   _selectedSiteData != null
                                       ? 'Engineer Name:'
-                                      : 'No site selected',
+                                      : 'No Name selected',
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(fontSize: 16.0),
                                 ),
@@ -1314,7 +1422,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: isOnline
+                                onPressed: isOnline &&
+                                        _isCommentsEnabled &&
+                                        _engNameSelect
                                     ? _isLoading
                                         ? null
                                         : () async {
@@ -1371,7 +1481,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.black,
-                                  backgroundColor: isOnline
+                                  backgroundColor: isOnline &&
+                                          _isCommentsEnabled &&
+                                          _engNameSelect
                                       ? Colors.tealAccent
                                       : Colors.grey,
                                   padding: const EdgeInsets.symmetric(
@@ -1472,12 +1584,18 @@ class PmSheetPageState extends State<PmSheetPage> {
                           height: 120,
                           color: Theme.of(context).colorScheme.tertiary,
                         ),
-                        const Column(
+                        Column(
                           children: [
-                            Icon(Icons.wifi_off_rounded,
-                                color: Colors.white, size: 32),
-                            SizedBox(height: 8),
-                            Text(
+                            Icon(
+                                _isCommentsEnabled
+                                    ? _engNameSelect
+                                        ? Icons.wifi_off_rounded
+                                        : Icons.engineering_rounded
+                                    : Icons.comment_rounded,
+                                color: Colors.white,
+                                size: 32),
+                            const SizedBox(height: 8),
+                            const Text(
                               'OOPs...',
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -1486,10 +1604,14 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 fontSize: 18,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
-                              'No Internet Connection!',
-                              style: TextStyle(color: Colors.white),
+                              _isCommentsEnabled
+                                  ? _engNameSelect
+                                      ? 'No Internet Connection!'
+                                      : 'Select Eng Name.'
+                                  : 'Add Comments First.',
+                              style: const TextStyle(color: Colors.white),
                             )
                           ],
                         ),
@@ -1523,12 +1645,14 @@ class PmSheetPageState extends State<PmSheetPage> {
     );
   }
 
-  Widget buildCommentField(String labelText, TextEditingController controller,
-      BuildContext context) {
+  Widget buildCommentField(
+      String labelText, TextEditingController controller, BuildContext context,
+      {Widget? suffixIcon}) {
     return Column(
       children: [
         const SizedBox(height: 8),
         TextField(
+          enabled: _isCommentsEnabled,
           controller: controller,
           decoration: InputDecoration(
             labelText: labelText,
@@ -1553,6 +1677,7 @@ class PmSheetPageState extends State<PmSheetPage> {
             ),
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+            suffixIcon: suffixIcon,
           ),
           keyboardType: TextInputType.text,
         ),

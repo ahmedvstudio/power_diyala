@@ -63,7 +63,7 @@ class AcInputState extends State<AcInput> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: TextFormField(
                     controller:
                         widget.acOtherController[0], // Room temp. controller
                     decoration: InputDecoration(
@@ -91,6 +91,12 @@ class AcInputState extends State<AcInput> {
                       ),
                     ),
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '*';
+                      }
+                      return null;
+                    },
                   ),
                 ),
               ],
@@ -106,7 +112,7 @@ class AcInputState extends State<AcInput> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: TextFormField(
                     controller:
                         widget.acOtherController[0], // Room temp. controller
                     decoration: InputDecoration(
@@ -134,6 +140,12 @@ class AcInputState extends State<AcInput> {
                       ),
                     ),
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '*';
+                      }
+                      return null;
+                    },
                   ),
                 ),
               ],
@@ -208,7 +220,7 @@ class AcInputState extends State<AcInput> {
   Widget _generateTextField(BuildContext context,
       TextEditingController controller, String labelText) {
     return Expanded(
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         decoration: InputDecoration(
           labelText: labelText,
@@ -235,6 +247,12 @@ class AcInputState extends State<AcInput> {
           ),
         ),
         keyboardType: TextInputType.number,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return '*';
+          }
+          return null;
+        },
       ),
     );
   }

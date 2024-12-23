@@ -5,7 +5,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/settings/download_data_file.dart';
 import 'package:power_diyala/settings/pick_data_from_storage.dart';
-import 'package:power_diyala/settings/remote_config.dart';
 import 'package:power_diyala/widgets/color_picker.dart';
 import 'package:power_diyala/widgets/buttons.dart';
 import 'package:power_diyala/screens/licences.dart';
@@ -232,7 +231,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                       child: const Text('Import Data From Storage'),
                       onPressed: () async {
                         await updateDatabaseFromFilePicker(context);
-                        await fetchAndActivate();
                       },
                       onLongPress: () async {
                         // Show password dialog before updating the database

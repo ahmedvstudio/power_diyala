@@ -487,7 +487,6 @@ class CalculatorScreenState extends State<CalculatorScreen> {
                                   onPressed: () async {
                                     _clearSelection();
                                     _isDatePicked = false;
-                                    await fetchAndActivate();
                                   },
                                   label: const Text('Clear'),
                                   icon: const Icon(Icons.delete_sweep),

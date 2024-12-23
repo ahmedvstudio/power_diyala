@@ -8,6 +8,7 @@ import 'package:logger/logger.dart';
 import 'package:marquee/marquee.dart';
 import 'package:power_diyala/screens/cm_sheet_screen.dart';
 import 'package:power_diyala/screens/calc_screen.dart';
+import 'package:power_diyala/screens/email_sender_screen.dart';
 import 'package:power_diyala/screens/network_screen.dart';
 import 'package:power_diyala/screens/pm_sheet_screen.dart';
 import 'package:power_diyala/screens/setting_screen.dart';
@@ -15,8 +16,8 @@ import 'package:power_diyala/screens/spms_screen.dart';
 import 'package:power_diyala/screens/teams_screen.dart';
 import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/remote_config.dart';
+import 'package:power_diyala/settings/test.dart';
 import 'package:power_diyala/settings/theme_control.dart';
-import 'package:power_diyala/test.dart';
 import 'package:power_diyala/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -283,7 +284,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             IconButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => EmailSender(
+                    builder: (context) => Test(
                           themeMode: themeControl.themeMode,
                           onThemeChanged: (value) {
                             themeControl.toggleTheme(value);
@@ -302,7 +303,6 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           themeControl.toggleTheme(value);
                         },
                       )));
-              await fetchAndActivate();
             },
             icon: const Icon(Icons.engineering),
             tooltip: 'Settings',
@@ -426,9 +426,6 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           ],
         ),
         child: SpeedDial(
-          onOpen: () async {
-            await fetchAndActivate();
-          },
           animatedIcon: AnimatedIcons.menu_close,
           overlayColor: Colors.black,
           overlayOpacity: 0.5,
@@ -438,7 +435,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             SpeedDialChild(
               shape: const CircleBorder(),
               child: const Icon(Icons.assignment, color: Colors.white),
-              backgroundColor: Colors.green,
+              backgroundColor: Colors.teal,
               label: 'CM',
               onTap: () {
                 if (isCMsheetON) {
@@ -473,6 +470,22 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 } else {
                   _showFeatureUnavailable(context);
                 }
+              },
+            ),
+            SpeedDialChild(
+              shape: const CircleBorder(),
+              child: const Icon(Icons.mail, color: Colors.white),
+              backgroundColor: Colors.blueAccent,
+              label: 'Email',
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => EmailSender(
+                    themeMode: themeControl.themeMode,
+                    onThemeChanged: (value) {
+                      themeControl.toggleTheme(value);
+                    },
+                  ),
+                ));
               },
             ),
           ],

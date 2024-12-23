@@ -5,12 +5,16 @@ class CpInput extends StatefulWidget {
   final String? cpValue;
   final TextEditingController cpController;
   final TextEditingController kwhController;
+  final String cpHint;
+  final String kwhHint;
 
   const CpInput({
     super.key,
     required this.cpValue,
     required this.cpController,
     required this.kwhController,
+    required this.cpHint,
+    required this.kwhHint,
   });
 
   @override
@@ -24,12 +28,14 @@ class CpInputState extends State<CpInput> {
     if (widget.cpValue != null && widget.cpValue!.toLowerCase() == 'yes') {
       cpFields.add(
         Expanded(
-          child: TextField(
+          child: TextFormField(
             controller: widget.cpController,
             decoration: InputDecoration(
               labelText: 'CP',
               labelStyle:
                   TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+              hintText: 'Last: ${widget.cpHint}',
+              hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide: BorderSide(
@@ -50,18 +56,26 @@ class CpInputState extends State<CpInput> {
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
             ),
             keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return '*';
+              }
+              return null;
+            },
           ),
         ),
       );
       cpFields.add(const SizedBox(width: 4));
       cpFields.add(
         Expanded(
-          child: TextField(
+          child: TextFormField(
             controller: widget.kwhController,
             decoration: InputDecoration(
               labelText: 'Kwh',
               labelStyle:
                   TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+              hintText: 'Last: ${widget.kwhHint}',
+              hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide: BorderSide(
@@ -82,6 +96,12 @@ class CpInputState extends State<CpInput> {
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
             ),
             keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return '*';
+              }
+              return null;
+            },
           ),
         ),
       );
@@ -178,7 +198,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
       vInputs.add(Expanded(
         child: Padding(
           padding: const EdgeInsets.all(1.0),
-          child: TextField(
+          child: TextFormField(
               controller: widget
                   .voltageControllers[i], // Use the passed voltage controller
               decoration: InputDecoration(
@@ -206,6 +226,12 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
                     vertical: 16.0, horizontal: 12.0),
               ),
               keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return '*';
+                }
+                return null;
+              },
               enabled: widget.isCpEnabled),
         ),
       ));
@@ -213,7 +239,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
       loadInputs.add(Expanded(
         child: Padding(
           padding: const EdgeInsets.all(1.0),
-          child: TextField(
+          child: TextFormField(
               controller:
                   widget.loadControllers[i], // Use the passed load controller
               decoration: InputDecoration(
@@ -241,6 +267,12 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
                     vertical: 16.0, horizontal: 12.0),
               ),
               keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return '*';
+                }
+                return null;
+              },
               enabled: widget.isCpEnabled),
         ),
       ));
@@ -258,7 +290,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
       Row(
         children: [
           Expanded(
-            child: TextField(
+            child: TextFormField(
                 controller: widget.voltageControllers.isNotEmpty
                     ? widget.voltageControllers[0]
                     : TextEditingController(),
@@ -288,6 +320,12 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
                       vertical: 16.0, horizontal: 12.0),
                 ),
                 keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '*';
+                  }
+                  return null;
+                },
                 enabled: widget.isCpEnabled),
           )
         ],
@@ -296,7 +334,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
       Row(
         children: [
           Expanded(
-            child: TextField(
+            child: TextFormField(
                 controller: widget.loadControllers.isNotEmpty
                     ? widget.loadControllers[0]
                     : TextEditingController(), // Use the first load controller if available
@@ -326,6 +364,12 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
                       vertical: 16.0, horizontal: 12.0),
                 ),
                 keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '*';
+                  }
+                  return null;
+                },
                 enabled: widget.isCpEnabled),
           )
         ],

@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:power_diyala/settings/remote_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
@@ -79,7 +78,7 @@ Future<void> updateDatabase(BuildContext context) async {
       // Save the file
       final file = File(filePath);
       await file.writeAsBytes(response.bodyBytes);
-      await fetchAndActivate();
+
       // Save the current time as the last update time
       SharedPreferencesAsync prefs = SharedPreferencesAsync();
       await prefs.setInt(

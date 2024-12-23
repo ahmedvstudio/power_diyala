@@ -6,8 +6,8 @@ class GenInput {
   final int? sheetNumber; // Make sheetNumber nullable
   GenInput(this.sheetNumber);
 
-  List<Widget> genInputs(
-      BuildContext context, List<TextEditingController> controllers) {
+  List<Widget> genInputs(BuildContext context,
+      List<TextEditingController> controllers, List<String> hintTexts) {
     List<Widget> inputFields = [];
 
     // Check for null or invalid sheetNumber
@@ -27,9 +27,11 @@ class GenInput {
       case 16:
         // Generate two inputs for sheets 1-9 and 16
         for (int i = 0; i < 2; i++) {
-          inputFields.add(TextField(
+          inputFields.add(TextFormField(
             controller: controllers[i],
             decoration: InputDecoration(
+              hintText: 'Last: ${hintTexts[i]}',
+              hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
               labelText: 'G${i + 1}',
               labelStyle:
                   TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
@@ -52,6 +54,12 @@ class GenInput {
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
             ),
             keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return '*';
+              }
+              return null;
+            },
           ));
         }
         break;
@@ -61,9 +69,11 @@ class GenInput {
       case 13:
       case 14:
         // Generate one input for sheets 10-14
-        inputFields.add(TextField(
+        inputFields.add(TextFormField(
           controller: controllers[0],
           decoration: InputDecoration(
+            hintText: 'Last: ${hintTexts[0]}',
+            hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
             labelText: 'G1',
             labelStyle:
                 TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
@@ -86,6 +96,12 @@ class GenInput {
                 const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
           ),
           keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return '*';
+            }
+            return null;
+          },
         ));
         break;
       case 15:
@@ -214,9 +230,8 @@ class GenVLInputState extends State<GenVLInput> {
 
   Widget _createTextField(BuildContext context,
       TextEditingController controller, String labelText, bool enabled) {
-    return TextField(
+    return TextFormField(
       controller: controller,
-      // enabled: enabled,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: TextStyle(
@@ -241,6 +256,12 @@ class GenVLInputState extends State<GenVLInput> {
             const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
       ),
       keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return '*';
+        }
+        return null;
+      },
     );
   }
 

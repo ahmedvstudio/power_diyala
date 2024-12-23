@@ -16,7 +16,7 @@ class TankInput {
       case 16:
         //3 tank
         for (int i = 0; i < 3; i++) {
-          inputFields.add(TextField(
+          inputFields.add(TextFormField(
             controller: controllers[i],
             decoration: InputDecoration(
               labelText: 'T${i + 1}',
@@ -41,6 +41,12 @@ class TankInput {
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
             ),
             keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return '*';
+              }
+              return null;
+            },
           ));
         }
       case 2:
@@ -50,7 +56,7 @@ class TankInput {
       case 10:
         // 2 tanks
         for (int i = 0; i < 2; i++) {
-          inputFields.add(TextField(
+          inputFields.add(TextFormField(
             controller: controllers[i],
             decoration: InputDecoration(
               labelText: 'T${i + 1}',
@@ -75,6 +81,12 @@ class TankInput {
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
             ),
             keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return '*';
+              }
+              return null;
+            },
           ));
         }
         break;
@@ -87,7 +99,7 @@ class TankInput {
       case 13:
       case 14:
         // 1 tank
-        inputFields.add(TextField(
+        inputFields.add(TextFormField(
           controller: controllers[0],
           decoration: InputDecoration(
             labelText: 'T1',
@@ -112,6 +124,12 @@ class TankInput {
                 const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
           ),
           keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return '*';
+            }
+            return null;
+          },
         ));
         break;
       case 15:
