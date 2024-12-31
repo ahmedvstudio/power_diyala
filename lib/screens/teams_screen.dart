@@ -128,7 +128,7 @@ class TeamsScreenState extends State<TeamsScreen> {
 
   Widget _buildDayCell(DateTime date) {
     List<Map<String, dynamic>> events = _filterTeamsByDate(date);
-
+    int eventCount = events.length; // Count the number of events
     return Container(
       margin: const EdgeInsets.all(6.0),
       child: Column(
@@ -148,19 +148,26 @@ class TeamsScreenState extends State<TeamsScreen> {
                       : Colors.black),
             ),
           ),
-          // Dots for events
+          // Num for events
           if (events.isNotEmpty)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                events.length,
-                (index) => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                  width: 4.0,
-                  height: 6.0,
-                  decoration: const BoxDecoration(
-                    color: Colors.blueGrey,
-                    shape: BoxShape.circle,
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black87,
+                  borderRadius: BorderRadius.circular(2.0),
+                ),
+                child: Text(
+                  '$eventCount',
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.black
+                        : Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 8,
                   ),
                 ),
               ),
@@ -189,53 +196,58 @@ class TeamsScreenState extends State<TeamsScreen> {
   }
 
   Widget _buildTeamCard(Map<String, dynamic> team) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${team['Region']}',
-                style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text('${team['Sites']}',
-                style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Column(
-                  children: [
-                    const Text('Power Team:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.redAccent)),
-                    Text('${team['P_Eng'] ?? "N/A"}',
-                        style: const TextStyle(fontSize: 14)),
-                    Text('${team['G_Tech'] ?? "N/A"}',
-                        style: const TextStyle(fontSize: 14)),
-                    Text('${team['E_Tech'] ?? "N/A"}',
-                        style: const TextStyle(fontSize: 14)),
-                  ],
-                ),
-                Column(
-                  children: [
-                    const Text('Telecom Team:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blueAccent)),
-                    Text('${team['T_Eng'] ?? "N/A"}',
-                        style: const TextStyle(fontSize: 14)),
-                    Text('${team['T_Tech'] ?? "N/A"}',
-                        style: const TextStyle(fontSize: 14)),
-                  ],
-                )
-              ],
-            ),
-            const SizedBox(height: 4),
-          ],
+    return GestureDetector(
+      onTap: () {
+        logger.i(team);
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${team['Region']}',
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 4),
+              Text('${team['Sites']}',
+                  style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Column(
+                    children: [
+                      const Text('Power Team:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.redAccent)),
+                      Text('${team['P_Eng'] ?? "N/A"}',
+                          style: const TextStyle(fontSize: 14)),
+                      Text('${team['G_Tech'] ?? "N/A"}',
+                          style: const TextStyle(fontSize: 14)),
+                      Text('${team['E_Tech'] ?? "N/A"}',
+                          style: const TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const Text('Telecom Team:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueAccent)),
+                      Text('${team['T_Eng'] ?? "N/A"}',
+                          style: const TextStyle(fontSize: 14)),
+                      Text('${team['T_Tech'] ?? "N/A"}',
+                          style: const TextStyle(fontSize: 14)),
+                    ],
+                  )
+                ],
+              ),
+              const SizedBox(height: 4),
+            ],
+          ),
         ),
       ),
     );

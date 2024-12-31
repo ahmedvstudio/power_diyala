@@ -99,88 +99,156 @@ class CMTypeDialog {
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: Text('CM - $cmType',
-                  style: const TextStyle(decoration: TextDecoration.underline)),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildDropdown(
-                      hint: 'Category',
-                      value: selectedOption1,
-                      options: options1,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedOption1 = value;
-                          option1Controller.text = value ?? '';
-                          if (value != "Extra") {
-                            option2Controller.clear();
-                            selectedOption2 = null;
-                          }
-                        });
-                      },
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  color: Theme.of(context).cardColor,
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.5,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              height: 120,
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                            Column(
+                              children: [
+                                Icon(Icons.list_alt_rounded,
+                                    color: Colors.white, size: 32),
+                                SizedBox(height: 8),
+                                Text(
+                                  'CM - $cmType',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildDropdown(
+                                  hint: 'Category',
+                                  value: selectedOption1,
+                                  options: options1,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedOption1 = value;
+                                      option1Controller.text = value ?? '';
+                                      if (value != "Extra") {
+                                        option2Controller.clear();
+                                        selectedOption2 = null;
+                                      }
+                                    });
+                                  },
+                                ),
+                                if (selectedOption1 == "Extra") ...[
+                                  const SizedBox(height: 12),
+                                  _buildDropdown(
+                                    hint: 'Extra Type',
+                                    value: selectedOption2,
+                                    options: options2,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedOption2 = value;
+                                        option2Controller.text = value ?? '';
+                                      });
+                                    },
+                                  ),
+                                ],
+                                const SizedBox(height: 12),
+                                _buildDropdown(
+                                  hint: 'Type',
+                                  value: selectedOption3,
+                                  options: options3,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedOption3 = value;
+                                      option3Controller.text = value ?? '';
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                child: const Text('Cancel',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16)),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                if ((selectedOption1 == null ||
+                                        selectedOption1!.isEmpty) ||
+                                    (selectedOption1 == "Extra" &&
+                                        (selectedOption2 == null ||
+                                            selectedOption2!.isEmpty)) ||
+                                    (selectedOption3 == null ||
+                                        selectedOption3!.isEmpty)) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Please fill in all required fields.')),
+                                  );
+                                } else {
+                                  onSelected(selectedOption1, selectedOption2,
+                                      selectedOption3);
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                child: const Text('Select',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16)),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                     ),
-                    if (selectedOption1 == "Extra") ...[
-                      const SizedBox(height: 12),
-                      _buildDropdown(
-                        hint: 'Extra Type',
-                        value: selectedOption2,
-                        options: options2,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedOption2 = value;
-                            option2Controller.text = value ?? '';
-                          });
-                        },
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                    _buildDropdown(
-                      hint: 'Type',
-                      value: selectedOption3,
-                      options: options3,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedOption3 = value;
-                          option3Controller.text = value ?? '';
-                        });
-                      },
-                    ),
-                  ],
+                  ),
                 ),
               ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Check if any required field is empty
-                    if ((selectedOption1 == null || selectedOption1!.isEmpty) ||
-                        (selectedOption1 == "Extra" &&
-                            (selectedOption2 == null ||
-                                selectedOption2!.isEmpty)) ||
-                        (selectedOption3 == null || selectedOption3!.isEmpty)) {
-                      // Show a SnackBar or some feedback
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content:
-                                Text('Please fill in all required fields.')),
-                      );
-                    } else {
-                      // Call the provided callback with the selected values
-                      onSelected(
-                          selectedOption1, selectedOption2, selectedOption3);
-                      Navigator.of(context).pop(); // Close dialog
-                    }
-                  },
-                  child: const Text('Select'),
-                ),
-              ],
             );
           },
         );

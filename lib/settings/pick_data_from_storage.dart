@@ -61,24 +61,61 @@ Future<void> updateDatabaseFromFilePicker(BuildContext context) async {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            contentPadding: const EdgeInsets.all(0.0),
-            insetPadding: const EdgeInsets.symmetric(horizontal: 100),
-            content: Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(
-                    color: Theme.of(context).primaryColor,
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            height: 120,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                          const Column(
+                            children: [
+                              Icon(Icons.hourglass_top_rounded,
+                                  color: Colors.white, size: 32),
+                              SizedBox(height: 8),
+                              Text(
+                                'Loading',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20, bottom: 20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            const SizedBox(height: 16),
+                            const Text('Loading New Data...'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  const Text('Loading New Data...'),
-                ],
+                ),
               ),
             ),
           );

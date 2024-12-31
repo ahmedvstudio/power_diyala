@@ -51,52 +51,123 @@ class QuantitySelectorState extends State<QuantitySelector> {
     final result = await showDialog<double>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Quantity'),
-          content: TextField(
-            controller: controller,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: 'Enter Quantity',
-              labelStyle:
-                  TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide:
-                    BorderSide(color: Theme.of(context).colorScheme.secondary),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  width: 2.0,
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              color: Theme.of(context).cardColor,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          height: 120,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                        const Column(
+                          children: [
+                            Icon(Icons.production_quantity_limits_rounded,
+                                color: Colors.white, size: 32),
+                            SizedBox(height: 8),
+                            Text(
+                              'Quantity',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: TextField(
+                        controller: controller,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        decoration: InputDecoration(
+                          labelText: 'Enter Quantity',
+                          labelStyle: TextStyle(
+                              color: ThemeControl.errorColor.withOpacity(0.8)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.secondary),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              width: 2.0,
+                            ),
+                          ),
+                          filled: true,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: const BorderSide(
+                                color: Colors.grey, width: 1.5),
+                          ),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 18.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                            child: const Text('Cancel',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16)),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            final double? newQuantity =
+                                double.tryParse(controller.text);
+                            if (newQuantity != null && newQuantity > 0) {
+                              Navigator.of(context).pop(newQuantity);
+                            }
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                            child: const Text('OK',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
-              filled: true,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide: const BorderSide(color: Colors.grey, width: 1.5),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 18.0),
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                final double? newQuantity = double.tryParse(controller.text);
-                if (newQuantity != null && newQuantity > 0) {
-                  Navigator.of(context).pop(newQuantity);
-                }
-              },
-            ),
-          ],
         );
       },
     );

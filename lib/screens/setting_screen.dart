@@ -320,84 +320,158 @@ Future<bool> _showPasswordDialog(BuildContext context) async {
         builder: (BuildContext context) {
           final TextEditingController controller = TextEditingController();
           bool isObscured = true;
-          return AlertDialog(
-            title: const Text(
-              'Enter Password',
-              style: TextStyle(decoration: TextDecoration.underline),
-            ),
-            content: StatefulBuilder(
-              builder: (context, setState) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: controller,
-                      obscureText: isObscured,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        labelStyle: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .error
-                                .withOpacity(0.8)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                          borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.secondary),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                          borderSide: BorderSide(
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                color: Theme.of(context).cardColor,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            height: 120,
                             color: Theme.of(context).colorScheme.tertiary,
-                            width: 2.0,
                           ),
-                        ),
-                        filled: true,
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 1),
-                        ),
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 12.0),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            isObscured
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: Theme.of(context).colorScheme.secondary,
-                            size: 18,
+                          const Column(
+                            children: [
+                              Icon(Icons.lock_outline_rounded,
+                                  color: Colors.white, size: 32),
+                              SizedBox(height: 8),
+                              Text(
+                                'Enter Password',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ],
                           ),
-                          onPressed: () {
-                            setState(() {
-                              isObscured = !isObscured;
-                            });
-                          },
-                        ),
+                        ],
                       ),
-                    ),
-                  ],
-                );
-              },
+                      const SizedBox(height: 30),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: StatefulBuilder(builder: (context, setState) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextField(
+                                controller: controller,
+                                obscureText: isObscured,
+                                decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  labelStyle: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .error
+                                        .withOpacity(0.8),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    borderSide: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                      width: 2.0,
+                                    ),
+                                  ),
+                                  filled: true,
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.grey, width: 1),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12.0),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      isObscured
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                      size: 18,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        isObscured = !isObscured;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              if (controller.text == password) {
+                                Navigator.of(context).pop(true);
+                              } else {
+                                Navigator.of(context).pop(false);
+                              }
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                              child: const Text(
+                                'Confirm',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-              ),
-              TextButton(
-                child: const Text('Confirm'),
-                onPressed: () {
-                  if (controller.text == password) {
-                    Navigator.of(context).pop(true);
-                  } else {
-                    Navigator.of(context).pop(false);
-                  }
-                },
-              ),
-            ],
           );
         },
       ) ??

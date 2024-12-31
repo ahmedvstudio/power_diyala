@@ -16,7 +16,7 @@ import 'package:power_diyala/screens/spms_screen.dart';
 import 'package:power_diyala/screens/teams_screen.dart';
 import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/remote_config.dart';
-import 'package:power_diyala/settings/test.dart';
+import 'package:power_diyala/test/test.dart';
 import 'package:power_diyala/settings/theme_control.dart';
 import 'package:power_diyala/widgets/widgets.dart';
 import 'package:provider/provider.dart';

@@ -1,7 +1,7 @@
 const String appName = 'Power Diyala';
-const String appLegalese = '© 2024 Ahmed Adnan';
+const String appLegalese = '© 2025 Ahmed Adnan';
 const String iconPath = 'assets/Icon.png';
-const String appVersion = '0.24.12';
+const String appVersion = '0.25.01';
 const String reportIssue =
     'https://github.com/Ahmed47v/power_diyala/issues/new/choose';
 const String faceBook = 'https://www.facebook.com/ahmed47v/';
