@@ -49,3 +49,4 @@ app.*.map.json
 /lib/firebase_options.dart
 /flutter_jank_metrics_01.json
 /lib/test/
+/.vscode/settings.json

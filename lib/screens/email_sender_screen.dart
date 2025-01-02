@@ -491,8 +491,6 @@ class EmailSenderState extends State<EmailSender> {
       context: context,
       builder: (BuildContext context) {
         TextEditingController nameController = TextEditingController();
-        final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
         return Dialog(
           backgroundColor: Colors.transparent,
           child: ClipRRect(
@@ -533,43 +531,32 @@ class EmailSenderState extends State<EmailSender> {
                     const SizedBox(height: 30),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Form(
-                        key: formKey,
-                        child: TextFormField(
-                          controller: nameController,
-                          decoration: InputDecoration(
-                            labelText: 'Enter new name',
-                            labelStyle: TextStyle(
-                                color:
-                                    ThemeControl.errorColor.withOpacity(0.8)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: BorderSide(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.tertiary,
-                                width: 2.0,
-                              ),
-                            ),
-                            filled: true,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: const BorderSide(
-                                  color: Colors.grey, width: 1.5),
-                            ),
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 18.0),
+                      child: TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Enter new name',
+                          labelStyle: TextStyle(
+                              color: ThemeControl.errorColor.withOpacity(0.8)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.secondary),
                           ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Name cannot be empty';
-                            }
-                            return null;
-                          },
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              width: 2.0,
+                            ),
+                          ),
+                          filled: true,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: const BorderSide(
+                                color: Colors.grey, width: 1.5),
+                          ),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 18.0),
                         ),
                       ),
                     ),
@@ -594,7 +581,7 @@ class EmailSenderState extends State<EmailSender> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            if (formKey.currentState!.validate()) {
+                            if (nameController.text.isNotEmpty) {
                               Navigator.of(context)
                                   .pop(nameController.text.trim());
                             }

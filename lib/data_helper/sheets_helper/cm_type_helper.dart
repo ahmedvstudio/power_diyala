@@ -120,9 +120,9 @@ class CMTypeDialog {
                             ),
                             Column(
                               children: [
-                                Icon(Icons.list_alt_rounded,
+                                const Icon(Icons.list_alt_rounded,
                                     color: Colors.white, size: 32),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text(
                                   'CM - $cmType',
                                   textAlign: TextAlign.center,
@@ -130,7 +130,6 @@ class CMTypeDialog {
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                     fontSize: 18,
-                                    decoration: TextDecoration.underline,
                                   ),
                                 ),
                               ],

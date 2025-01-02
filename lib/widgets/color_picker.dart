@@ -152,11 +152,10 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
                           'Customize Theme',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontWeight: FontWeight.normal,
+                            fontWeight: FontWeight.bold,
                             fontStyle: FontStyle.normal,
                             color: Colors.white,
                             fontSize: 18,
-                            decoration: TextDecoration.underline,
                           ),
                         ),
                       ],

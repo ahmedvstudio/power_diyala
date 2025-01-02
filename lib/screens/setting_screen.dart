@@ -351,7 +351,6 @@ Future<bool> _showPasswordDialog(BuildContext context) async {
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                   fontSize: 18,
-                                  decoration: TextDecoration.underline,
                                 ),
                               ),
                             ],
