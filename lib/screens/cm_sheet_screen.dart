@@ -1572,13 +1572,12 @@ class CmSheetPageState extends State<CmSheetPage> {
                 width: 2.0,
               ),
             ),
-            suffixIcon: IconButton(
-                onPressed: () {
-                  showMenu<String>(
-                    context: context,
-                    position:
-                        const RelativeRect.fromLTRB(175.0, 200.0, 250.0, 100.0),
-                    items: [
+            suffixIcon: PopupMenuButton<String>(
+                onSelected: (String value) {
+                  controller.text =
+                      value; // Update the text based on the selected value
+                },
+                itemBuilder: (BuildContext context) => [
                       const PopupMenuItem<String>(
                         value: 'Materials Used During PM',
                         child: Text('During PM'),
@@ -1592,13 +1591,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                         child: Text('Faulty'),
                       ),
                     ],
-                  ).then((String? value) {
-                    if (value != null) {
-                      controller.text = value;
-                    }
-                  });
-                },
-                icon: const Icon(Icons.add)),
+                child: const Icon(Icons.add)),
             filled: true,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),

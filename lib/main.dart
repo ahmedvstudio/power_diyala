@@ -12,10 +12,14 @@ import 'package:power_diyala/settings/remote_config.dart';
 import 'package:provider/provider.dart';
 import 'settings/theme_control.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
+
+  tz.initializeTimeZones();
+
   final Logger logger =
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 

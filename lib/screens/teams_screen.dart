@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:power_diyala/data_helper/data_manager.dart';
+import 'package:power_diyala/screens/note_add_page.dart';
 import 'package:power_diyala/widgets/detect_date_format.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:logger/logger.dart';
@@ -26,7 +27,7 @@ class TeamsScreenState extends State<TeamsScreen> {
       kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 
   final Map<DateTime, List<Map<String, dynamic>>> _eventsCache = {};
-  CalendarFormat _calendarFormat = CalendarFormat.week; // Default format
+  CalendarFormat _calendarFormat = CalendarFormat.twoWeeks; // Default format
 
   @override
   void initState() {
@@ -109,7 +110,6 @@ class TeamsScreenState extends State<TeamsScreen> {
         defaultBuilder: (context, date, events) => _buildDayCell(date),
         dowBuilder: (context, day) {
           final weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
           return Center(
             child: Text(
               weekDays[day.weekday % 7],
@@ -198,7 +198,12 @@ class TeamsScreenState extends State<TeamsScreen> {
   Widget _buildTeamCard(Map<String, dynamic> team) {
     return GestureDetector(
       onTap: () {
-        logger.i(team);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NoteAddPage(team: team),
+          ),
+        );
       },
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -245,7 +250,6 @@ class TeamsScreenState extends State<TeamsScreen> {
                   )
                 ],
               ),
-              const SizedBox(height: 4),
             ],
           ),
         ),

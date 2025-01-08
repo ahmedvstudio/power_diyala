@@ -104,6 +104,8 @@ class PmSheetPageState extends State<PmSheetPage> {
   TimeOfDay? fromTime;
   TimeOfDay? toTime;
   int _currentStep = 0;
+  bool _isTest = false;
+
   final _formKey = List<GlobalKey<FormState>>.generate(
     5,
     (index) => GlobalKey<FormState>(),
@@ -187,6 +189,12 @@ class PmSheetPageState extends State<PmSheetPage> {
         _showSnackbar('Error loading data: ${e.toString()}');
       }
     }
+  }
+
+  void _toggleTestMode() {
+    setState(() {
+      _isTest = !_isTest;
+    });
   }
 
   void _updateEngName(String name) {
@@ -617,7 +625,20 @@ class PmSheetPageState extends State<PmSheetPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('PM Sheet', style: Theme.of(context).textTheme.titleLarge),
+        title: GestureDetector(
+            onLongPress: () {
+              _toggleTestMode();
+              logger.i("Test Mode");
+            },
+            child: Text('PM Sheet',
+                style: Theme.of(context).textTheme.titleLarge)),
+        actions: [
+          if (_isTest)
+            IconButton(
+              icon: const Icon(Icons.code_outlined),
+              onPressed: () {},
+            ),
+        ],
       ),
       body: SafeArea(
         child: _data == null
@@ -855,10 +876,19 @@ class PmSheetPageState extends State<PmSheetPage> {
                   );
                 },
                 onStepTapped: (step) {
-                  if (step == _currentStep) {
-                    setState(() {
-                      _currentStep = step;
-                    });
+                  if (_isTest) {
+                    if (step != _currentStep) {
+                      setState(() {
+                        _currentStep = step;
+                      });
+                    }
+                  } else {
+                    // Normal mode: only change if it's a different step
+                    if (step == _currentStep) {
+                      setState(() {
+                        _currentStep = step;
+                      });
+                    }
                   }
                 },
                 onStepContinue: () {
@@ -1291,13 +1321,12 @@ class PmSheetPageState extends State<PmSheetPage> {
                           'G1',
                           commentsControllers[1],
                           context,
-                          suffixIcon: IconButton(
-                              onPressed: () {
-                                showMenu<String>(
-                                  context: context,
-                                  position: const RelativeRect.fromLTRB(
-                                      175.0, 350.0, 250.0, 100.0),
-                                  items: [
+                          suffixIcon: PopupMenuButton<String>(
+                              onSelected: (String value) {
+                                commentsControllers[1].text =
+                                    value; // Update the text based on the selected value
+                              },
+                              itemBuilder: (BuildContext context) => [
                                     const PopupMenuItem<String>(
                                       value:
                                           'Replaced Oil & Filters Below 450hr to avoid oil exceeding 550hr next PM.',
@@ -1313,25 +1342,17 @@ class PmSheetPageState extends State<PmSheetPage> {
                                       child: Text('Old Alarm'),
                                     ),
                                   ],
-                                ).then((String? value) {
-                                  if (value != null) {
-                                    commentsControllers[1].text = value;
-                                  }
-                                });
-                              },
-                              icon: const Icon(Icons.add)),
+                              child: const Icon(Icons.add)),
                         ),
                         buildCommentField(
                           'G2',
                           commentsControllers[2],
                           context,
-                          suffixIcon: IconButton(
-                              onPressed: () {
-                                showMenu<String>(
-                                  context: context,
-                                  position: const RelativeRect.fromLTRB(
-                                      175.0, 350.0, 250.0, 100.0),
-                                  items: [
+                          suffixIcon: PopupMenuButton<String>(
+                              onSelected: (String value) {
+                                commentsControllers[2].text = value;
+                              },
+                              itemBuilder: (BuildContext context) => [
                                     const PopupMenuItem<String>(
                                       value:
                                           'Replaced Oil & Filters Below 450hr to avoid oil exceeding 550hr next PM.',
@@ -1347,13 +1368,7 @@ class PmSheetPageState extends State<PmSheetPage> {
                                       child: Text('Old Alarm'),
                                     ),
                                   ],
-                                ).then((String? value) {
-                                  if (value != null) {
-                                    commentsControllers[2].text = value;
-                                  }
-                                });
-                              },
-                              icon: const Icon(Icons.add)),
+                              child: const Icon(Icons.add)),
                         ),
                         buildCommentField(
                             'AC', commentsControllers[3], context),

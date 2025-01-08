@@ -16,8 +16,11 @@ import 'package:power_diyala/screens/spms_screen.dart';
 import 'package:power_diyala/screens/teams_screen.dart';
 import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/remote_config.dart';
-import 'package:power_diyala/test/test.dart';
+import 'package:power_diyala/data_helper/note_helper.dart';
+import 'package:power_diyala/test/note_list_page.dart';
+import 'package:power_diyala/test/test_screen.dart';
 import 'package:power_diyala/settings/theme_control.dart';
+import 'package:power_diyala/settings/update_checker.dart';
 import 'package:power_diyala/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -66,6 +69,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     super.initState();
     _initializeScreens();
     _fetchAndActivateRemoteConfig();
+    UpdateChecker().checkForUpdates(context, toast: false);
     _borderRadiusAnimationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -294,6 +298,66 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               icon: const Icon(Icons.code),
               tooltip: 'test',
             ),
+          IconButton(
+            onPressed: () async {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => NotesListPage(
+                  themeMode: themeControl.themeMode,
+                  onThemeChanged: (value) {
+                    themeControl.toggleTheme(value);
+                  },
+                ),
+              ));
+            },
+            icon: StreamBuilder<List<Map<String, dynamic>>>(
+              stream:
+                  NoteHelper().getNotesStream(), // Listen to the notes stream
+              builder: (context, snapshot) {
+                int noteCount = 0;
+
+                // Check the state and count notes
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator(); // Optionally show loading indicator
+                } else if (snapshot.hasError) {
+                  return const Icon(
+                      Icons.error); // Show error icon if there's an error
+                } else if (snapshot.hasData) {
+                  noteCount =
+                      snapshot.data!.length; // Count the number of notes
+                }
+
+                return Stack(
+                  children: [
+                    Icon(
+                      noteCount > 0
+                          ? Icons.notifications
+                          : Icons.notifications_none_rounded,
+                    ),
+                    if (noteCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: -2,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '$noteCount',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 10),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+            tooltip: 'Notes',
+          ),
           IconButton(
             onPressed: () async {
               Navigator.of(context).push(MaterialPageRoute(

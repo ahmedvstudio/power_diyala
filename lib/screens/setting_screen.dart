@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/settings/download_data_file.dart';
 import 'package:power_diyala/settings/pick_data_from_storage.dart';
+import 'package:power_diyala/settings/update_checker.dart';
 import 'package:power_diyala/widgets/color_picker.dart';
 import 'package:power_diyala/widgets/buttons.dart';
 import 'package:power_diyala/screens/licences.dart';
@@ -216,7 +217,12 @@ class SettingsScreenState extends State<SettingsScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const UpdateButton(),
+                    OutlinedButton(
+                        child: const Text('Check For Updates'),
+                        onPressed: () {
+                          UpdateChecker().checkForUpdates(context,
+                              toast: true, isButtonPress: true);
+                        }),
                     const SizedBox(height: 8),
                     OutlinedButton(
                       child: const Text('Open Sources Licences'),
@@ -233,7 +239,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                         await updateDatabaseFromFilePicker(context);
                       },
                       onLongPress: () async {
-                        // Show password dialog before updating the database
                         bool passwordCorrect =
                             await _showPasswordDialog(context);
                         if (passwordCorrect) {
