@@ -32,8 +32,9 @@ class CpInputState extends State<CpInput> {
             controller: widget.cpController,
             decoration: InputDecoration(
               labelText: 'CP',
-              labelStyle:
-                  TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+              labelStyle: TextStyle(
+                color: ThemeControl.errorColor.withValues(alpha: 0.8),
+              ),
               hintText: 'Last: ${widget.cpHint}',
               hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
               border: OutlineInputBorder(
@@ -72,8 +73,9 @@ class CpInputState extends State<CpInput> {
             controller: widget.kwhController,
             decoration: InputDecoration(
               labelText: 'Kwh',
-              labelStyle:
-                  TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+              labelStyle: TextStyle(
+                color: ThemeControl.errorColor.withValues(alpha: 0.8),
+              ),
               hintText: 'Last: ${widget.kwhHint}',
               hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
               border: OutlineInputBorder(
@@ -204,7 +206,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
               decoration: InputDecoration(
                 labelText: 'V${i + 1}',
                 labelStyle: TextStyle(
-                    color: ThemeControl.errorColor.withOpacity(0.8),
+                    color: ThemeControl.errorColor.withValues(alpha: 0.8),
                     fontSize: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
@@ -245,7 +247,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
               decoration: InputDecoration(
                 labelText: 'Load $i',
                 labelStyle: TextStyle(
-                    color: ThemeControl.errorColor.withOpacity(0.8),
+                    color: ThemeControl.errorColor.withValues(alpha: 0.8),
                     fontSize: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
@@ -297,7 +299,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
                 decoration: InputDecoration(
                   labelText: 'V1',
                   labelStyle: TextStyle(
-                      color: ThemeControl.errorColor.withOpacity(0.8),
+                      color: ThemeControl.errorColor.withValues(alpha: 0.8),
                       fontSize: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
@@ -341,7 +343,7 @@ class CpPhaseInputWidgetState extends State<CpPhaseInput> {
                 decoration: InputDecoration(
                   labelText: 'Load 1',
                   labelStyle: TextStyle(
-                      color: ThemeControl.errorColor.withOpacity(0.8),
+                      color: ThemeControl.errorColor.withValues(alpha: 0.8),
                       fontSize: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),

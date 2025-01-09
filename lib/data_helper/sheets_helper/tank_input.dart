@@ -20,8 +20,9 @@ class TankInput {
             controller: controllers[i],
             decoration: InputDecoration(
               labelText: 'T${i + 1}',
-              labelStyle:
-                  TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+              labelStyle: TextStyle(
+                color: ThemeControl.errorColor.withValues(alpha: 0.8),
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide:
@@ -60,8 +61,9 @@ class TankInput {
             controller: controllers[i],
             decoration: InputDecoration(
               labelText: 'T${i + 1}',
-              labelStyle:
-                  TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+              labelStyle: TextStyle(
+                color: ThemeControl.errorColor.withValues(alpha: 0.8),
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide:
@@ -103,8 +105,9 @@ class TankInput {
           controller: controllers[0],
           decoration: InputDecoration(
             labelText: 'T1',
-            labelStyle:
-                TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+            labelStyle: TextStyle(
+              color: ThemeControl.errorColor.withValues(alpha: 0.8),
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide:

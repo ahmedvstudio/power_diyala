@@ -113,7 +113,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: 'Gen & Tank',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -153,7 +153,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: 'Telecom',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -197,7 +197,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: 'Lightening',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -237,7 +237,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: 'Tower Legs',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -315,7 +315,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: 'Owner',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -347,7 +347,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: 'Neighbour',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -380,7 +380,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: '3rd Party',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 12),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
@@ -407,7 +407,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: '3rd Party',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 12),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
@@ -467,7 +467,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: 'Start DC',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -507,7 +507,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: 'End DC',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -551,7 +551,7 @@ class EarthInputFieldsState extends State<EarthInputFields> {
                   decoration: InputDecoration(
                     labelText: 'Fire Extinguisher Expire Date',
                     labelStyle: TextStyle(
-                        color: ThemeControl.errorColor.withOpacity(0.8),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
                         fontSize: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),

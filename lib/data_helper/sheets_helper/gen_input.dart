@@ -33,8 +33,9 @@ class GenInput {
               hintText: 'Last: ${hintTexts[i]}',
               hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
               labelText: 'G${i + 1}',
-              labelStyle:
-                  TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+              labelStyle: TextStyle(
+                color: ThemeControl.errorColor.withValues(alpha: 0.8),
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide:
@@ -75,8 +76,9 @@ class GenInput {
             hintText: 'Last: ${hintTexts[0]}',
             hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
             labelText: 'G1',
-            labelStyle:
-                TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+            labelStyle: TextStyle(
+              color: ThemeControl.errorColor.withValues(alpha: 0.8),
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide:
@@ -235,7 +237,7 @@ class GenVLInputState extends State<GenVLInput> {
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: TextStyle(
-            color: Theme.of(context).colorScheme.error.withOpacity(0.8),
+            color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
             fontSize: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),

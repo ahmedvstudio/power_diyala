@@ -74,7 +74,6 @@ class SettingsScreenState extends State<SettingsScreen> {
       case ThemeMode.dark:
         return 2;
       case ThemeMode.system:
-      default:
         return 0;
     }
   }
@@ -378,7 +377,7 @@ Future<bool> _showPasswordDialog(BuildContext context) async {
                                     color: Theme.of(context)
                                         .colorScheme
                                         .error
-                                        .withOpacity(0.8),
+                                        .withValues(alpha: 0.8),
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20.0),

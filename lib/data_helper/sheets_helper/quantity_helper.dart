@@ -98,7 +98,9 @@ class QuantitySelectorState extends State<QuantitySelector> {
                         decoration: InputDecoration(
                           labelText: 'Enter Quantity',
                           labelStyle: TextStyle(
-                              color: ThemeControl.errorColor.withOpacity(0.8)),
+                            color:
+                                ThemeControl.errorColor.withValues(alpha: 0.8),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30.0),
                             borderSide: BorderSide(

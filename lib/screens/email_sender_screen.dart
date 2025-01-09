@@ -149,7 +149,8 @@ class EmailSenderState extends State<EmailSender> {
                     decoration: InputDecoration(
                       labelText: 'Subject:',
                       labelStyle: TextStyle(
-                          color: ThemeControl.errorColor.withOpacity(0.8)),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(
@@ -536,7 +537,9 @@ class EmailSenderState extends State<EmailSender> {
                         decoration: InputDecoration(
                           labelText: 'Enter new name',
                           labelStyle: TextStyle(
-                              color: ThemeControl.errorColor.withOpacity(0.8)),
+                            color:
+                                ThemeControl.errorColor.withValues(alpha: 0.8),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30.0),
                             borderSide: BorderSide(

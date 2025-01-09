@@ -69,7 +69,7 @@ class AcInputState extends State<AcInput> {
                     decoration: InputDecoration(
                       labelText: 'Room temp.',
                       labelStyle: TextStyle(
-                          color: ThemeControl.errorColor.withOpacity(0.8),
+                          color: ThemeControl.errorColor.withValues(alpha: 0.8),
                           fontSize: 12),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
@@ -118,7 +118,7 @@ class AcInputState extends State<AcInput> {
                     decoration: InputDecoration(
                       labelText: 'Room temp.',
                       labelStyle: TextStyle(
-                          color: ThemeControl.errorColor.withOpacity(0.8),
+                          color: ThemeControl.errorColor.withValues(alpha: 0.8),
                           fontSize: 12),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
@@ -225,7 +225,7 @@ class AcInputState extends State<AcInput> {
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: TextStyle(
-            color: ThemeControl.errorColor.withOpacity(0.8),
+            color: ThemeControl.errorColor.withValues(alpha: 0.8),
             fontSize: 12,
           ),
           border: OutlineInputBorder(

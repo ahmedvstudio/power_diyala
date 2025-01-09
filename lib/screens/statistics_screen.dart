@@ -95,7 +95,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       fillColor: Theme.of(context)
                           .colorScheme
                           .surface
-                          .withOpacity(0.5),
+                          .withValues(alpha: 0.5),
                     ),
                     onChanged: (value) {
                       setState(() {});
@@ -124,7 +124,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                           color: Theme.of(context)
                               .colorScheme
                               .surface
-                              .withOpacity(0.8),
+                              .withValues(alpha: 0.8),
                           shadowColor: Theme.of(context).shadowColor,
                           child: ListTile(
                             title: Text(
@@ -209,7 +209,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   borderRadius: BorderRadius.circular(12.0),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       spreadRadius: 1,
                       blurRadius: 5,
                       offset: const Offset(0, 2),

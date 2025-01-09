@@ -130,12 +130,14 @@ class ThemeControl with ChangeNotifier {
               color: isDarkMode ? lightBackgroundColor : Colors.black,
               fontSize: 17),
           iconColor: isDarkMode
-              ? lightBackgroundColor.withOpacity(0.8)
-              : darkBackgroundColor.withOpacity(0.8),
+              ? lightBackgroundColor.withValues(alpha: 0.8)
+              : darkBackgroundColor.withValues(alpha: 0.8),
           leadingAndTrailingTextStyle: TextStyle(
               color: isDarkMode ? Colors.amber : _accentColor, fontSize: 14),
           subtitleTextStyle: TextStyle(
-              color: isDarkMode ? Colors.amber.withOpacity(0.8) : _accentColor,
+              color: isDarkMode
+                  ? Colors.amber.withValues(alpha: 0.8)
+                  : _accentColor,
               fontSize: 14)),
       expansionTileTheme: ExpansionTileThemeData(
           textColor: isDarkMode ? warningColor : _primaryColor,
@@ -170,6 +172,7 @@ class ThemeControl with ChangeNotifier {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
+          iconColor: Colors.white,
           backgroundColor: _accentColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
@@ -203,14 +206,14 @@ class ThemeControl with ChangeNotifier {
             isDarkMode ? darkSurfaceColor : lightSurfaceColor,
         dividerColor: isDarkMode ? Colors.white : Colors.black,
         rangeSelectionBackgroundColor: isDarkMode
-            ? warningColor.withOpacity(0.2)
-            : _secondaryColor.withOpacity(0.2),
+            ? warningColor.withValues(alpha: 0.2)
+            : _secondaryColor.withValues(alpha: 0.2),
         dayForegroundColor:
             WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
           if (states.contains(WidgetState.pressed)) {
             return isDarkMode
-                ? Colors.white.withOpacity(0.8)
-                : Colors.black.withOpacity(0.8);
+                ? Colors.white.withValues(alpha: 0.8)
+                : Colors.black.withValues(alpha: 0.8);
           }
           return isDarkMode ? Colors.white : Colors.black;
         }),
@@ -218,8 +221,8 @@ class ThemeControl with ChangeNotifier {
             WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
           return states.contains(WidgetState.pressed)
               ? (isDarkMode
-                  ? Colors.white.withOpacity(0.8)
-                  : Colors.black.withOpacity(0.8))
+                  ? Colors.white.withValues(alpha: 0.8)
+                  : Colors.black.withValues(alpha: 0.8))
               : null;
         }),
         surfaceTintColor: _secondaryColor,
@@ -291,8 +294,8 @@ class ThemeControl with ChangeNotifier {
         borderColor: isDarkMode ? Colors.grey.shade700 : _primaryColor,
         selectedBorderColor: isDarkMode ? _accentColor : _secondaryColor,
         fillColor: isDarkMode
-            ? _primaryColor.withOpacity(0.2)
-            : _secondaryColor.withOpacity(0.2),
+            ? _primaryColor.withValues(alpha: 0.2)
+            : _secondaryColor.withValues(alpha: 0.2),
         color: isDarkMode ? lightBackgroundColor : darkBackgroundColor,
         selectedColor: isDarkMode ? warningColor : _accentColor,
         borderRadius: BorderRadius.circular(12.0),
@@ -302,11 +305,11 @@ class ThemeControl with ChangeNotifier {
           color: isDarkMode ? Colors.white : Colors.black,
         ),
         splashColor: isDarkMode
-            ? _primaryColor.withOpacity(0.3)
-            : _accentColor.withOpacity(0.3),
+            ? _primaryColor.withValues(alpha: 0.3)
+            : _accentColor.withValues(alpha: 0.3),
         hoverColor: isDarkMode
-            ? _accentColor.withOpacity(0.2)
-            : _secondaryColor.withOpacity(0.2),
+            ? _accentColor.withValues(alpha: 0.2)
+            : _secondaryColor.withValues(alpha: 0.2),
       ),
     );
   }

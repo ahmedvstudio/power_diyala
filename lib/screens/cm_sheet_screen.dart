@@ -888,8 +888,9 @@ class CmSheetPageState extends State<CmSheetPage> {
                                       ),
                                       filled: true,
                                       labelStyle: TextStyle(
-                                          color: ThemeControl.errorColor
-                                              .withOpacity(0.8)),
+                                        color: ThemeControl.errorColor
+                                            .withValues(alpha: 0.8),
+                                      ),
                                       border: OutlineInputBorder(
                                         borderRadius:
                                             BorderRadius.circular(12.0),
@@ -935,8 +936,9 @@ class CmSheetPageState extends State<CmSheetPage> {
                                   label: const Text('Select Date'),
                                   filled: true,
                                   labelStyle: TextStyle(
-                                      color: ThemeControl.errorColor
-                                          .withOpacity(0.8)),
+                                    color: ThemeControl.errorColor
+                                        .withValues(alpha: 0.8),
+                                  ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12.0),
                                     borderSide: BorderSide(
@@ -1045,8 +1047,9 @@ class CmSheetPageState extends State<CmSheetPage> {
                                         label: const Text('Escalated'),
                                         filled: true,
                                         labelStyle: TextStyle(
-                                            color: ThemeControl.errorColor
-                                                .withOpacity(0.8)),
+                                          color: ThemeControl.errorColor
+                                              .withValues(alpha: 0.8),
+                                        ),
                                         border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(12.0),
@@ -1252,8 +1255,9 @@ class CmSheetPageState extends State<CmSheetPage> {
                                       ),
                                       filled: true,
                                       labelStyle: TextStyle(
-                                          color: ThemeControl.errorColor
-                                              .withOpacity(0.8)),
+                                        color: ThemeControl.errorColor
+                                            .withValues(alpha: 0.8),
+                                      ),
                                       border: OutlineInputBorder(
                                         borderRadius:
                                             BorderRadius.circular(12.0),
@@ -1313,8 +1317,9 @@ class CmSheetPageState extends State<CmSheetPage> {
                                       ),
                                       filled: true,
                                       labelStyle: TextStyle(
-                                          color: ThemeControl.errorColor
-                                              .withOpacity(0.8)),
+                                        color: ThemeControl.errorColor
+                                            .withValues(alpha: 0.8),
+                                      ),
                                       border: OutlineInputBorder(
                                         borderRadius:
                                             BorderRadius.circular(12.0),
@@ -1456,7 +1461,7 @@ class CmSheetPageState extends State<CmSheetPage> {
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
+                    color: Colors.grey.withValues(alpha: 0.5),
                     spreadRadius: 2,
                     blurRadius: 7,
                     offset: const Offset(0, 3),
@@ -1558,8 +1563,9 @@ class CmSheetPageState extends State<CmSheetPage> {
           controller: controller,
           decoration: InputDecoration(
             labelText: labelText,
-            labelStyle:
-                TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+            labelStyle: TextStyle(
+              color: ThemeControl.errorColor.withValues(alpha: 0.8),
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide:

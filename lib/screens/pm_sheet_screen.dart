@@ -853,11 +853,11 @@ class PmSheetPageState extends State<PmSheetPage> {
                                     }
                                   }
                                 : null,
+                            label:
+                                Text(_currentStep != 5 ? 'Continue' : 'Done'),
                             icon: Icon(_currentStep != 5
                                 ? Icons.arrow_forward
                                 : Icons.check),
-                            label:
-                                Text(_currentStep != 5 ? 'Continue' : 'Done'),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
                               backgroundColor: _currentStep != 5
@@ -965,8 +965,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                                   ),
                                   filled: true,
                                   labelStyle: TextStyle(
-                                      color: ThemeControl.errorColor
-                                          .withOpacity(0.8)),
+                                    color: ThemeControl.errorColor
+                                        .withValues(alpha: 0.8),
+                                  ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12.0),
                                     borderSide: BorderSide(
@@ -1008,8 +1009,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                               label: const Text('Select Date'),
                               filled: true,
                               labelStyle: TextStyle(
-                                  color:
-                                      ThemeControl.errorColor.withOpacity(0.8)),
+                                color: ThemeControl.errorColor
+                                    .withValues(alpha: 0.8),
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12.0),
                                 borderSide: BorderSide(
@@ -1401,8 +1403,9 @@ class PmSheetPageState extends State<PmSheetPage> {
                                 ),
                                 filled: true,
                                 labelStyle: TextStyle(
-                                    color: ThemeControl.errorColor
-                                        .withOpacity(0.8)),
+                                  color: ThemeControl.errorColor
+                                      .withValues(alpha: 0.8),
+                                ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12.0),
                                   borderSide: BorderSide(
@@ -1671,8 +1674,9 @@ class PmSheetPageState extends State<PmSheetPage> {
           controller: controller,
           decoration: InputDecoration(
             labelText: labelText,
-            labelStyle:
-                TextStyle(color: ThemeControl.errorColor.withOpacity(0.8)),
+            labelStyle: TextStyle(
+              color: ThemeControl.errorColor.withValues(alpha: 0.8),
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide:

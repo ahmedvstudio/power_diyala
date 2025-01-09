@@ -230,7 +230,8 @@ class NoteAddPageState extends State<NoteAddPage> {
                     decoration: InputDecoration(
                       labelText: 'Add Notes:',
                       labelStyle: TextStyle(
-                          color: ThemeControl.errorColor.withOpacity(0.8)),
+                        color: ThemeControl.errorColor.withValues(alpha: 0.8),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide(

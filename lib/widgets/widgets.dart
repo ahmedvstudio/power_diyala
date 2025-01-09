@@ -43,8 +43,10 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
                       },
                     ),
                     filled: true,
-                    fillColor:
-                        Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                    fillColor: Theme.of(context)
+                        .colorScheme
+                        .surface
+                        .withValues(alpha: 0.5),
                   ),
                   onChanged: (value) {
                     setState(() {});
@@ -73,7 +75,7 @@ void showSearchableDropdown(BuildContext context, List<String> siteNames,
                         color: Theme.of(context)
                             .colorScheme
                             .surface
-                            .withOpacity(0.8),
+                            .withValues(alpha: 0.8),
                         shadowColor: Theme.of(context).shadowColor,
                         child: ListTile(
                           title: Text(
