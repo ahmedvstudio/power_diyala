@@ -17,7 +17,7 @@ import 'package:power_diyala/screens/teams_screen.dart';
 import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/remote_config.dart';
 import 'package:power_diyala/data_helper/note_helper.dart';
-import 'package:power_diyala/test/note_list_page.dart';
+import 'package:power_diyala/screens/note_list_page.dart';
 import 'package:power_diyala/test/test_screen.dart';
 import 'package:power_diyala/settings/theme_control.dart';
 import 'package:power_diyala/settings/update_checker.dart';

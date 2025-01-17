@@ -4,7 +4,16 @@ import 'package:power_diyala/settings/theme_control.dart';
 import 'package:provider/provider.dart';
 
 class ColorPickerDialog extends StatefulWidget {
-  const ColorPickerDialog({super.key});
+  final Color? customPrimary;
+  final Color? customSecondary;
+  final Color? customAccent;
+
+  const ColorPickerDialog({
+    super.key,
+    this.customPrimary,
+    this.customSecondary,
+    this.customAccent,
+  });
 
   @override
   ColorPickerDialogState createState() => ColorPickerDialogState();
@@ -19,19 +28,10 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
   void initState() {
     super.initState();
     final themeControl = Provider.of<ThemeControl>(context, listen: false);
-    primaryColor = themeControl.primaryColor;
-    secondaryColor = themeControl.secondaryColor;
-    accentColor = themeControl.accentColor;
-  }
 
-  void resetToDefaultColors() {
-    setState(() {
-      final themeControl = Provider.of<ThemeControl>(context, listen: false);
-      primaryColor = const Color(0xffC95A3D);
-      secondaryColor = const Color(0xffD9C3B2);
-      accentColor = const Color(0xff8E4B4A);
-      themeControl.saveColors(primaryColor, secondaryColor, accentColor);
-    });
+    primaryColor = widget.customPrimary ?? themeControl.primaryColor;
+    secondaryColor = widget.customSecondary ?? themeControl.secondaryColor;
+    accentColor = widget.customAccent ?? themeControl.accentColor;
   }
 
   void _pickColor(Color currentColor, ValueChanged<Color> onColorChanged) {
@@ -191,58 +191,41 @@ class ColorPickerDialogState extends State<ColorPickerDialog> {
                 ),
                 const SizedBox(height: 30),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     GestureDetector(
-                      onTap: resetToDefaultColors,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
                       child: Container(
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.tertiary,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: const Icon(Icons.restart_alt_rounded,
-                            color: Colors.white),
+                        child: const Icon(Icons.cancel, color: Colors.white),
                       ),
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                            child:
-                                const Icon(Icons.cancel, color: Colors.white),
-                          ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        final themeControl =
+                            Provider.of<ThemeControl>(context, listen: false);
+                        themeControl.saveColors(
+                            primaryColor, secondaryColor, accentColor);
+                        Navigator.of(context)
+                            .pop(); // Close color picker dialog
+                        Navigator.of(context).pop(); // Close main dialog
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: () {
-                            final themeControl = Provider.of<ThemeControl>(
-                                context,
-                                listen: false);
-                            themeControl.saveColors(
-                                primaryColor, secondaryColor, accentColor);
-                            Navigator.of(context).pop();
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                            child: const Icon(Icons.save_rounded,
-                                color: Colors.white),
-                          ),
-                        ),
-                      ],
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child:
+                            const Icon(Icons.save_rounded, color: Colors.white),
+                      ),
                     ),
                   ],
                 ),

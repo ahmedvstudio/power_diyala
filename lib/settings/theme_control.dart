@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeControl with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
 
-  // Instance variables for colors with default values
   Color _primaryColor = const Color(0xffC95A3D);
   Color _secondaryColor = const Color(0xffD9C3B2);
   Color _accentColor = const Color(0xff8E4B4A);
@@ -15,8 +15,7 @@ class ThemeControl with ChangeNotifier {
 
   static const Color warningColor = Color(0xFFFF7D00);
   static const Color errorColor = Color(0xFFFF3D00);
-  static const Color lightBackgroundColor =
-      Color(0xFFF5F5F5); // Light background
+  static const Color lightBackgroundColor = Color(0xFFF5F5F5);
   static const Color lightSurfaceColor = Colors.white;
   static const Color darkBackgroundColor = Color(0xFF2F2F2F);
   static const Color darkSurfaceColor = Color(0xFF1E1E1E);
@@ -29,16 +28,23 @@ class ThemeControl with ChangeNotifier {
     _loadThemePreference();
     _loadColorPreferences();
   }
+  Color _fromHexString(String hex) {
+    return Color(int.parse(hex, radix: 16));
+  }
 
   Future<void> _loadColorPreferences() async {
     final SharedPreferencesAsync prefs = SharedPreferencesAsync();
 
-    _primaryColor = Color(
-        await prefs.getInt('primary_color') ?? _defaultPrimaryColor.value);
-    _secondaryColor = Color(
-        await prefs.getInt('secondary_color') ?? _defaultSecondaryColor.value);
-    _accentColor =
-        Color(await prefs.getInt('accent_color') ?? _defaultAccentColor.value);
+    final primaryColorHex = await prefs.getString('primary_color') ??
+        _defaultPrimaryColor.toHexString(includeHashSign: false);
+    final secondaryColorHex = await prefs.getString('secondary_color') ??
+        _defaultSecondaryColor.toHexString(includeHashSign: false);
+    final accentColorHex = await prefs.getString('accent_color') ??
+        _defaultAccentColor.toHexString(includeHashSign: false);
+
+    _primaryColor = _fromHexString(primaryColorHex);
+    _secondaryColor = _fromHexString(secondaryColorHex);
+    _accentColor = _fromHexString(accentColorHex);
 
     notifyListeners();
   }
@@ -50,9 +56,12 @@ class ThemeControl with ChangeNotifier {
 
   Future<void> saveColors(Color primary, Color secondary, Color accent) async {
     final SharedPreferencesAsync prefs = SharedPreferencesAsync();
-    await prefs.setInt('primary_color', primary.value);
-    await prefs.setInt('secondary_color', secondary.value);
-    await prefs.setInt('accent_color', accent.value);
+    await prefs.setString(
+        'primary_color', primary.toHexString(includeHashSign: false));
+    await prefs.setString(
+        'secondary_color', secondary.toHexString(includeHashSign: false));
+    await prefs.setString(
+        'accent_color', accent.toHexString(includeHashSign: false));
 
     _primaryColor = primary;
     _secondaryColor = secondary;
@@ -108,6 +117,8 @@ class ThemeControl with ChangeNotifier {
       ),
       dividerColor: isDarkMode ? Colors.white70 : _primaryColor,
       snackBarTheme: SnackBarThemeData(
+        dismissDirection: DismissDirection.horizontal,
+        actionTextColor: Colors.blueGrey,
         behavior: SnackBarBehavior.floating,
         backgroundColor:
             isDarkMode ? lightBackgroundColor : darkBackgroundColor,
@@ -244,9 +255,8 @@ class ThemeControl with ChangeNotifier {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
-          foregroundColor:
-              isDarkMode ? _secondaryColor : _primaryColor, // Text color
-          overlayColor: _primaryColor, // Overlay color on press
+          foregroundColor: isDarkMode ? _secondaryColor : _primaryColor,
+          overlayColor: _primaryColor,
         ),
       ),
       dialogTheme: DialogTheme(

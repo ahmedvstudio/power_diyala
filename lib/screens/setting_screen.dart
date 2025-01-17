@@ -6,7 +6,7 @@ import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/settings/download_data_file.dart';
 import 'package:power_diyala/settings/pick_data_from_storage.dart';
 import 'package:power_diyala/settings/update_checker.dart';
-import 'package:power_diyala/widgets/color_picker.dart';
+import 'package:power_diyala/widgets/theme_picker.dart';
 import 'package:power_diyala/widgets/buttons.dart';
 import 'package:power_diyala/screens/licences.dart';
 import 'package:logger/logger.dart';
@@ -125,7 +125,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (context) => const ColorPickerDialog(),
+                  builder: (context) => const ThemePicker(),
                 );
               },
               icon: const Icon(Icons.color_lens_rounded),

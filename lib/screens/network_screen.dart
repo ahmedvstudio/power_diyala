@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/widgets/widgets.dart';
 import 'package:logger/logger.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NetworkScreen extends StatefulWidget {
   final ThemeMode themeMode;
@@ -84,6 +86,25 @@ class NetworkScreenState extends State<NetworkScreen> {
     });
   }
 
+  Future<void> openMap(double latitude, double longitude,
+      {String? label}) async {
+    final geoUri =
+        Uri.parse('geo:$latitude,$longitude?q=$latitude,$longitude($label)');
+    final googleMapsUrl = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+
+    // Try geo: first
+    if (await canLaunchUrl(geoUri)) {
+      await launchUrl(geoUri, mode: LaunchMode.externalApplication);
+    }
+    // Fallback to Google Maps URL
+    else if (await canLaunchUrl(googleMapsUrl)) {
+      await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch map for coordinates: $latitude, $longitude';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,13 +121,31 @@ class NetworkScreenState extends State<NetworkScreen> {
                         ListTile(
                           title: Text(
                             '${_selectedSiteData!['Site name'] ?? 'N/A'}',
-                            style: Theme.of(context).textTheme.titleLarge,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge!
+                                .copyWith(fontSize: 17),
                           ),
                           leading: const Icon(Icons.cell_tower_rounded,
                               color: Colors.blue),
                           subtitle: Text(
                             '${_selectedSiteData!['Site Code'] ?? 'N/A'}',
                             style: const TextStyle(color: Colors.teal),
+                          ),
+                          trailing: IconButton(
+                            onPressed: () {
+                              MapsLauncher.launchCoordinates(
+                                  _selectedSiteData!['Address or GPS     N'] ??
+                                      '',
+                                  _selectedSiteData!['Address or GPS    E'] ??
+                                      '',
+                                  _selectedSiteData!['Site name'] ?? '');
+                            },
+                            icon: const Icon(
+                              Icons.pin_drop_rounded,
+                            ),
+                            style: Theme.of(context).iconButtonTheme.style,
+                            tooltip: 'Get Directions',
                           ),
                           onTap: () => showSearchableDropdown(
                             context,

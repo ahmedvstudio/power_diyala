@@ -8,11 +8,12 @@ import 'package:power_diyala/firebase_options.dart';
 import 'package:power_diyala/screens/setup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:power_diyala/settings/check_connectivity.dart';
+import 'package:power_diyala/settings/notifications_services.dart';
 import 'package:power_diyala/settings/remote_config.dart';
-import 'package:power_diyala/test/notification_services.dart';
 import 'package:provider/provider.dart';
 import 'settings/theme_control.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +39,10 @@ Future<void> main() async {
   } catch (e) {
     logger.e('Firebase initialization failed: $e');
   }
-  await LocalNotificationService.init();
+  LocalNotificationService().requestNotificationPermission();
+
+  LocalNotificationService().initNotification();
+  tz.initializeTimeZones();
 
   await fetchAndActivate();
 
