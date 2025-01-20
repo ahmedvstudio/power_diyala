@@ -4,9 +4,9 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:power_diyala/widgets/widgets.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 class LocalNotificationService {
@@ -33,17 +33,6 @@ class LocalNotificationService {
       }
     });
   }
-
-  void _showToast(String message, Color bgColor, Color textColor) =>
-      Fluttertoast.showToast(
-        msg: message,
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: bgColor,
-        textColor: textColor,
-        fontSize: 14.0,
-      );
 
   Future<bool> requestNotificationPermission() async {
     PermissionStatus notificationStatus;
@@ -186,7 +175,7 @@ class LocalNotificationService {
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         );
         logger.i('Notification scheduled successfully for ID: $id');
-        _showToast('Notification Scheduled Successfully', Colors.greenAccent,
+        showToasty('Notification Scheduled Successfully', Colors.greenAccent,
             Colors.black);
       } else {
         final snackBar = SnackBar(
@@ -207,19 +196,19 @@ class LocalNotificationService {
       }
     } catch (e) {
       logger.e('Error scheduling notification for ID: $id - $e');
-      _showToast('Wrong Date !', Colors.red, Colors.white);
+      showToasty('Wrong Date !', Colors.red, Colors.white);
     }
   }
 
   void cancelNoteNotification(int id) async {
     await notificationsPlugin.cancel(id);
-    _showToast(
+    showToasty(
         'Notification Cancelled Successfully', Colors.amber, Colors.black);
   }
 
   void cancelAllNotification() async {
     await notificationsPlugin.cancelAll();
-    _showToast(
+    showToasty(
         'All Notification Cancelled Successfully', Colors.amber, Colors.black);
   }
 }

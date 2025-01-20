@@ -2,12 +2,12 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../Widgets/widgets.dart';
 
 final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 
@@ -42,20 +42,11 @@ Future<bool> _checkPermissions() async {
 
 //Download from a link
 const String lastUpdateTimeKey = 'lastUpdateTime';
-void _showToast(message, bgColor) => Fluttertoast.showToast(
-      msg: message,
-      backgroundColor: bgColor,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      textColor: Colors.black,
-      fontSize: 14.0,
-    );
 
 Future<void> updateDatabase(BuildContext context) async {
   // Check if 24 hours have passed since the last update
   if (!await _canUpdateDatabase()) {
-    _showToast("No New Data Update.", Colors.white);
+    showToasty("No New Data Update.", Colors.white, Colors.black);
     return;
   }
 
@@ -83,8 +74,8 @@ Future<void> updateDatabase(BuildContext context) async {
       SharedPreferencesAsync prefs = SharedPreferencesAsync();
       await prefs.setInt(
           lastUpdateTimeKey, DateTime.now().millisecondsSinceEpoch);
-      _showToast("Data Updated successfully\nPlease restart the app.",
-          Colors.tealAccent);
+      showToasty("Data Updated successfully\nPlease restart the app.",
+          Colors.tealAccent, Colors.black);
       logger.i("Database updated successfully!");
     } else {
       logger.e("Failed to download file: ${response.statusCode}");

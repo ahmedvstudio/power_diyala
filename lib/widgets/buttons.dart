@@ -2,26 +2,16 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:power_diyala/Widgets/widgets.dart';
 import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
-
-void _showToast(message) => Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.white,
-      textColor: Colors.black,
-      fontSize: 14.0,
-    );
 
 class ResetTextButton extends StatelessWidget {
   const ResetTextButton({super.key});
@@ -139,7 +129,7 @@ class ResetTextButton extends StatelessWidget {
           await prefs.setBool('permissionGranted', false);
           await prefs.setBool('dbReplaced', false);
           await prefs.setBool('dataLoadedCorrectly', false);
-          _showToast("App is resetting...");
+          showToasty("App is resetting...", Colors.black, Colors.white);
           await Future.delayed(const Duration(seconds: 1));
           SystemNavigator.pop();
           exit(0);
@@ -181,7 +171,7 @@ Future<void> _checkForUpdates(BuildContext context) async {
 
       if (appVersion == latestVersion) {
         if (context.mounted) {
-          _showToast("This is the latest version.");
+          showToasty("This is the latest version.", Colors.white, Colors.black);
         }
       } else {
         if (context.mounted) {
@@ -190,13 +180,15 @@ Future<void> _checkForUpdates(BuildContext context) async {
       }
     } else {
       if (context.mounted) {
-        _showToast(
-            "Failed to fetch updates. Status Code: ${response.statusCode}");
+        showToasty(
+            "Failed to fetch updates. Status Code: ${response.statusCode}",
+            Colors.red,
+            Colors.white);
       }
     }
   } catch (e) {
     if (context.mounted) {
-      _showToast("Network error or timeout occurred");
+      showToasty("Network error or timeout occurred", Colors.red, Colors.white);
     }
   }
 }
@@ -270,14 +262,16 @@ void _showUpdateDialog(BuildContext context, String latestVersion) {
                       GestureDetector(
                         onTap: () async {
                           Navigator.of(context).pop();
-                          _showToast("Redirecting to download...");
+                          showToasty("Redirecting to download...", Colors.white,
+                              Colors.black);
                           const url = updateLink;
 
                           if (await canLaunchUrl(Uri.parse(url))) {
                             await launchUrl(Uri.parse(url),
                                 mode: LaunchMode.externalApplication);
                           } else {
-                            _showToast("Could not launch the download page.");
+                            showToasty("Could not launch the download page.",
+                                Colors.red, Colors.white);
                           }
                         },
                         child: Container(

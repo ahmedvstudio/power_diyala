@@ -45,7 +45,8 @@ dependencies:
   flutter_email_sender: ^6.0.3
   image_picker: ^1.1.2
   maps_launcher: ^3.0.0+1
-
+  youtube_player_iframe: ^5.2.1
+  supabase_flutter: ^2.8.3
   flutter_local_notifications: ^18.0.1
   timezone: ^0.10.0
   flutter_datetime_picker_plus: ^2.2.0

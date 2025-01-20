@@ -8,9 +8,11 @@ import 'package:power_diyala/firebase_options.dart';
 import 'package:power_diyala/screens/setup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:power_diyala/settings/check_connectivity.dart';
+import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/settings/notifications_services.dart';
 import 'package:power_diyala/settings/remote_config.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'settings/theme_control.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -24,9 +26,6 @@ Future<void> main() async {
 
   try {
     await dotenv.load(fileName: ".env");
-    if (dotenv.env['DB_PASSWORD'] == null) {
-      throw Exception('DATABASE_PASSWORD not found in .env file');
-    }
   } catch (e) {
     logger.e('Error loading .env file: $e');
   }
@@ -45,6 +44,14 @@ Future<void> main() async {
   tz.initializeTimeZones();
 
   await fetchAndActivate();
+  try {
+    await Supabase.initialize(
+      url: supabaseUrl,
+      anonKey: dotenv.env['SUPABASE_KEY'] ?? "",
+    );
+  } catch (e) {
+    logger.e("Supabase initialize error: $e");
+  }
 
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((_) {

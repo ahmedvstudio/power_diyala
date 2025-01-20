@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:power_diyala/Widgets/widgets.dart';
 import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/settings/download_data_file.dart';
 import 'package:power_diyala/settings/pick_data_from_storage.dart';
 import 'package:power_diyala/settings/update_checker.dart';
 import 'package:power_diyala/widgets/theme_picker.dart';
-import 'package:power_diyala/widgets/buttons.dart';
 import 'package:power_diyala/screens/licences.dart';
 import 'package:logger/logger.dart';
 import 'package:power_diyala/settings/constants.dart';
@@ -102,15 +101,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     Icons.wb_sunny, // Light
     Icons.nights_stay, // Dark
   ];
-  void _showToast(message) => Fluttertoast.showToast(
-        msg: message,
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        fontSize: 14.0,
-      );
+
   @override
   Widget build(BuildContext context) {
     const double iconSize = 30;
@@ -130,7 +121,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               },
               icon: const Icon(Icons.color_lens_rounded),
               tooltip: 'Theme Colors'),
-          const ResetTextButton(),
+          // const ResetTextButton(),
         ],
       ),
       body: SafeArea(
@@ -244,7 +235,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                           if (!context.mounted) return;
                           await updateDatabase(context);
                         } else {
-                          _showToast("Incorrect password. Update canceled.");
+                          showToasty(
+                              "Wrong password!", Colors.red, Colors.white);
                         }
                       },
                     ),

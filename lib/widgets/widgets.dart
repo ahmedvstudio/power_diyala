@@ -1,3 +1,4 @@
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:power_diyala/settings/theme_control.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -279,3 +280,14 @@ class NotAvailableWidget extends StatelessWidget {
     );
   }
 }
+
+void showToasty(String message, Color bgColor, Color textColor) =>
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: bgColor,
+      textColor: textColor,
+      fontSize: 14.0,
+    );

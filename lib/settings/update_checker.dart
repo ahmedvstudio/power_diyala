@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:power_diyala/Widgets/widgets.dart';
 import 'package:power_diyala/settings/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,7 +16,9 @@ class UpdateChecker {
     if (!isButtonPress && lastCheck != null) {
       final lastCheckTime = DateTime.parse(lastCheck);
       if (now.difference(lastCheckTime).inHours < 6) {
-        if (toast) _showToast('This is the latest version.');
+        if (toast) {
+          showToasty('This is the latest version.', Colors.white, Colors.black);
+        }
         return;
       }
     }
@@ -37,16 +39,24 @@ class UpdateChecker {
             _showUpdateDialog(context, latestVersion);
           }
         } else {
-          if (toast) _showToast("This is the latest version.");
+          if (toast) {
+            showToasty(
+                "This is the latest version.", Colors.white, Colors.black);
+          }
         }
       } else {
         if (toast) {
-          _showToast(
-              "Failed to fetch updates. Status Code: ${response.statusCode}");
+          showToasty(
+              "Failed to fetch updates. Status Code: ${response.statusCode}",
+              Colors.red,
+              Colors.white);
         }
       }
     } catch (e) {
-      if (toast) _showToast("Network error or timeout occurred");
+      if (toast) {
+        showToasty(
+            "Network error or timeout occurred", Colors.red, Colors.white);
+      }
     }
   }
 
@@ -120,14 +130,16 @@ class UpdateChecker {
                         GestureDetector(
                           onTap: () async {
                             Navigator.of(context).pop();
-                            _showToast("Redirecting to download...");
+                            showToasty("Redirecting to download...",
+                                Colors.white, Colors.black);
                             const url = updateLink;
 
                             if (await canLaunchUrl(Uri.parse(url))) {
                               await launchUrl(Uri.parse(url),
                                   mode: LaunchMode.externalApplication);
                             } else {
-                              _showToast("Could not launch the download page.");
+                              showToasty("Could not launch the download page.",
+                                  Colors.red, Colors.white);
                             }
                           },
                           child: Container(
@@ -155,14 +167,4 @@ class UpdateChecker {
       },
     );
   }
-
-  void _showToast(message) => Fluttertoast.showToast(
-        msg: message,
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        fontSize: 14.0,
-      );
 }
