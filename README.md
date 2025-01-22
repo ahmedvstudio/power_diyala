@@ -21,11 +21,14 @@ This App Will Make Our Job Easy ...I Think !
 
 * Calculator for PM data runtime/replacement.
 * SPMS items replacements tracking.
+* SPMS items analytics.
 * PM teams plan.
 * Network information.
-* PM Sheet.
-* CM Sheet.
-* maybe more coming soon...
+* Site navigation using google maps.
+* PM Sheet Maker.
+* CM Sheet Maker.
+* Email sender assist.
+* Adding notes for teams and scheduling notifications for it. 
 
 </div>
 
