@@ -86,6 +86,11 @@ class CMTypeDialog {
         options2 = ['Corrective'];
         options3 = ['Planned', 'Respond to Alarm', '3rd Party Related'];
         break;
+      case 'Fuel':
+        options1 = ['Fuel Supply'];
+        options2 = ['Providing Fuel', 'Fuel Tank Cleaning'];
+        options3 = ['Planned', 'Respond to Alarm', '3rd Party Related'];
+        break;
       default:
         return;
     }
@@ -158,7 +163,8 @@ class CMTypeDialog {
                                     });
                                   },
                                 ),
-                                if (selectedOption1 == "Extra") ...[
+                                if (selectedOption1 == "Extra" ||
+                                    selectedOption1 == "Fuel Supply") ...[
                                   const SizedBox(height: 12),
                                   _buildDropdown(
                                     hint: 'Extra Type',

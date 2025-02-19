@@ -516,6 +516,8 @@ class CmSheetPageState extends State<CmSheetPage> {
         return '$siteName Civil';
       case 'Site Management':
         return '$siteName SM';
+      case 'Fuel':
+        return '$siteName Fuel';
       default:
         return siteName;
     }
@@ -1504,6 +1506,14 @@ class CmSheetPageState extends State<CmSheetPage> {
                     backgroundColor: Colors.indigoAccent,
                     label: 'Civil',
                     onTap: () => _showCMTypeDialog("Civil"),
+                  ),
+                  SpeedDialChild(
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.gas_meter_rounded,
+                        color: Colors.white),
+                    backgroundColor: Colors.deepPurple,
+                    label: 'Fuel',
+                    onTap: () => _showCMTypeDialog("Fuel"),
                   ),
                   SpeedDialChild(
                     shape: const CircleBorder(),
