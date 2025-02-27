@@ -1,7 +1,7 @@
 name: power_diyala
 description: "A full-power aio team helper"
 publish_to: 'none'
-version: 0.25.02+5
+version: 0.25.03+6
 
 environment:
   sdk: ^3.5.3
