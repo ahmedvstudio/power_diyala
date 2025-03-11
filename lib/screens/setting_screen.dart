@@ -122,6 +122,18 @@ class SettingsScreenState extends State<SettingsScreen> {
               icon: const Icon(Icons.color_lens_rounded),
               tooltip: 'Theme Colors'),
           // const ResetTextButton(),
+          IconButton(
+            onPressed: () async {
+              var url =
+                  dotenv.env['PLAYLIST_URL'] ?? 'https://www.youtube.com/';
+              if (await canLaunchUrl(Uri.parse(url))) {
+                await launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalApplication);
+              } else {}
+            },
+            tooltip: 'Tutorials',
+            icon: const Icon(SimpleIcons.youtube),
+          ),
         ],
       ),
       body: SafeArea(

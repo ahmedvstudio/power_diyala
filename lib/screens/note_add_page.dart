@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:power_diyala/settings/theme_control.dart';
 import 'package:power_diyala/data_helper/note_helper.dart';
@@ -28,9 +29,15 @@ class NoteAddPageState extends State<NoteAddPage> {
 
   void _removeComment(int index) {
     setState(() {
-      comments.removeAt(index);
-      for (int i = 0; i < comments.length; i++) {
-        comments[i]['text'] = '${i + 1}. ${comments[i]['text'].split('. ')[1]}';
+      if (index >= 0 && index < comments.length) {
+        comments.removeAt(index);
+        // Update comment numbering
+        for (int i = index; i < comments.length; i++) {
+          comments[i]['text'] =
+              '${i + 1}. ${comments[i]['text'].split('. ').length > 1 ? comments[i]['text'].split('. ')[1] : ''}';
+        }
+      } else if (kDebugMode) {
+        print("Invalid index: $index");
       }
     });
   }
@@ -64,7 +71,10 @@ class NoteAddPageState extends State<NoteAddPage> {
     return SimpleDialogOption(
       onPressed: () {
         setState(() {
-          comments[index]['color'] = color;
+          if (index >= 0 && index < comments.length) {
+            // Validate index
+            comments[index]['color'] = color;
+          }
         });
         Navigator.of(context).pop(); // Close the dialog
       },
@@ -179,9 +189,7 @@ class NoteAddPageState extends State<NoteAddPage> {
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: Text(comments[index]['text'],
-                        style: TextStyle(
-                            color: comments[index]['color']) // Set text color
-                        ),
+                        style: TextStyle(color: comments[index]['color'])),
                     trailing: PopupMenuButton<int>(
                       icon: const Icon(Icons.more_vert_outlined),
                       onSelected: (int selected) {

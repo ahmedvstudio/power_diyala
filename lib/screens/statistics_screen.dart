@@ -12,10 +12,10 @@ class StatisticsScreen extends StatefulWidget {
 
 class StatisticsScreenState extends State<StatisticsScreen> {
   late Future<List<Spms>> spmsData;
-  int selectedStartYear = 2020;
-  int selectedEndYear = 2024;
+  int selectedStartYear = 2021;
+  int selectedEndYear = 2025;
   List<int> availableYears =
-      List.generate(5, (index) => 2020 + index); // Years from 2020 to 2024
+      List.generate(5, (index) => 2021 + index); // Years from 2020 to 2024
 
   String selectedComponent = 'Search Item Name';
   List<String> componentOptions = [
