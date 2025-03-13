@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
@@ -97,25 +98,123 @@ class EmailSenderState extends State<EmailSender> {
 
   Future<void> send() async {
     if (_formKey.currentState!.validate()) {
-      final Email email = Email(
-        subject: _subjectController.text,
-        recipients: _toEmail,
-        cc: _ccEmail,
-        attachmentPaths: _attachments,
+      // Show confirmation dialog
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                color: Theme.of(context).cardColor,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            height: 120,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                          const Column(
+                            children: [
+                              Icon(Icons.task_alt_rounded,
+                                  color: Colors.white, size: 32),
+                              SizedBox(height: 8),
+                              Text(
+                                'All Done',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text('Would you like to exit',
+                                  style: TextStyle(color: Colors.white)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop(true);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                              child: const Text(
+                                'Send',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       );
 
-      String platformResponse;
+      // Check if the user confirmed
+      if (confirmed == true) {
+        final Email email = Email(
+          subject: _subjectController.text,
+          recipients: _toEmail,
+          cc: _ccEmail,
+          attachmentPaths: _attachments,
+        );
 
-      try {
-        await FlutterEmailSender.send(email);
-        platformResponse = 'success';
-      } catch (error) {
-        logger.e(error);
-        platformResponse = error.toString();
+        String platformResponse;
+
+        try {
+          await FlutterEmailSender.send(email);
+          platformResponse = 'success';
+        } catch (error) {
+          logger.e(error);
+          platformResponse = error.toString();
+        }
+
+        if (!mounted) return;
+        logger.i(platformResponse);
+        Navigator.of(context).pop();
       }
-
-      if (!mounted) return;
-      logger.i(platformResponse);
     }
   }
 
@@ -132,6 +231,102 @@ class EmailSenderState extends State<EmailSender> {
       appBar: AppBar(
         title:
             Text('Email Assist', style: Theme.of(context).textTheme.titleLarge),
+        actions: [
+          PopupMenuButton<int>(
+            icon: const Icon(Icons.more_vert_outlined),
+            style: Theme.of(context).iconButtonTheme.style,
+            onSelected: (int selected) {
+              if (selected == 1) {
+                //
+                _toEmail.clear();
+                _ccEmail.clear();
+
+                // Update the text controllers
+                _toController.clear();
+                _ccController.clear();
+
+                // Define a list of PM emails
+                List<String> pmToEmails =
+                    dotenv.env['PM_TO_EMAILS']?.split(',') ?? [];
+                List<String> pmCcEmails =
+                    dotenv.env['PM_CC_EMAILS']?.split(',') ?? [];
+
+                setState(() {
+                  // Subject
+                  _subjectController.text =
+                      'PM Sheets ${DateTime.now().day}/${DateTime.now().month}';
+                  // Add PM emails to TO list
+                  for (var email in pmToEmails) {
+                    if (!_toEmail.contains(email)) {
+                      _toEmail.add(email);
+                    }
+                  }
+
+                  // Add PM emails to CC list
+                  for (var email in pmCcEmails) {
+                    if (!_ccEmail.contains(email)) {
+                      _ccEmail.add(email);
+                    }
+                  }
+
+                  // Update the text controllers
+                  _toController.text =
+                      _toEmail.join(', '); // Update the To field
+                  _ccController.text =
+                      _ccEmail.join(', '); // Update the CC field
+                });
+              } else if (selected == 0) {
+                _toEmail.clear();
+                _ccEmail.clear();
+
+                // Update the text controllers
+                _toController.clear();
+                _ccController.clear();
+                // Handle CM emails if needed
+                List<String> cmToEmails =
+                    dotenv.env['CM_TO_EMAILS']?.split(',') ?? [];
+                List<String> cmCcEmails =
+                    dotenv.env['CM_CC_EMAILS']?.split(',') ?? [];
+
+                setState(() {
+                  // Subject
+                  _subjectController.text =
+                      'CM Sheet ${DateTime.now().day}/${DateTime.now().month}';
+
+                  // Add CM emails to TO list
+                  for (var email in cmToEmails) {
+                    if (!_toEmail.contains(email)) {
+                      _toEmail.add(email);
+                    }
+                  }
+
+                  // Add CM emails to CC list
+                  for (var email in cmCcEmails) {
+                    if (!_ccEmail.contains(email)) {
+                      _ccEmail.add(email);
+                    }
+                  }
+
+                  // Update the text controllers
+                  _toController.text =
+                      _toEmail.join(', '); // Update the To field
+                  _ccController.text =
+                      _ccEmail.join(', '); // Update the CC field
+                });
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+              const PopupMenuItem<int>(
+                value: 1,
+                child: Text('PM emails'),
+              ),
+              const PopupMenuItem<int>(
+                value: 0,
+                child: Text('CM emails'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
