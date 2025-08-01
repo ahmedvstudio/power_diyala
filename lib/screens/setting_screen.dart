@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -227,7 +228,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                         }),
                     const SizedBox(height: 8),
                     OutlinedButton(
-                      child: const Text('Open Sources Licences'),
+                      child: const Text('Open Sources Licenses'),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => const LicencePage(),
@@ -277,6 +278,17 @@ class SettingsScreenState extends State<SettingsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
+                        IconButton(
+                          onPressed: () async {
+                            const url = website;
+                            if (await canLaunchUrl(Uri.parse(url))) {
+                              await launchUrl(Uri.parse(url),
+                                  mode: LaunchMode.externalApplication);
+                            } else {}
+                          },
+                          icon: const Icon(CupertinoIcons.globe,
+                              size: iconSize + 4),
+                        ),
                         IconButton(
                           onPressed: () async {
                             const url = faceBook;

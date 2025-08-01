@@ -1,13 +1,10 @@
-import 'package:flutter/foundation.dart';
-import 'package:logger/logger.dart';
 import 'package:power_diyala/data_helper/database_helper.dart';
+
+import '../core/utils/helpers/logger.dart';
 
 class DataManager {
   static final DataManager _instance = DataManager._internal();
   factory DataManager() => _instance;
-
-  final Logger logger =
-      kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
 
   List<Map<String, dynamic>>? calculatorData;
   List<Map<String, dynamic>>? spmsData;
@@ -32,9 +29,9 @@ class DataManager {
       spareData = await DatabaseHelper.loadSpareData();
       namesData = await DatabaseHelper.loadNamesData();
       emailsData = await DatabaseHelper.loadEmailsData();
-      logger.i("All data loaded successfully.");
+      Vlogger.info("All data loaded successfully.");
     } catch (e) {
-      logger.e("Error loading all data: $e");
+      Vlogger.error("Error loading all data: $e");
     }
   }
 

@@ -344,24 +344,35 @@ class SpmsScreenState extends State<SpmsScreen> {
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: components.length,
-                      itemBuilder: (context, index) {
-                        var component = components[index];
-                        return ComponentRow(
-                          title: component['title'],
-                          value1: _getFormattedField(component['field1']),
-                          result1: _calculateDaysSince(
-                              _getFormattedField(component['field1'])),
-                          value2: _getFormattedField(component['field2']),
-                          result2: _calculateDaysSince(
-                              _getFormattedField(component['field2'])),
-                          color: component['color'],
-                        );
-                      },
+                  if (_selectedSiteName != null)
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: components.length,
+                        itemBuilder: (context, index) {
+                          var component = components[index];
+                          return ComponentRow(
+                            title: component['title'],
+                            value1: _getFormattedField(component['field1']),
+                            result1: _calculateDaysSince(
+                                _getFormattedField(component['field1'])),
+                            value2: _getFormattedField(component['field2']),
+                            result2: _calculateDaysSince(
+                                _getFormattedField(component['field2'])),
+                            color: component['color'],
+                          );
+                        },
+                      ),
                     ),
-                  ),
+                  if (_selectedSiteName == null)
+                    Flexible(
+                        child: Center(
+                            child: Text(
+                      'No Site Selected',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge!
+                          .copyWith(fontSize: 16),
+                    ))),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

@@ -259,7 +259,7 @@ class ThemeControl with ChangeNotifier {
           overlayColor: _primaryColor,
         ),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: isDarkMode ? Colors.black : Colors.white,
         surfaceTintColor: secondaryColor,
         shape: RoundedRectangleBorder(

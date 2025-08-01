@@ -184,7 +184,11 @@ class TeamsScreenState extends State<TeamsScreen> {
 
     if (filteredTeams.isEmpty) {
       logger.w("No events found for this day.");
-      return const Center(child: Text('No events for this day'));
+      return Center(
+          child: Text(
+        'No events for this day',
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(fontSize: 16),
+      ));
     }
 
     return ListView.builder(
@@ -222,31 +226,40 @@ class TeamsScreenState extends State<TeamsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Column(
-                    children: [
-                      const Text('Power Team:',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.redAccent)),
-                      Text('${team['P_Eng'] ?? "N/A"}',
-                          style: const TextStyle(fontSize: 14)),
-                      Text('${team['G_Tech'] ?? "N/A"}',
-                          style: const TextStyle(fontSize: 14)),
-                      Text('${team['E_Tech'] ?? "N/A"}',
-                          style: const TextStyle(fontSize: 14)),
-                    ],
+                  Flexible(
+                    child: Column(
+                      children: [
+                        const Text('Power Team:',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.redAccent)),
+                        Text('${team['P_Eng'] ?? "N/A"}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 14)),
+                        Text('${team['G_Tech'] ?? "N/A"}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 14)),
+                        Text('${team['E_Tech'] ?? "N/A"}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 14)),
+                      ],
+                    ),
                   ),
-                  Column(
-                    children: [
-                      const Text('Telecom Team:',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blueAccent)),
-                      Text('${team['T_Eng'] ?? "N/A"}',
-                          style: const TextStyle(fontSize: 14)),
-                      Text('${team['T_Tech'] ?? "N/A"}',
-                          style: const TextStyle(fontSize: 14)),
-                    ],
+                  Flexible(
+                    child: Column(
+                      children: [
+                        const Text('Telecom Team:',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blueAccent)),
+                        Text('${team['T_Eng'] ?? "N/A"}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 14)),
+                        Text('${team['T_Tech'] ?? "N/A"}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 14)),
+                      ],
+                    ),
                   )
                 ],
               ),

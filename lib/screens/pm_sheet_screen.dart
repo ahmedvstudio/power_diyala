@@ -327,8 +327,10 @@ class PmSheetPageState extends State<PmSheetPage> {
       setState(() {
         externalLoadControllers[0].text = _selectedSiteData!['owner'] ?? '';
         externalLoadControllers[1].text = _selectedSiteData!['neighbour'] ?? '';
-        externalLoadControllers[2].text = _selectedSiteData!['3rdparty1'] ?? '';
-        externalLoadControllers[3].text = _selectedSiteData!['3rdparty2'] ?? '';
+        externalLoadControllers[2].text =
+            _selectedSiteData!['3rdparty1'].toString();
+        externalLoadControllers[3].text =
+            _selectedSiteData!['3rdparty2'].toString();
         isEarthEnabled = (_selectedSiteData!['earth'] == 'Yes');
       });
     }

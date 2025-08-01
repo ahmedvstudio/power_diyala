@@ -136,7 +136,7 @@ class EmailSenderState extends State<EmailSender> {
                                 ),
                               ),
                               SizedBox(height: 8),
-                              Text('Would you like to exit',
+                              Text('Would you like to send the email',
                                   style: TextStyle(color: Colors.white)),
                             ],
                           ),
@@ -157,7 +157,7 @@ class EmailSenderState extends State<EmailSender> {
                               ),
                               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: const Text(
-                                'Cancel',
+                                'No',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 16),
                               ),

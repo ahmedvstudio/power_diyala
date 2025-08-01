@@ -81,7 +81,14 @@ class NotesListPageState extends State<NotesListPage> {
           } else if (snapshot.hasError) {
             return const Center(child: Text('Error loading notes'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No Notes Available'));
+            return Center(
+                child: Text(
+              'No Notes Available',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge!
+                  .copyWith(fontSize: 16),
+            ));
           } else {
             final notes = snapshot.data!;
             return ListView.builder(

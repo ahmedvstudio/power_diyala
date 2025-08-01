@@ -1,15 +1,13 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:power_diyala/core/utils/helpers/helper_functions.dart';
+import 'package:power_diyala/core/utils/helpers/logger.dart';
 import 'package:power_diyala/data_helper/data_manager.dart';
-import 'package:power_diyala/main.dart';
-
-final Logger logger = kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
+import 'package:restart_app/restart_app.dart';
 
 Future<bool> _checkPermissions() async {
   PermissionStatus storageStatus;
@@ -30,10 +28,11 @@ Future<bool> _checkPermissions() async {
   if (storageStatus.isGranted) {
     return true;
   } else if (storageStatus.isDenied) {
-    logger.e('Storage permission denied. Please enable it in settings.');
+    Vlogger.error('Storage permission denied. Please enable it in settings.');
   } else if (storageStatus.isPermanentlyDenied) {
-    logger.e(
+    Vlogger.error(
         'Storage permission permanently denied. Please enable it in settings.');
+
     openAppSettings();
   }
 
@@ -48,11 +47,17 @@ Future<void> updateDatabaseFromFilePicker(BuildContext context) async {
 
   try {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['bin'],
+      allowedExtensions: null,
+      type: FileType.any,
+      dialogTitle: 'Select Database File',
     );
 
-    if (result != null && result.files.single.path != null) {
+    final String? outputFileExtension =
+        result?.files.single.extension.toString();
+
+    if (result != null &&
+        result.files.single.path != null &&
+        outputFileExtension == 'db') {
       final selectedFilePath = result.files.single.path!;
       final selectedFile = File(selectedFilePath);
       // Show the loading dialog
@@ -124,7 +129,7 @@ Future<void> updateDatabaseFromFilePicker(BuildContext context) async {
 
       // Verify the file exists
       if (!await selectedFile.exists()) {
-        logger.e("Selected file does not exist.");
+        Vlogger.error("Selected file does not exist.");
         return;
       }
 
@@ -135,24 +140,21 @@ Future<void> updateDatabaseFromFilePicker(BuildContext context) async {
       // Copy the selected file to the app's directory
       await selectedFile.copy(destinationPath);
 
-      logger.i("Database file updated successfully!");
+      Vlogger.info("Database file updated successfully!");
 
       // Close the loading dialog
       if (context.mounted) {
         await DataManager().loadAllData();
-        await Future.delayed(const Duration(seconds: 3));
-        if (!context.mounted) return;
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const MyApp(),
-          ),
-          (Route<dynamic> route) => false,
+        Restart.restartApp(
+          notificationTitle: 'Database updated successfully!',
+          notificationBody: 'Please tap here to open the app again.',
         );
       }
     } else {
-      logger.e("No file selected.");
+      VHelperFunctions.showToasty(
+          message: 'Wrong file type', backgroundColor: Colors.red);
     }
   } catch (e) {
-    logger.e("Error updating database: $e");
+    Vlogger.error("Error updating database: $e");
   }
 }

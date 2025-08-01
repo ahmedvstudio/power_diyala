@@ -18,7 +18,6 @@ import 'package:power_diyala/settings/check_connectivity.dart';
 import 'package:power_diyala/settings/remote_config.dart';
 import 'package:power_diyala/data_helper/note_helper.dart';
 import 'package:power_diyala/screens/note_list_page.dart';
-import 'package:power_diyala/test/test_screen.dart';
 import 'package:power_diyala/settings/theme_control.dart';
 import 'package:power_diyala/settings/update_checker.dart';
 import 'package:power_diyala/widgets/widgets.dart';
@@ -118,7 +117,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _screens.add(
       Consumer<ThemeControl>(
         builder: (context, themeControl, child) {
-          return isCalculatorHere
+          return !isCalculatorHere
               ? CalculatorScreen(
                   themeMode: themeControl.themeMode,
                   onThemeChanged: (value) {
@@ -284,20 +283,6 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           ),
         ),
         actions: [
-          if (kDebugMode)
-            IconButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => Test(
-                          themeMode: themeControl.themeMode,
-                          onThemeChanged: (value) {
-                            themeControl.toggleTheme(value);
-                          },
-                        )));
-              },
-              icon: const Icon(Icons.code),
-              tooltip: 'test',
-            ),
           IconButton(
             onPressed: () async {
               Navigator.of(context).push(MaterialPageRoute(
@@ -326,33 +311,14 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                       snapshot.data!.length; // Count the number of notes
                 }
 
-                return Stack(
-                  children: [
-                    Icon(
-                      noteCount > 0
-                          ? Icons.notifications
-                          : Icons.notifications_none_rounded,
-                    ),
-                    if (noteCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: -2,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              '$noteCount',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 10),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
+                return Badge(
+                  isLabelVisible: noteCount > 0 ? true : false,
+                  label: noteCount > 0 ? Text('$noteCount') : null,
+                  child: Icon(
+                    noteCount > 0
+                        ? Icons.notifications
+                        : Icons.notifications_none_rounded,
+                  ),
                 );
               },
             ),
@@ -375,7 +341,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       ),
       body: Column(
         children: [
-          if (isBannerON)
+          if (!isBannerON)
             Container(
               padding:
                   const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -522,7 +488,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               backgroundColor: Colors.red,
               label: 'PM',
               onTap: () {
-                if (isPMsheetON) {
+                if (!isPMsheetON) {
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => PmSheetPage(
                       themeMode: themeControl.themeMode,

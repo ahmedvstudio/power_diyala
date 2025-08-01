@@ -50,3 +50,5 @@ app.*.map.json
 /flutter_jank_metrics_01.json
 /lib/test/
 /.vscode/settings.json
+/android/app/.cxx/
+/test/

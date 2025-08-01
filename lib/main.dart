@@ -1,19 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:logger/logger.dart';
 import 'package:power_diyala/data_helper/data_manager.dart';
 import 'package:power_diyala/firebase_options.dart';
-import 'package:power_diyala/screens/setup_screen.dart';
+import 'package:power_diyala/power_diyala.dart';
 import 'package:flutter/material.dart';
-import 'package:power_diyala/settings/check_connectivity.dart';
-import 'package:power_diyala/settings/constants.dart';
 import 'package:power_diyala/settings/notifications_services.dart';
 import 'package:power_diyala/settings/remote_config.dart';
-import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'settings/theme_control.dart';
+import 'core/utils/helpers/logger.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -21,81 +15,37 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
 
-  final Logger logger =
-      kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
+  // --> init .env
+  await dotenv.load(fileName: ".env");
 
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    logger.e('Error loading .env file: $e');
-  }
-
+  // --> load all the data
   await DataManager().loadAllData();
 
+  // --> init firebase
   try {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
   } catch (e) {
-    logger.e('Firebase initialization failed: $e');
+    Vlogger.error('Firebase initialization failed: $e');
   }
-  LocalNotificationService().requestNotificationPermission();
 
+  // -- > init local Notification
+  LocalNotificationService().requestNotificationPermission();
   LocalNotificationService().initNotification();
   tz.initializeTimeZones();
 
-  await fetchAndActivate();
+  // --> init Remote Config
   try {
-    await Supabase.initialize(
-      url: supabaseUrl,
-      anonKey: dotenv.env['SUPABASE_KEY'] ?? "",
-    );
+    await fetchAndActivate();
   } catch (e) {
-    logger.e("Supabase initialize error: $e");
+    Vlogger.error('Remote Config initialization failed: $e');
   }
 
+  // --> force Portrait
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((_) {
-    runApp(const MyApp());
-  });
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-    initialization();
-  }
-
-  void initialization() async {
-    await Future.delayed(const Duration(seconds: 1));
-    FlutterNativeSplash.remove();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeControl()),
-        ChangeNotifierProvider(create: (_) => ConnectivityService()),
-      ],
-      child: Consumer2<ThemeControl, ConnectivityService>(
-        builder: (context, themeControl, connectivityService, child) {
-          return MaterialApp(
-            title: 'Power Diyala',
-            theme: themeControl.appTheme(isDarkMode: false),
-            darkTheme: themeControl.appTheme(isDarkMode: true),
-            themeMode: themeControl.themeMode,
-            home: const SetupScreen(),
-          );
-        },
-      ),
+    runApp(
+      const PowerDiyala(),
     );
-  }
+  });
 }

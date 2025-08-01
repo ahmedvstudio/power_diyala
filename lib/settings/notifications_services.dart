@@ -170,8 +170,8 @@ class LocalNotificationService {
             ),
           ),
           payload: payLoad,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
+          // uiLocalNotificationDateInterpretation:
+          //     UILocalNotificationDateInterpretation.absoluteTime,
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         );
         logger.i('Notification scheduled successfully for ID: $id');

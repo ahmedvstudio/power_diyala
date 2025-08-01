@@ -1,20 +1,17 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:power_diyala/core/utils/helpers/helper_functions.dart';
 import 'package:power_diyala/data_helper/calc_table_helper.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:logger/logger.dart';
 
 class DatabaseHelper {
-  static Logger logger =
-      kDebugMode ? Logger() : Logger(printer: PrettyPrinter());
   static Database? _database;
 
   // Define constants for table names
@@ -131,11 +128,14 @@ class DBHelper {
 
   static Future<bool> pickAndReplaceDatabase(BuildContext context) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['bin'],
+      type: FileType.any,
     );
+    final String? outputFileExtension =
+        result?.files.single.extension.toString();
 
-    if (result != null && result.files.isNotEmpty) {
+    if (result != null &&
+        result.files.isNotEmpty &&
+        outputFileExtension == 'db') {
       String newDbPath = result.files.single.path!;
 
       if (!newDbPath.endsWith('.db')) {
@@ -180,7 +180,7 @@ class DBHelper {
         logger.e("Error replacing database: $e");
       }
     } else {
-      logger.e('No file selected.');
+      VHelperFunctions.showToasty(message: 'Wrong File Type');
     }
     return false;
   }
