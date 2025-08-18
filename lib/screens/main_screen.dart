@@ -117,7 +117,7 @@ class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _screens.add(
       Consumer<ThemeControl>(
         builder: (context, themeControl, child) {
-          return !isCalculatorHere
+          return isCalculatorHere
               ? CalculatorScreen(
                   themeMode: themeControl.themeMode,
                   onThemeChanged: (value) {
