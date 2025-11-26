@@ -590,8 +590,9 @@ class PmSheetPageState extends State<PmSheetPage> {
 
     // Check the value of _selectedSiteData['cp']
     if (_selectedSiteData?['cp'] == "Yes") {
-      baseText = isCpEnabled ?     "Gen Load checked on CP available"
-        : "The Load on CP not checked, CP was off";
+      baseText = isCpEnabled
+          ? "Gen Load checked on CP available"
+          : "The Load on CP not checked, CP was off";
     } else if (_selectedSiteData?['cp'] == "No") {
       baseText = "The Site without CP";
     } else {
