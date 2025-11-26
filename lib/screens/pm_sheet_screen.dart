@@ -555,7 +555,9 @@ class PmSheetPageState extends State<PmSheetPage> {
   void _updateComments() {
     String baseText;
     if (_selectedSiteData?['cp'] == "Yes") {
-      baseText = isCpEnabled ? "Gen Load on CP" : "CP load on Gen";
+      baseText = isCpEnabled
+          ? "Gen Load checked on CP available"
+          : "The Load on CP not checked, CP was off";
     } else if (_selectedSiteData?['cp'] == "No") {
       baseText = "The Site without CP";
     } else {

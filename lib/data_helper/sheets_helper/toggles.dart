@@ -211,7 +211,7 @@ class SeparatorSwitch {
                   onChanged(index, value);
                 }
               : null,
-          activeColor: isEnabled ? null : Colors.grey[400],
+          activeThumbColor: isEnabled ? null : Colors.grey[400],
         ),
       ],
     );
